@@ -16,14 +16,19 @@
             android:name=".authentication.ForgotPassword"
             android:exported="false" />
         <!-- Main Activity - Entry point of the app -->
+        <!-- Introduce Activity - Entry point of the app -->
         <activity
-            android:name=".MainActivity"
+            android:name=".Introduce.IntroduceActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <!-- Main Activity - Entry point of the app -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="false">
         </activity> <!-- Login Activity - Authentication screen -->
         <activity
             android:name=".authentication.Login"
