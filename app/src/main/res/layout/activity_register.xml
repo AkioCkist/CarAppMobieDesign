@@ -17,7 +17,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Welcome\nback"
+        android:text="Create\naccount"
         android:textColor="@color/white"
         android:textSize="48sp"
         android:fontFamily="@font/notosans_bold"
@@ -25,17 +25,31 @@
         android:layout_marginBottom="8dp" />
 
     <!-- Subtitle -->
-
-    <!-- Email Input -->
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="40dp"
-        android:text="Sign in to continue"
+        android:text="Fill in your details to register"
         android:fontFamily="@font/notosans_semibold"
         android:textColor="@color/text_secondary"
         android:textSize="20sp" />
 
+    <!-- Name Input -->
+    <EditText
+        android:id="@+id/editTextName"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:background="@drawable/input_background"
+        android:hint="Full Name"
+        android:textColorHint="@color/text_hint"
+        android:textColor="@color/white"
+        android:textSize="16sp"
+        android:inputType="textPersonName"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Email Input -->
     <EditText
         android:id="@+id/editTextEmail"
         android:layout_width="match_parent"
@@ -65,22 +79,22 @@
         android:paddingEnd="20dp"
         android:layout_marginBottom="16dp" />
 
-    <!-- Pincode Input -->
+    <!-- Confirm Password Input -->
     <EditText
-        android:id="@+id/editTextPincode"
+        android:id="@+id/editTextConfirmPassword"
         android:layout_width="match_parent"
         android:layout_height="56dp"
         android:background="@drawable/input_background"
-        android:hint="Pincode"
+        android:hint="Confirm Password"
         android:textColorHint="@color/text_hint"
         android:textColor="@color/white"
         android:textSize="16sp"
-        android:inputType="number"
+        android:inputType="textPassword"
         android:paddingStart="20dp"
         android:paddingEnd="20dp"
         android:layout_marginBottom="24dp" />
 
-    <!-- Remember Me and Forgot Password Row -->
+    <!-- Terms and Conditions Checkbox -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -89,41 +103,30 @@
         android:layout_marginBottom="32dp">
 
         <CheckBox
-            android:id="@+id/checkBoxRememberMe"
+            android:id="@+id/checkBoxTerms"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Remember me"
-            android:textColor="@color/white"
-            android:textSize="14sp"
-            android:buttonTint="@color/accent_green"
-            android:checked="true" />
-
-        <View
-            android:layout_width="0dp"
-            android:layout_height="1dp"
-            android:layout_weight="1" />
+            android:buttonTint="@color/accent_green" />
 
         <TextView
-            android:id="@+id/textViewForgotPassword"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Forgot password?"
-            android:textColor="@color/text_secondary"
+            android:text="I agree to the Terms and Conditions"
+            android:textColor="@color/white"
             android:textSize="14sp"
+            android:layout_marginStart="8dp"
             android:clickable="true"
             android:focusable="true"
-            android:background="?android:attr/selectableItemBackground"
-            android:padding="8dp" />
-
+            android:onClick="onTermsTextClicked"/>
     </LinearLayout>
 
-    <!-- Sign In Button -->
+    <!-- Register Button -->
     <Button
-        android:id="@+id/buttonSignIn"
+        android:id="@+id/buttonRegister"
         android:layout_width="match_parent"
         android:layout_height="56dp"
         android:background="@drawable/button_primary"
-        android:text="Sign In"
+        android:text="Register"
         android:textColor="@color/black"
         android:textSize="16sp"
         android:layout_marginBottom="16dp"
@@ -131,21 +134,7 @@
         android:fontFamily="@font/notosans_semibold"
         style="@style/Widget.AppCompat.Button.Borderless" />
 
-    <!-- Sign In with Mobile Button -->
-    <Button
-        android:id="@+id/buttonSignInWithMobile"
-        android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:background="@drawable/button_outline"
-        android:text="Sign in with Mobile Number"
-        android:textColor="@color/white"
-        android:textSize="16sp"
-        android:layout_marginBottom="48dp"
-        android:elevation="0dp"
-        android:fontFamily="@font/notosans_semibold"
-        style="@style/Widget.AppCompat.Button.Borderless" />
-
-    <!-- Sign Up Text -->
+    <!-- Already have an account Text -->
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -155,15 +144,15 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Don't have an account? "
+            android:text="Already have an account? "
             android:textColor="@color/white"
             android:textSize="16sp" />
 
         <TextView
-            android:id="@+id/textViewSignUp"
+            android:id="@+id/textViewLogin"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Sign up"
+            android:text="Sign in"
             android:textColor="@color/accent_green"
             android:textSize="16sp"
             android:textStyle="bold"
@@ -171,7 +160,5 @@
             android:focusable="true"
             android:background="?android:attr/selectableItemBackground"
             android:padding="8dp" />
-
     </LinearLayout>
-
 </LinearLayout>
