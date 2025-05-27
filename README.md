@@ -90,8 +90,8 @@ app/
 
 1. Clone the repository
 ```
-git clone https://github.com/YourUsername/WhaleXeMobile.git
-cd WhaleXeMobile
+git clone https://github.com/AkioCkist/CarAppMobieDesign.git
+cd MobileDesignFinalTerm
 ```
 2. Open in Android Studio
 
