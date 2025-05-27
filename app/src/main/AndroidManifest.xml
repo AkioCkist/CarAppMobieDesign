@@ -12,31 +12,30 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MobileDesignFinalTerm"
         tools:targetApi="31">
-
-        <!-- Main Activity - Entry point of the app -->
+        <!-- Introduce Activity - Entry point of the app -->
         <activity
-            android:name=".MainActivity"
+            android:name=".Introduce.IntroduceActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <!-- Login Activity - Authentication screen -->
+        <!-- Main Activity - Entry point of the app -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="false">
+        </activity> <!-- Login Activity - Authentication screen -->
         <activity
             android:name=".authentication.Login"
             android:exported="false"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustResize" />
-
-        <!-- Register Activity - Registration screen -->
+            android:windowSoftInputMode="adjustResize" /> <!-- Register Activity - Registration screen -->
         <activity
             android:name=".authentication.Register"
             android:exported="false"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustResize" />
-
     </application>
 
 </manifest>
