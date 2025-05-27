@@ -2,6 +2,7 @@ package com.midterm.mobiledesignfinalterm.authentication;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -16,7 +17,10 @@ public class ForgotPassword extends AppCompatActivity {
 
     private EditText editTextEmail;
     private Button buttonSend;
+    private Button buttonResend;
     private ImageView imageViewBack;
+    private CountDownTimer countDownTimer;
+    private boolean isEmailSent = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +40,7 @@ public class ForgotPassword extends AppCompatActivity {
     private void initializeViews() {
         editTextEmail = findViewById(R.id.editTextEmail);
         buttonSend = findViewById(R.id.buttonSend);
+        buttonResend = findViewById(R.id.buttonResend);
         imageViewBack = findViewById(R.id.imageViewBack);
     }
 
@@ -44,6 +49,13 @@ public class ForgotPassword extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 handleSendResetLink();
+            }
+        });
+
+        buttonResend.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                handleResendResetLink();
             }
         });
 
@@ -73,17 +85,67 @@ public class ForgotPassword extends AppCompatActivity {
         // Add your forgot password logic here
         Toast.makeText(this, "Password reset link sent to " + email, Toast.LENGTH_LONG).show();
 
-        // Optionally go back to login screen after successful request
-        finish();
+        // Show resend button and start countdown
+        isEmailSent = true;
+        buttonResend.setVisibility(View.VISIBLE);
+        startCountdown();
+    }
+
+    private void handleResendResetLink() {
+        String email = editTextEmail.getText().toString().trim();
+
+        // Add your resend logic here
+        Toast.makeText(this, "Password reset link resent to " + email, Toast.LENGTH_LONG).show();
+
+        // Restart countdown
+        startCountdown();
+    }
+
+    private void startCountdown() {
+        // Cancel any existing timer
+        if (countDownTimer != null) {
+            countDownTimer.cancel();
+        }
+
+        buttonResend.setEnabled(false);
+
+        countDownTimer = new CountDownTimer(15000, 1000) {
+            @Override
+            public void onTick(long millisUntilFinished) {
+                long secondsRemaining = millisUntilFinished / 1000;
+                buttonResend.setText("Resend (" + secondsRemaining + "s)");
+            }
+
+            @Override
+            public void onFinish() {
+                buttonResend.setText("Resend");
+                buttonResend.setEnabled(true);
+            }
+        };
+
+        countDownTimer.start();
     }
 
     private void handleBackPress() {
+        // Cancel timer if running
+        if (countDownTimer != null) {
+            countDownTimer.cancel();
+        }
         finish();
     }
 
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        finish();
+        handleBackPress();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // Cancel timer to prevent memory leaks
+        if (countDownTimer != null) {
+            countDownTimer.cancel();
+        }
     }
 }
