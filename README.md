@@ -1,10 +1,10 @@
 # Whale Xe - Mobile Rental App (Android)
 
-![Whale Xe](logo.png)
+![Whale Xe](https://images.vexels.com/media/users/3/144355/isolated/lists/0a53cf7ef3dcdc995f7f20c13c697a25-speed-car-lines-logo.png)
 
 *Drive Your Journey with Effortless Car Rentals – On Mobile*
 
-![Last Commit](https://img.shields.io/github/last-commit/YourUsername/WhaleXeMobile?style=flat-square)
+![Last Commit](https://img.shields.io/github/last-commit/AkioCkist/CarAppMobieDesign?style=flat-square)
 ![Java](https://img.shields.io/badge/Java-Android-blue?style=flat-square)
 ![Kotlin](https://img.shields.io/badge/Kotlin-Ready-orange?style=flat-square)
 ![Android Studio](https://img.shields.io/badge/Android%20Studio-Built-green?style=flat-square)
