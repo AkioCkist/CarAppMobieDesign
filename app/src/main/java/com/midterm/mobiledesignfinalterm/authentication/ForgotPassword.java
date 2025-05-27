@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -15,6 +17,9 @@ import com.midterm.mobiledesignfinalterm.R;
 
 public class ForgotPassword extends AppCompatActivity {
 
+
+
+
     private EditText editTextEmail;
     private Button buttonSend;
     private Button buttonResend;
@@ -24,6 +29,8 @@ public class ForgotPassword extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        View rootView = findViewById(android.R.id.content);
+        playPopupAnimation(rootView);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_forgot_password);
 
@@ -37,6 +44,10 @@ public class ForgotPassword extends AppCompatActivity {
         setupClickListeners();
     }
 
+    private void playPopupAnimation(View view) {
+        Animation popupAnimation = AnimationUtils.loadAnimation(this, R.anim.popup_animation);
+        view.startAnimation(popupAnimation);
+    }
     private void initializeViews() {
         editTextEmail = findViewById(R.id.editTextEmail);
         buttonSend = findViewById(R.id.buttonSend);

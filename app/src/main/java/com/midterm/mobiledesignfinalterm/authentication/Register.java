@@ -2,6 +2,8 @@ package com.midterm.mobiledesignfinalterm.authentication;
 
 import android.os.Bundle;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -14,6 +16,9 @@ import com.midterm.mobiledesignfinalterm.R;
 
 public class Register extends AppCompatActivity {
 
+
+
+
     private EditText editTextName;
     private EditText editTextEmail;
     private EditText editTextPassword;
@@ -24,6 +29,8 @@ public class Register extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        View rootView = findViewById(android.R.id.content);
+        playPopupAnimation(rootView);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
 
@@ -35,6 +42,10 @@ public class Register extends AppCompatActivity {
 
         initializeViews();
         setupClickListeners();
+    }
+    private void playPopupAnimation(View view) {
+        Animation popupAnimation = AnimationUtils.loadAnimation(this, R.anim.popup_animation);
+        view.startAnimation(popupAnimation);
     }
 
     private void initializeViews() {
