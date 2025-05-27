@@ -113,8 +113,8 @@ public class Login extends AppCompatActivity {
     }
 
     private void handleForgotPassword() {
-        Toast.makeText(this, "Forgot password clicked", Toast.LENGTH_SHORT).show();
-        // Add your forgot password logic here
+        Intent intent = new Intent(Login.this, ForgotPassword.class);
+        startActivity(intent);
     }
 
     private void handleSignUp() {
