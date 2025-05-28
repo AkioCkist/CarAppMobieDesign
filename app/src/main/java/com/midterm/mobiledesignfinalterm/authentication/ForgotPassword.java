@@ -43,6 +43,25 @@ public class ForgotPassword extends AppCompatActivity {
         initializeViews();
         setupClickListeners();
     }
+    private void animateButtonClick(View button, Runnable onComplete) {
+// Scale animation for button press feedback
+        button.animate()
+                .scaleX(0.95f)
+                .scaleY(0.95f)
+                .setDuration(70)
+                .withEndAction(new Runnable() {
+                    @Override
+                    public void run() {
+                        button.animate()
+                                .scaleX(1f)
+                                .scaleY(1f)
+                                .setDuration(100)
+                                .withEndAction(onComplete)
+                                .start();
+                    }
+                })
+                .start();
+    }
 
     private void playPopupAnimation(View view) {
         Animation popupAnimation = AnimationUtils.loadAnimation(this, R.anim.popup_animation);
@@ -59,14 +78,24 @@ public class ForgotPassword extends AppCompatActivity {
         buttonSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                handleSendResetLink();
+                animateButtonClick(v, new Runnable() {
+                    @Override
+                    public void run() {
+                        handleSendResetLink();
+                    }
+                });
             }
         });
 
         buttonResend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                handleResendResetLink();
+                animateButtonClick(v, new Runnable() {
+                    @Override
+                    public void run() {
+                        handleResendResetLink();
+                    }
+                });
             }
         });
 

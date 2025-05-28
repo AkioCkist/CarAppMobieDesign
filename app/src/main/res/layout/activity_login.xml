@@ -25,8 +25,6 @@
         android:layout_marginBottom="8dp" />
 
     <!-- Subtitle -->
-
-    <!-- Email Input -->
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -36,49 +34,57 @@
         android:textColor="@color/text_secondary"
         android:textSize="20sp" />
 
+    <!-- Phone Number Input -->
     <EditText
-        android:id="@+id/editTextEmail"
+        android:id="@+id/editTextPhoneNumber"
         android:layout_width="match_parent"
         android:layout_height="56dp"
         android:background="@drawable/input_background"
-        android:hint="johndoe@mail.com"
+        android:hint="Phone number"
         android:textColorHint="@color/text_hint"
         android:textColor="@color/white"
         android:textSize="16sp"
-        android:inputType="textEmailAddress"
+        android:inputType="phone"
         android:paddingStart="20dp"
         android:paddingEnd="20dp"
         android:layout_marginBottom="16dp" />
 
-    <!-- Password Input -->
-    <EditText
-        android:id="@+id/editTextPassword"
+    <!-- Password Input with Toggle Button - FIXED -->
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="56dp"
-        android:background="@drawable/input_background"
-        android:hint="Password"
-        android:textColorHint="@color/text_hint"
-        android:textColor="@color/white"
-        android:textSize="16sp"
-        android:inputType="textPassword"
-        android:paddingStart="20dp"
-        android:paddingEnd="20dp"
-        android:layout_marginBottom="16dp" />
+        android:layout_marginBottom="24dp">
 
-    <!-- Pincode Input -->
-    <EditText
-        android:id="@+id/editTextPincode"
-        android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:background="@drawable/input_background"
-        android:hint="Pincode"
-        android:textColorHint="@color/text_hint"
-        android:textColor="@color/white"
-        android:textSize="16sp"
-        android:inputType="number"
-        android:paddingStart="20dp"
-        android:paddingEnd="20dp"
-        android:layout_marginBottom="24dp" />
+        <EditText
+            android:id="@+id/editTextPassword"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/input_background"
+            android:hint="Password"
+            android:textColorHint="@color/text_hint"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            android:inputType="textPassword"
+            android:paddingStart="20dp"
+            android:paddingEnd="60dp" />
+
+        <ImageButton
+            android:id="@+id/buttonTogglePassword"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="4dp"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_eye_off"
+            android:contentDescription="Toggle password visibility"
+            android:scaleType="centerInside"
+            android:padding="12dp"
+            android:tint="@color/text_hint"
+            android:clickable="true"
+            android:focusable="true" />
+
+    </RelativeLayout>
 
     <!-- Remember Me and Forgot Password Row -->
     <LinearLayout

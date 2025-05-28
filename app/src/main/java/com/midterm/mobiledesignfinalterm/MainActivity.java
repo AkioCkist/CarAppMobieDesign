@@ -82,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
         button.animate()
                 .scaleX(0.95f)
                 .scaleY(0.95f)
-                .setDuration(100)
+                .setDuration(70)
                 .withEndAction(new Runnable() {
                     @Override
                     public void run() {

@@ -4,12 +4,15 @@ import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.method.HideReturnsTransformationMethod;
+import android.text.method.PasswordTransformationMethod;
 import android.view.View;
 import android.view.animation.BounceInterpolator;
 import android.view.animation.OvershootInterpolator;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
@@ -17,16 +20,33 @@ import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
 import com.midterm.mobiledesignfinalterm.R;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.List;
+
 public class Login extends AppCompatActivity {
 
-    private EditText editTextEmail;
+    private EditText editTextPhoneNumber;
     private EditText editTextPassword;
-    private EditText editTextPincode;
+    private ImageButton buttonTogglePassword;
     private CheckBox checkBoxRememberMe;
     private Button buttonSignIn;
-    private Button buttonSignInWithMobile;
     private TextView textViewForgotPassword;
     private TextView textViewSignUp;
+
+    private boolean isPasswordVisible = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,18 +62,107 @@ public class Login extends AppCompatActivity {
         initializeViews();
         setupClickListeners();
         setupFocusListeners();
+        setupPasswordToggle();
 
         // Initial entrance animation for all elements
         animateInitialEntrance();
+        buttonSignIn.setOnClickListener(v -> handleSignIn());
+    }
+
+    private void setupPasswordToggle() {
+        buttonTogglePassword.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                togglePasswordVisibility();
+            }
+        });
+    }
+
+    private void togglePasswordVisibility() {
+        if (isPasswordVisible) {
+            // Hide password
+            editTextPassword.setTransformationMethod(PasswordTransformationMethod.getInstance());
+            buttonTogglePassword.setImageResource(R.drawable.ic_eye_off); // You'll need this drawable
+            isPasswordVisible = false;
+        } else {
+            // Show password
+            editTextPassword.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
+            buttonTogglePassword.setImageResource(R.drawable.ic_eye_on); // You'll need this drawable
+            isPasswordVisible = true;
+        }
+
+        // Move cursor to end of text
+        editTextPassword.setSelection(editTextPassword.getText().length());
+
+        // Animate the toggle button
+        animatePasswordToggle(buttonTogglePassword);
+    }
+
+    private void animatePasswordToggle(View view) {
+        // Rotate and scale animation for password toggle
+        ObjectAnimator rotation = ObjectAnimator.ofFloat(view, "rotation", 0f, 360f);
+        ObjectAnimator scaleX = ObjectAnimator.ofFloat(view, "scaleX", 1f, 1.2f, 1f);
+        ObjectAnimator scaleY = ObjectAnimator.ofFloat(view, "scaleY", 1f, 1.2f, 1f);
+
+        AnimatorSet animatorSet = new AnimatorSet();
+        animatorSet.playTogether(rotation, scaleX, scaleY);
+        animatorSet.setDuration(300);
+        animatorSet.setInterpolator(new OvershootInterpolator(1.1f));
+        animatorSet.start();
+    }
+
+    private void attemptLogin(String phoneNumber, String password) {
+        new Thread(() -> {
+            try {
+                Connection conn = DriverManager.getConnection("jdbc:mysql://your-db-url/dbname", "root", "");
+
+                String sql = "SELECT a.account_id, r.role_name FROM accounts a " +
+                        "JOIN account_roles ar ON a.account_id = ar.account_id " +
+                        "JOIN roles r ON ar.role_id = r.role_id " +
+                        "WHERE a.phone_number = ? AND a.password = ?";
+
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                stmt.setString(1, phoneNumber);
+                stmt.setString(2, password);
+
+                ResultSet rs = stmt.executeQuery();
+
+                List<String> roles = new ArrayList<>();
+                while (rs.next()) {
+                    roles.add(rs.getString("role_name"));
+                }
+
+                conn.close();
+
+                runOnUiThread(() -> {
+                    if (roles.isEmpty()) {
+                        // ⚠️ Invalid login
+                        editTextPhoneNumber.setError("Incorrect phone number or password");
+                        editTextPhoneNumber.requestFocus();
+                        animateErrorShake(editTextPhoneNumber);
+                        animateErrorShake(editTextPassword);
+                        Toast.makeText(this, "Login failed: incorrect credentials", Toast.LENGTH_SHORT).show();
+                    } else {
+                        for (String role : roles) {
+                            Toast.makeText(this, "Welcome " + role, Toast.LENGTH_SHORT).show();
+                        }
+                        // ✅ You can redirect to another screen here
+                    }
+                });
+
+            } catch (Exception e) {
+                runOnUiThread(() -> Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show());
+                e.printStackTrace();
+            }
+        }).start();
     }
 
     private void initializeViews() {
-        editTextEmail = findViewById(R.id.editTextEmail);
+        editTextPhoneNumber = findViewById(R.id.editTextPhoneNumber);
         editTextPassword = findViewById(R.id.editTextPassword);
-        editTextPincode = findViewById(R.id.editTextPincode);
+        buttonTogglePassword = findViewById(R.id.buttonTogglePassword);
         checkBoxRememberMe = findViewById(R.id.checkBoxRememberMe);
         buttonSignIn = findViewById(R.id.buttonSignIn);
-        buttonSignInWithMobile = findViewById(R.id.buttonSignInWithMobile);
         textViewForgotPassword = findViewById(R.id.textViewForgotPassword);
         textViewSignUp = findViewById(R.id.textViewSignUp);
     }
@@ -64,14 +173,6 @@ public class Login extends AppCompatActivity {
             public void onClick(View v) {
                 animateButtonClick(v);
                 handleSignIn();
-            }
-        });
-
-        buttonSignInWithMobile.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                animateButtonClick(v);
-                handleSignInWithMobile();
             }
         });
 
@@ -100,8 +201,8 @@ public class Login extends AppCompatActivity {
     }
 
     private void setupFocusListeners() {
-        // Email field focus animation
-        editTextEmail.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+        // Phone number field focus animation
+        editTextPhoneNumber.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (hasFocus) {
@@ -123,24 +224,12 @@ public class Login extends AppCompatActivity {
                 }
             }
         });
-
-        // Pincode field focus animation
-        editTextPincode.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if (hasFocus) {
-                    animateEditTextFocus(v, true);
-                } else {
-                    animateEditTextFocus(v, false);
-                }
-            }
-        });
     }
 
     // Animation Methods
     private void animateInitialEntrance() {
-        View[] views = {editTextEmail, editTextPassword, editTextPincode,
-                checkBoxRememberMe, buttonSignIn, buttonSignInWithMobile,
+        View[] views = {editTextPhoneNumber, editTextPassword, buttonTogglePassword,
+                checkBoxRememberMe, buttonSignIn,
                 textViewForgotPassword, textViewSignUp};
 
         for (int i = 0; i < views.length; i++) {
@@ -228,15 +317,22 @@ public class Login extends AppCompatActivity {
         shake.start();
     }
 
-    private void handleSignIn() {
-        String email = editTextEmail.getText().toString().trim();
+    public void handleSignIn() {
+        String phoneNumber = editTextPhoneNumber.getText().toString().trim();
         String password = editTextPassword.getText().toString().trim();
-        String pincode = editTextPincode.getText().toString().trim();
 
-        if (email.isEmpty()) {
-            editTextEmail.setError("Email is required");
-            editTextEmail.requestFocus();
-            animateErrorShake(editTextEmail);
+        if (phoneNumber.isEmpty()) {
+            editTextPhoneNumber.setError("Phone number is required");
+            editTextPhoneNumber.requestFocus();
+            animateErrorShake(editTextPhoneNumber);
+            return;
+        }
+
+        String phoneRegex = "^[+]?[0-9]{10,13}$";
+        if (!phoneNumber.matches(phoneRegex)) {
+            editTextPhoneNumber.setError("Please enter a valid phone number");
+            editTextPhoneNumber.requestFocus();
+            animateErrorShake(editTextPhoneNumber);
             return;
         }
 
@@ -247,14 +343,7 @@ public class Login extends AppCompatActivity {
             return;
         }
 
-        if (pincode.isEmpty()) {
-            editTextPincode.setError("Pincode is required");
-            editTextPincode.requestFocus();
-            animateErrorShake(editTextPincode);
-            return;
-        }
-
-        // Success animation for sign-in button
+        // ✅ Animate Sign In
         ObjectAnimator pulse = ObjectAnimator.ofFloat(buttonSignIn, "scaleX", 1f, 1.1f, 1f);
         ObjectAnimator pulseY = ObjectAnimator.ofFloat(buttonSignIn, "scaleY", 1f, 1.1f, 1f);
         AnimatorSet pulseSet = new AnimatorSet();
@@ -262,16 +351,54 @@ public class Login extends AppCompatActivity {
         pulseSet.setDuration(200);
         pulseSet.start();
 
-        Toast.makeText(this, "Signing in...", Toast.LENGTH_SHORT).show();
-    }
+        // ✅ Send JSON POST request
+        new Thread(() -> {
+            try {
+                URL url = new URL("http://10.0.2.2/myapi/login.php");
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("POST");
+                conn.setRequestProperty("Content-Type", "application/json; utf-8");
+                conn.setRequestProperty("Accept", "application/json");
+                conn.setDoOutput(true);
 
-    private void handleSignInWithMobile() {
-        // Animate button before showing toast
-        ObjectAnimator wave = ObjectAnimator.ofFloat(buttonSignInWithMobile, "rotation", 0f, 5f, -5f, 0f);
-        wave.setDuration(300);
-        wave.start();
+                // Prepare JSON payload
+                String jsonInputString = "{\"phone_number\":\"" + phoneNumber + "\", \"password\":\"" + password + "\"}";
 
-        Toast.makeText(this, "Sign in with mobile number", Toast.LENGTH_SHORT).show();
+                // Send data
+                try (OutputStream os = conn.getOutputStream()) {
+                    byte[] input = jsonInputString.getBytes("utf-8");
+                    os.write(input, 0, input.length);
+                }
+
+                // Read response
+                BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream(), "utf-8"));
+                StringBuilder response = new StringBuilder();
+                String responseLine;
+                while ((responseLine = br.readLine()) != null) {
+                    response.append(responseLine.trim());
+                }
+
+                // Parse JSON result
+                JSONObject result = new JSONObject(response.toString());
+
+                runOnUiThread(() -> {
+                    try {
+                        if (result.getBoolean("success")) {
+                            Toast.makeText(Login.this, "Login successful!", Toast.LENGTH_SHORT).show();
+                            // TODO: Navigate to main screen or save user session
+                        } else {
+                            Toast.makeText(Login.this, "Phone number or password is incorrect", Toast.LENGTH_SHORT).show();
+                        }
+                    } catch (JSONException e) {
+                        Toast.makeText(Login.this, "Invalid server response", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                runOnUiThread(() -> Toast.makeText(Login.this, "Network error: " + e.getMessage(), Toast.LENGTH_LONG).show());
+            }
+        }).start();
     }
 
     private void handleForgotPassword() {

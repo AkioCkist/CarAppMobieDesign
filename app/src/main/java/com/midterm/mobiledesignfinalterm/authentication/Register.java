@@ -15,10 +15,6 @@ import androidx.core.view.WindowInsetsControllerCompat;
 import com.midterm.mobiledesignfinalterm.R;
 
 public class Register extends AppCompatActivity {
-
-
-
-
     private EditText editTextName;
     private EditText editTextEmail;
     private EditText editTextPassword;
@@ -47,6 +43,25 @@ public class Register extends AppCompatActivity {
         Animation popupAnimation = AnimationUtils.loadAnimation(this, R.anim.popup_animation);
         view.startAnimation(popupAnimation);
     }
+    private void animateButtonClick(View button, Runnable onComplete) {
+        // Scale animation for button press feedback
+        button.animate()
+                .scaleX(0.95f)
+                .scaleY(0.95f)
+                .setDuration(70)
+                .withEndAction(new Runnable() {
+                    @Override
+                    public void run() {
+                        button.animate()
+                                .scaleX(1f)
+                                .scaleY(1f)
+                                .setDuration(100)
+                                .withEndAction(onComplete)
+                                .start();
+                    }
+                })
+                .start();
+    }
 
     private void initializeViews() {
         editTextName = findViewById(R.id.editTextName);
@@ -62,7 +77,13 @@ public class Register extends AppCompatActivity {
         buttonRegister.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                handleRegister();
+                // Add click animation
+                animateButtonClick(v, new Runnable() {
+                    @Override
+                    public void run() {
+                        handleRegister();
+                    }
+                });
             }
         });
 
