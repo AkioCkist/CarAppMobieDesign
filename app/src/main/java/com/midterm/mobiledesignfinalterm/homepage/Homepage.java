@@ -1,4 +1,4 @@
-package com.midterm.mobiledesignfinalterm;
+package com.midterm.mobiledesignfinalterm.homepage;
 
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
@@ -19,7 +19,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.midterm.mobiledesignfinalterm.R;
 import com.midterm.mobiledesignfinalterm.authentication.Login;
 
-import android.animation.AnimatorListenerAdapter;
 import android.widget.Toast;
 
 import java.util.ArrayList;

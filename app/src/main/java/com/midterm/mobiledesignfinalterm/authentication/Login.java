@@ -19,7 +19,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
 
-import com.midterm.mobiledesignfinalterm.Homepage;
+import com.midterm.mobiledesignfinalterm.homepage.Homepage;
 import com.midterm.mobiledesignfinalterm.R;
 
 import org.json.JSONException;
