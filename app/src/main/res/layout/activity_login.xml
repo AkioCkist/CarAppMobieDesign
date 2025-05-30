@@ -136,21 +136,6 @@
         android:elevation="0dp"
         android:fontFamily="@font/notosans_semibold"
         style="@style/Widget.AppCompat.Button.Borderless" />
-
-    <!-- Sign In with Mobile Button -->
-    <Button
-        android:id="@+id/buttonSignInWithMobile"
-        android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:background="@drawable/button_outline"
-        android:text="Sign in with Mobile Number"
-        android:textColor="@color/white"
-        android:textSize="16sp"
-        android:layout_marginBottom="48dp"
-        android:elevation="0dp"
-        android:fontFamily="@font/notosans_semibold"
-        style="@style/Widget.AppCompat.Button.Borderless" />
-
     <!-- Sign Up Text -->
     <LinearLayout
         android:layout_width="wrap_content"

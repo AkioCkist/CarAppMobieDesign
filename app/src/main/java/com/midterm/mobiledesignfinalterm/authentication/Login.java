@@ -18,6 +18,8 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
+
+import com.midterm.mobiledesignfinalterm.Homepage;
 import com.midterm.mobiledesignfinalterm.R;
 
 import org.json.JSONException;
@@ -28,13 +30,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLEncoder;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.util.ArrayList;
-import java.util.List;
 
 public class Login extends AppCompatActivity {
 
@@ -64,9 +59,6 @@ public class Login extends AppCompatActivity {
         setupFocusListeners();
         setupPasswordToggle();
 
-        // Initial entrance animation for all elements
-        animateInitialEntrance();
-        buttonSignIn.setOnClickListener(v -> handleSignIn());
     }
 
     private void setupPasswordToggle() {
@@ -111,52 +103,6 @@ public class Login extends AppCompatActivity {
         animatorSet.start();
     }
 
-    private void attemptLogin(String phoneNumber, String password) {
-        new Thread(() -> {
-            try {
-                Connection conn = DriverManager.getConnection("jdbc:mysql://your-db-url/dbname", "root", "");
-
-                String sql = "SELECT a.account_id, r.role_name FROM accounts a " +
-                        "JOIN account_roles ar ON a.account_id = ar.account_id " +
-                        "JOIN roles r ON ar.role_id = r.role_id " +
-                        "WHERE a.phone_number = ? AND a.password = ?";
-
-                PreparedStatement stmt = conn.prepareStatement(sql);
-                stmt.setString(1, phoneNumber);
-                stmt.setString(2, password);
-
-                ResultSet rs = stmt.executeQuery();
-
-                List<String> roles = new ArrayList<>();
-                while (rs.next()) {
-                    roles.add(rs.getString("role_name"));
-                }
-
-                conn.close();
-
-                runOnUiThread(() -> {
-                    if (roles.isEmpty()) {
-                        // ⚠️ Invalid login
-                        editTextPhoneNumber.setError("Incorrect phone number or password");
-                        editTextPhoneNumber.requestFocus();
-                        animateErrorShake(editTextPhoneNumber);
-                        animateErrorShake(editTextPassword);
-                        Toast.makeText(this, "Login failed: incorrect credentials", Toast.LENGTH_SHORT).show();
-                    } else {
-                        for (String role : roles) {
-                            Toast.makeText(this, "Welcome " + role, Toast.LENGTH_SHORT).show();
-                        }
-                        // ✅ You can redirect to another screen here
-                    }
-                });
-
-            } catch (Exception e) {
-                runOnUiThread(() -> Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show());
-                e.printStackTrace();
-            }
-        }).start();
-    }
-
     private void initializeViews() {
         editTextPhoneNumber = findViewById(R.id.editTextPhoneNumber);
         editTextPassword = findViewById(R.id.editTextPassword);
@@ -171,8 +117,7 @@ public class Login extends AppCompatActivity {
         buttonSignIn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                animateButtonClick(v);
-                handleSignIn();
+                animateButtonClick(v, () -> handleSignIn());
             }
         });
 
@@ -271,17 +216,20 @@ public class Login extends AppCompatActivity {
         }
     }
 
-    private void animateButtonClick(View view) {
-        // Button click popup effect
-        ObjectAnimator scaleX = ObjectAnimator.ofFloat(view, "scaleX", 1f, 0.95f, 1.1f, 1f);
-        ObjectAnimator scaleY = ObjectAnimator.ofFloat(view, "scaleY", 1f, 0.95f, 1.1f, 1f);
-        ObjectAnimator elevation = ObjectAnimator.ofFloat(view, "elevation", 4f, 12f, 4f);
-
-        AnimatorSet animatorSet = new AnimatorSet();
-        animatorSet.playTogether(scaleX, scaleY, elevation);
-        animatorSet.setDuration(400);
-        animatorSet.setInterpolator(new BounceInterpolator());
-        animatorSet.start();
+    private void animateButtonClick(View button, Runnable onComplete) {
+        button.animate()
+                .scaleX(0.95f)
+                .scaleY(0.95f)
+                .setDuration(70)
+                .withEndAction(() -> {
+                    button.animate()
+                            .scaleX(1f)
+                            .scaleY(1f)
+                            .setDuration(100)
+                            .withEndAction(onComplete)
+                            .start();
+                })
+                .start();
     }
 
     private void animateTextClick(View view) {
@@ -343,14 +291,6 @@ public class Login extends AppCompatActivity {
             return;
         }
 
-        // ✅ Animate Sign In
-        ObjectAnimator pulse = ObjectAnimator.ofFloat(buttonSignIn, "scaleX", 1f, 1.1f, 1f);
-        ObjectAnimator pulseY = ObjectAnimator.ofFloat(buttonSignIn, "scaleY", 1f, 1.1f, 1f);
-        AnimatorSet pulseSet = new AnimatorSet();
-        pulseSet.playTogether(pulse, pulseY);
-        pulseSet.setDuration(200);
-        pulseSet.start();
-
         // ✅ Send JSON POST request
         new Thread(() -> {
             try {
@@ -381,22 +321,85 @@ public class Login extends AppCompatActivity {
                 // Parse JSON result
                 JSONObject result = new JSONObject(response.toString());
 
+                // ✅ Debug: Print the full response to see what we received
+                System.out.println("Full API Response: " + response.toString());
+
                 runOnUiThread(() -> {
                     try {
                         if (result.getBoolean("success")) {
-                            Toast.makeText(Login.this, "Login successful!", Toast.LENGTH_SHORT).show();
-                            // TODO: Navigate to main screen or save user session
+                            // ✅ Extract user object from API response
+                            JSONObject userObject = result.getJSONObject("user");
+
+                            // ✅ Get user data from the user object
+                            // Try different possible field names for username
+                            String userName = "";
+                            if (userObject.has("name")) {
+                                userName = userObject.getString("name");
+                            } else if (userObject.has("username")) {
+                                userName = userObject.getString("username");
+                            } else if (userObject.has("full_name")) {
+                                userName = userObject.getString("full_name");
+                            } else if (userObject.has("first_name")) {
+                                userName = userObject.getString("first_name");
+                            }
+
+                            String userPhone = userObject.optString("phone_number", phoneNumber);
+                            String userId = userObject.optString("id", "");
+
+                            // ✅ Debug: Print what we extracted
+                            System.out.println("Extracted user data:");
+                            System.out.println("Username: '" + userName + "'");
+                            System.out.println("Phone: '" + userPhone + "'");
+                            System.out.println("User ID: '" + userId + "'");
+                            System.out.println("Full user object: " + userObject.toString());
+
+                            // ✅ Pass user data to Homepage
+                            Intent intent = new Intent(Login.this, Homepage.class);
+                            intent.putExtra("user_name", userName);
+                            intent.putExtra("user_phone", userPhone);
+                            intent.putExtra("user_id", userId);
+
+                            // ✅ Optional: Pass the entire user object as JSON string for future use
+                            intent.putExtra("user_data", userObject.toString());
+
+                            startActivity(intent);
+                            finish(); // Close login activity so user can't go back
+
                         } else {
-                            Toast.makeText(Login.this, "Phone number or password is incorrect", Toast.LENGTH_SHORT).show();
+                            String errorMessage = result.optString("error", "Phone number or password is incorrect");
+                            Toast.makeText(Login.this, errorMessage, Toast.LENGTH_SHORT).show();
                         }
                     } catch (JSONException e) {
-                        Toast.makeText(Login.this, "Invalid server response", Toast.LENGTH_SHORT).show();
+                        e.printStackTrace();
+
+                        // ✅ Enhanced error handling with debug info
+                        String errorMsg = "Invalid server response: " + e.getMessage();
+                        Toast.makeText(Login.this, errorMsg, Toast.LENGTH_LONG).show();
+
+                        // Debug: Print the full response and error details
+                        System.out.println("JSON Parsing Error: " + e.getMessage());
+                        System.out.println("Raw response that caused error: " + response.toString());
+
+                        // Try to show what keys are actually available
+                        try {
+                            System.out.println("Available keys in response: " + result.keys().toString());
+                            if (result.has("user")) {
+                                JSONObject userObj = result.getJSONObject("user");
+                                System.out.println("Available keys in user object: " + userObj.keys().toString());
+                            }
+                        } catch (Exception debugError) {
+                            System.out.println("Could not debug response structure: " + debugError.getMessage());
+                        }
                     }
                 });
 
             } catch (Exception e) {
                 e.printStackTrace();
-                runOnUiThread(() -> Toast.makeText(Login.this, "Network error: " + e.getMessage(), Toast.LENGTH_LONG).show());
+                runOnUiThread(() -> {
+                    String networkError = "Network error: " + e.getMessage();
+                    Toast.makeText(Login.this, networkError, Toast.LENGTH_LONG).show();
+                    System.out.println("Network Error Details: " + e.getMessage());
+                });
             }
         }).start();
     }

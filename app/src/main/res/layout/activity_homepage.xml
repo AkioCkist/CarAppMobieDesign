@@ -1,0 +1,451 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#222126"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <!-- Status bar spacer -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="48dp" />
+
+        <!-- Header Section -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="24dp">
+
+            <!-- Location and User Info -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <!-- Location -->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="4dp">
+
+                    <ImageView
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:src="@drawable/ic_location"
+                        android:layout_marginEnd="4dp"
+                        app:tint="@color/text_secondary" />
+
+                    <TextView
+                        android:id="@+id/textViewLocation"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Location"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="14sp"
+                        android:fontFamily="@font/notosans_semibold" />
+
+                    <ImageView
+                        android:layout_width="12dp"
+                        android:layout_height="12dp"
+                        android:src="@drawable/ic_dropdown"
+                        android:layout_marginStart="4dp"
+                        app:tint="@color/text_secondary" />
+
+                </LinearLayout>
+
+                <!-- User Welcome -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Rent a Car anytime"
+                    android:textColor="@color/white"
+                    android:textSize="18sp"
+                    android:fontFamily="@font/notosans_bold" />
+
+            </LinearLayout>
+
+            <!-- Profile Section with Dropdown -->
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <!-- Profile Section -->
+                <LinearLayout
+                    android:id="@+id/profileSection"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:background="?android:attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:padding="8dp">
+
+                    <!-- Profile Avatar -->
+                    <ImageView
+                        android:id="@+id/imageViewProfile"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:src="@drawable/default_avatar"
+                        android:background="@drawable/circle_background"
+                        android:scaleType="centerCrop"
+                        android:layout_marginEnd="12dp" />
+
+                    <!-- User Info -->
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:gravity="start">
+
+                        <TextView
+                            android:id="@+id/textViewUserName"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="User Name"
+                            android:textColor="@color/white"
+                            android:textSize="14sp"
+                            android:fontFamily="@font/notosans_semibold"
+                            android:maxLines="1"
+                            android:ellipsize="end" />
+
+                        <TextView
+                            android:id="@+id/textViewUserPhone"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Phone Number"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="12sp"
+                            android:fontFamily="@font/notosans_regular"
+                            android:maxLines="1"
+                            android:ellipsize="end" />
+
+                    </LinearLayout>
+
+                    <!-- Dropdown Arrow -->
+                    <ImageView
+                        android:layout_width="12dp"
+                        android:layout_height="12dp"
+                        android:src="@drawable/ic_dropdown"
+                        android:layout_marginStart="8dp"
+                        app:tint="@color/text_secondary" />
+
+                </LinearLayout>
+
+                <!-- Dropdown Menu -->
+                <LinearLayout
+                    android:id="@+id/dropdownMenu"
+                    android:layout_width="200dp"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/profileSection"
+                    android:layout_alignEnd="@id/profileSection"
+                    android:layout_marginTop="8dp"
+                    android:background="@drawable/dropdown_background"
+                    android:orientation="vertical"
+                    android:padding="8dp"
+                    android:elevation="8dp"
+                    android:visibility="gone">
+
+                    <!-- My Profile -->
+                    <Button
+                        android:id="@+id/btnMyProfile"
+                        android:layout_width="match_parent"
+                        android:layout_height="40dp"
+                        android:background="@drawable/menu_item_background"
+                        android:text="My Profile"
+                        android:textColor="@color/white"
+                        android:textSize="14sp"
+                        android:fontFamily="@font/notosans_regular"
+                        android:gravity="start|center_vertical"
+                        android:paddingStart="16dp"
+                        android:paddingEnd="16dp"
+                        android:drawablePadding="12dp"
+                        android:drawableTint="@color/text_secondary"
+                        style="@style/Widget.AppCompat.Button.Borderless" />
+
+                    <!-- My Booking -->
+                    <Button
+                        android:id="@+id/btnMyBooking"
+                        android:layout_width="match_parent"
+                        android:layout_height="40dp"
+                        android:background="@drawable/menu_item_background"
+                        android:text="My Booking"
+                        android:textColor="@color/white"
+                        android:textSize="14sp"
+                        android:fontFamily="@font/notosans_regular"
+                        android:gravity="start|center_vertical"
+                        android:paddingStart="16dp"
+                        android:paddingEnd="16dp"
+                        android:drawableStart="@drawable/ic_booking"
+                        android:drawablePadding="12dp"
+                        android:drawableTint="@color/text_secondary"
+                        android:layout_marginTop="4dp"
+                        style="@style/Widget.AppCompat.Button.Borderless" />
+
+                    <!-- Settings -->
+                    <Button
+                        android:id="@+id/btnSettings"
+                        android:layout_width="match_parent"
+                        android:layout_height="40dp"
+                        android:background="@drawable/menu_item_background"
+                        android:text="Settings"
+                        android:textColor="@color/white"
+                        android:textSize="14sp"
+                        android:fontFamily="@font/notosans_regular"
+                        android:gravity="start|center_vertical"
+                        android:paddingStart="16dp"
+                        android:paddingEnd="16dp"
+                        android:drawableStart="@drawable/ic_settings"
+                        android:drawablePadding="12dp"
+                        android:drawableTint="@color/text_secondary"
+                        android:layout_marginTop="4dp"
+                        style="@style/Widget.AppCompat.Button.Borderless" />
+
+                    <!-- Divider -->
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/text_secondary"
+                        android:alpha="0.3"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginBottom="8dp" />
+
+                    <!-- Sign Out -->
+                    <Button
+                        android:id="@+id/btnSignOut"
+                        android:layout_width="match_parent"
+                        android:layout_height="40dp"
+                        android:background="@drawable/menu_item_background"
+                        android:text="Sign Out"
+                        android:textColor="#FF4444"
+                        android:textSize="14sp"
+                        android:fontFamily="@font/notosans_semibold"
+                        android:gravity="start|center_vertical"
+                        android:paddingStart="16dp"
+                        android:paddingEnd="16dp"
+                        android:drawableStart="@drawable/ic_logout"
+                        android:drawablePadding="12dp"
+                        android:drawableTint="#FF4444"
+                        style="@style/Widget.AppCompat.Button.Borderless" />
+
+                </LinearLayout>
+
+            </RelativeLayout>
+
+        </LinearLayout>
+
+        <!-- Host & Earn Button -->
+        <Button
+            android:id="@+id/buttonHostEarn"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:background="@drawable/button_primary"
+            android:text="Host &amp; Earn"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            android:fontFamily="@font/notosans_semibold"
+            android:layout_marginBottom="24dp"
+            android:elevation="4dp"
+            style="@style/Widget.AppCompat.Button.Borderless" />
+
+        <!-- Search Section -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="24dp">
+
+            <EditText
+                android:id="@+id/editTextSearch"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:background="@drawable/search_background"
+                android:hint="@string/search_any_car"
+                android:textColorHint="@color/text_hint"
+                android:textColor="@color/white"
+                android:textSize="16sp"
+                android:paddingStart="20dp"
+                android:paddingEnd="20dp"
+                android:drawableStart="@drawable/ic_search"
+                android:drawableTint="@color/text_hint"
+                android:drawablePadding="12dp"
+                android:fontFamily="@font/notosans_regular"
+                android:layout_marginEnd="8dp" />
+            <ImageView
+                android:id="@+id/imageViewFilter"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:src="@drawable/ic_filter"
+                android:background="@drawable/filter_background"
+                android:padding="12dp"
+                app:tint="@color/white"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?android:attr/selectableItemBackground" />
+
+        </LinearLayout>
+
+        <!-- Top Brands Section -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="16dp">
+
+            <TextView
+                android:id="@+id/textViewTopBrands"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Top Brands"
+                android:textColor="@color/white"
+                android:textSize="18sp"
+                android:fontFamily="@font/notosans_bold" />
+
+            <TextView
+                android:id="@+id/textViewViewAllBrands"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="View All"
+                android:textColor="@color/primary"
+                android:textSize="14sp"
+                android:fontFamily="@font/notosans_semibold"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="?android:attr/selectableItemBackground"
+                android:padding="8dp" />
+
+        </LinearLayout>
+
+        <!-- Brands RecyclerView -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerViewBrands"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="32dp"
+            android:clipToPadding="false"
+            android:paddingStart="0dp"
+            android:paddingEnd="16dp" />
+
+        <!-- Top Rated Cars Section -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="16dp">
+
+            <TextView
+                android:id="@+id/textViewTopRatedCars"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Top Rated Cars"
+                android:textColor="@color/white"
+                android:textSize="18sp"
+                android:fontFamily="@font/notosans_bold" />
+
+            <TextView
+                android:id="@+id/textViewViewAllCars"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="View All"
+                android:textColor="@color/primary"
+                android:textSize="14sp"
+                android:fontFamily="@font/notosans_semibold"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="?android:attr/selectableItemBackground"
+                android:padding="8dp" />
+
+        </LinearLayout>
+
+        <!-- Cars RecyclerView -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerViewCars"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            android:clipToPadding="false"
+            android:paddingStart="0dp"
+            android:paddingEnd="16dp" />
+
+        <!-- Points Section -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:background="@drawable/points_background"
+            android:padding="20dp"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="24dp">
+
+            <ImageView
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:src="@drawable/ic_points"
+                android:layout_marginEnd="16dp"
+                app:tint="@color/primary" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Your Points"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="14sp"
+                    android:fontFamily="@font/notosans_regular" />
+
+                <TextView
+                    android:id="@+id/textViewPoints"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="1,250 Points"
+                    android:textColor="@color/white"
+                    android:textSize="18sp"
+                    android:fontFamily="@font/notosans_bold" />
+
+            </LinearLayout>
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:text="Redeem"
+                android:textColor="@color/black"
+                android:textSize="14sp"
+                android:fontFamily="@font/notosans_semibold"
+                android:background="@drawable/button_secondary"
+                android:paddingStart="20dp"
+                android:paddingEnd="20dp"
+                style="@style/Widget.AppCompat.Button.Borderless" />
+
+        </LinearLayout>
+
+        <!-- Bottom spacing -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="24dp" />
+
+    </LinearLayout>
+
+</ScrollView>
