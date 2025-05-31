@@ -344,7 +344,7 @@ public class Login extends AppCompatActivity {
                             }
 
                             String userPhone = userObject.optString("phone_number", phoneNumber);
-                            String userId = userObject.optString("id", "");
+                            String userId = userObject.optString("account_id", "");
 
                             // ✅ Debug: Print what we extracted
                             System.out.println("Extracted user data:");

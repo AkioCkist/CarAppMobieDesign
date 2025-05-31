@@ -2,7 +2,6 @@ package com.midterm.mobiledesignfinalterm.authentication;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.CountDownTimer;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -23,28 +22,35 @@ import java.net.URL;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class ForgotPassword extends AppCompatActivity {
+public class CreateNewPassword extends AppCompatActivity {
 
-    private EditText editTextAccountName;
-    private EditText editTextMobileNumber;
-    private Button buttonSend;
-    private Button buttonResend;
+    private EditText editTextNewPassword;
+    private EditText editTextConfirmPassword;
+    private Button buttonCreatePassword;
     private ImageView imageViewBack;
-    private CountDownTimer countDownTimer;
-    private boolean isInfoSent = false;
+
+    private String accountName;
+    private String mobileNumber;
+    private String userId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         View rootView = findViewById(android.R.id.content);
         playPopupAnimation(rootView);
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_forgot_password);
+        setContentView(R.layout.activity_create_new_password);
 
         // Make status bar transparent and content edge-to-edge
         WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
         WindowInsetsControllerCompat windowInsetsController =
                 WindowCompat.getInsetsController(getWindow(), getWindow().getDecorView());
         windowInsetsController.setAppearanceLightStatusBars(false);
+
+        // Get data from previous activity
+        Intent intent = getIntent();
+        accountName = intent.getStringExtra("account_name");
+        mobileNumber = intent.getStringExtra("mobile_number");
+        userId = intent.getStringExtra("user_id");
 
         initializeViews();
         setupClickListeners();
@@ -81,33 +87,20 @@ public class ForgotPassword extends AppCompatActivity {
     }
 
     private void initializeViews() {
-        editTextAccountName = findViewById(R.id.editTextAccountName);
-        editTextMobileNumber = findViewById(R.id.editTextMobileNumber);
-        buttonSend = findViewById(R.id.buttonSend);
-        buttonResend = findViewById(R.id.buttonResend);
+        editTextNewPassword = findViewById(R.id.editTextNewPassword);
+        editTextConfirmPassword = findViewById(R.id.editTextConfirmPassword);
+        buttonCreatePassword = findViewById(R.id.buttonCreatePassword);
         imageViewBack = findViewById(R.id.imageViewBack);
     }
 
     private void setupClickListeners() {
-        buttonSend.setOnClickListener(new View.OnClickListener() {
+        buttonCreatePassword.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 animateButtonClick(v, new Runnable() {
                     @Override
                     public void run() {
-                        handleVerifyAccount();
-                    }
-                });
-            }
-        });
-
-        buttonResend.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                animateButtonClick(v, new Runnable() {
-                    @Override
-                    public void run() {
-                        handleResendVerification();
+                        handleCreateNewPassword();
                     }
                 });
             }
@@ -116,59 +109,55 @@ public class ForgotPassword extends AppCompatActivity {
         imageViewBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                handleBackPress();
+                finish();
             }
         });
     }
 
-    private void handleVerifyAccount() {
-        String accountName = editTextAccountName.getText().toString().trim();
-        String mobileNumber = editTextMobileNumber.getText().toString().trim();
+    private void handleCreateNewPassword() {
+        String newPassword = editTextNewPassword.getText().toString().trim();
+        String confirmPassword = editTextConfirmPassword.getText().toString().trim();
 
-        // Validate account name
-        if (accountName.isEmpty()) {
-            editTextAccountName.setError("Account name is required");
-            editTextAccountName.requestFocus();
-            animateErrorShake(editTextAccountName);
+        // Validate new password
+        if (newPassword.isEmpty()) {
+            editTextNewPassword.setError("New password is required");
+            editTextNewPassword.requestFocus();
+            animateErrorShake(editTextNewPassword);
             return;
         }
 
-        // Validate mobile number
-        if (mobileNumber.isEmpty()) {
-            editTextMobileNumber.setError("Mobile number is required");
-            editTextMobileNumber.requestFocus();
-            animateErrorShake(editTextMobileNumber);
+        // Password strength validation
+        if (newPassword.length() < 6) {
+            editTextNewPassword.setError("Password must be at least 6 characters long");
+            editTextNewPassword.requestFocus();
+            animateErrorShake(editTextNewPassword);
             return;
         }
 
-        // Mobile number regex validation (10-13 digits, optional + prefix)
-        String phoneRegex = "^[+]?[0-9]{10,13}$";
-        if (!mobileNumber.matches(phoneRegex)) {
-            editTextMobileNumber.setError("Please enter a valid mobile number");
-            editTextMobileNumber.requestFocus();
-            animateErrorShake(editTextMobileNumber);
+        // Validate confirm password
+        if (confirmPassword.isEmpty()) {
+            editTextConfirmPassword.setError("Please confirm your password");
+            editTextConfirmPassword.requestFocus();
+            animateErrorShake(editTextConfirmPassword);
             return;
         }
 
-        // Send verification request to API
-        verifyAccountWithAPI(accountName, mobileNumber);
+        // Check if passwords match
+        if (!newPassword.equals(confirmPassword)) {
+            editTextConfirmPassword.setError("Passwords do not match");
+            editTextConfirmPassword.requestFocus();
+            animateErrorShake(editTextConfirmPassword);
+            return;
+        }
+
+        // Send new password to API
+        updatePasswordWithAPI(accountName, mobileNumber, newPassword, userId);
     }
 
-    private void handleResendVerification() {
-        String accountName = editTextAccountName.getText().toString().trim();
-        String mobileNumber = editTextMobileNumber.getText().toString().trim();
-
-        // Resend verification
-        Toast.makeText(this, "Verification resent to " + mobileNumber, Toast.LENGTH_LONG).show();
-
-        // Restart countdown
-        startCountdown();
-    }
-
-    private void verifyAccountWithAPI(String accountName, String mobileNumber) {
+    private void updatePasswordWithAPI(String username, String phoneNumber, String newPassword, String userId) {
         new Thread(() -> {
             try {
-                URL url = new URL("http://10.0.2.2/myapi/forgot_password.php");
+                URL url = new URL("http://10.0.2.2/myapi/update_password.php");
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
                 // Set connection properties
@@ -179,16 +168,19 @@ public class ForgotPassword extends AppCompatActivity {
                 conn.setConnectTimeout(10000); // 10 seconds
                 conn.setReadTimeout(10000); // 10 seconds
 
-                // Create JSON payload using JSONObject instead of string concatenation
+                // Create JSON payload
                 JSONObject jsonInput = new JSONObject();
                 try {
-                    // Use the field names that match what your app is actually sending
-                    jsonInput.put("username", accountName);
-                    jsonInput.put("phone_number", mobileNumber);
+                    jsonInput.put("username", username);
+                    jsonInput.put("phone_number", phoneNumber);
+                    jsonInput.put("new_password", newPassword);
+                    if (userId != null && !userId.isEmpty()) {
+                        jsonInput.put("user_id", userId);
+                    }
                 } catch (JSONException e) {
                     e.printStackTrace();
                     runOnUiThread(() -> {
-                        Toast.makeText(ForgotPassword.this, "Error creating request data", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, "Error creating request data", Toast.LENGTH_SHORT).show();
                     });
                     return;
                 }
@@ -196,7 +188,7 @@ public class ForgotPassword extends AppCompatActivity {
                 String jsonInputString = jsonInput.toString();
 
                 // Debug: Print what we're sending
-                System.out.println("Sending JSON: " + jsonInputString);
+                System.out.println("Update Password - Sending JSON: " + jsonInputString);
 
                 // Send data
                 try (OutputStream os = conn.getOutputStream()) {
@@ -207,7 +199,7 @@ public class ForgotPassword extends AppCompatActivity {
 
                 // Check response code
                 int responseCode = conn.getResponseCode();
-                System.out.println("Response Code: " + responseCode);
+                System.out.println("Update Password - Response Code: " + responseCode);
 
                 // Read response
                 BufferedReader br;
@@ -225,7 +217,7 @@ public class ForgotPassword extends AppCompatActivity {
                 br.close();
 
                 // Debug: Print the full response
-                System.out.println("Raw API Response: " + response.toString());
+                System.out.println("Update Password - Raw API Response: " + response.toString());
 
                 // Parse JSON result
                 try {
@@ -234,42 +226,32 @@ public class ForgotPassword extends AppCompatActivity {
                     runOnUiThread(() -> {
                         try {
                             if (result.getBoolean("success")) {
-                                // Account verification successful
-                                Toast.makeText(ForgotPassword.this, "Account verified successfully!", Toast.LENGTH_SHORT).show();
+                                // Password update successful
+                                String message = result.optString("message", "Password updated successfully!");
+                                Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
 
-                                // Show resend button and start countdown
-                                isInfoSent = true;
-                                buttonResend.setVisibility(View.VISIBLE);
-                                startCountdown();
-
-                                // Navigate to create new password screen
-                                Intent intent = new Intent(ForgotPassword.this, CreateNewPassword.class);
-                                intent.putExtra("account_name", accountName);
-                                intent.putExtra("mobile_number", mobileNumber);
-
-                                // If API returns user ID, pass it too
-                                if (result.has("user_id")) {
-                                    intent.putExtra("user_id", result.getString("user_id"));
-                                }
-
+                                // Navigate back to login screen or show success message
+                                Intent intent = new Intent(this, Login.class);
+                                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                                 startActivity(intent);
+                                finish();
 
                             } else {
-                                String errorMessage = result.optString("error", "Account name or mobile number not found");
-                                Toast.makeText(ForgotPassword.this, errorMessage, Toast.LENGTH_LONG).show();
+                                String errorMessage = result.optString("error", "Failed to update password");
+                                Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show();
 
                                 // Debug: Print additional error info if available
                                 if (result.has("received_fields")) {
-                                    System.out.println("Fields received by server: " + result.getString("received_fields"));
+                                    System.out.println("Fields received by server: " + result.get("received_fields"));
                                 }
                                 if (result.has("received_data")) {
-                                    System.out.println("Data received by server: " + result.getString("received_data"));
+                                    System.out.println("Data received by server: " + result.get("received_data"));
                                 }
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
                             String errorMsg = "Invalid server response: " + e.getMessage();
-                            Toast.makeText(ForgotPassword.this, errorMsg, Toast.LENGTH_LONG).show();
+                            Toast.makeText(this, errorMsg, Toast.LENGTH_LONG).show();
                             System.out.println("JSON Parsing Error: " + e.getMessage());
                             System.out.println("Raw response that caused error: " + response.toString());
                         }
@@ -278,7 +260,7 @@ public class ForgotPassword extends AppCompatActivity {
                 } catch (JSONException e) {
                     e.printStackTrace();
                     runOnUiThread(() -> {
-                        Toast.makeText(ForgotPassword.this, "Server returned invalid response", Toast.LENGTH_LONG).show();
+                        Toast.makeText(this, "Server returned invalid response", Toast.LENGTH_LONG).show();
                         System.out.println("JSON Parse Error: " + e.getMessage());
                         System.out.println("Raw response: " + response.toString());
                     });
@@ -287,74 +269,68 @@ public class ForgotPassword extends AppCompatActivity {
             } catch (java.net.ConnectException e) {
                 System.out.println("Connection refused: " + e.getMessage());
                 runOnUiThread(() -> {
-                    Toast.makeText(ForgotPassword.this, "Cannot connect to server. Please check if your local server is running.", Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, "Cannot connect to server. Please check if your local server is running.", Toast.LENGTH_LONG).show();
                 });
             } catch (java.net.UnknownHostException e) {
                 System.out.println("Unknown host: " + e.getMessage());
                 runOnUiThread(() -> {
-                    Toast.makeText(ForgotPassword.this, "Cannot resolve server address. Check your network connection.", Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, "Cannot resolve server address. Check your network connection.", Toast.LENGTH_LONG).show();
                 });
             } catch (java.net.SocketTimeoutException e) {
                 System.out.println("Connection timeout: " + e.getMessage());
                 runOnUiThread(() -> {
-                    Toast.makeText(ForgotPassword.this, "Connection timeout. Server might be slow or unreachable.", Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, "Connection timeout. Server might be slow or unreachable.", Toast.LENGTH_LONG).show();
                 });
             } catch (Exception e) {
                 e.printStackTrace();
                 runOnUiThread(() -> {
                     String networkError = "Network error: " + e.getClass().getSimpleName() + " - " + e.getMessage();
-                    Toast.makeText(ForgotPassword.this, networkError, Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, networkError, Toast.LENGTH_LONG).show();
                     System.out.println("Network Error Details: " + e.getMessage());
                 });
             }
         }).start();
     }
 
-    private void startCountdown() {
-        // Cancel any existing timer
-        if (countDownTimer != null) {
-            countDownTimer.cancel();
+    // Example of how to call this method from your button click handler
+    private void handleUpdatePassword() {
+        String newPassword = editTextNewPassword.getText().toString().trim();
+        String confirmPassword = editTextConfirmPassword.getText().toString().trim();
+
+        // Validate passwords match
+        if (!newPassword.equals(confirmPassword)) {
+            editTextConfirmPassword.setError("Passwords do not match");
+            editTextConfirmPassword.requestFocus();
+            animateErrorShake(editTextConfirmPassword);
+            return;
         }
 
-        buttonResend.setEnabled(false);
-
-        countDownTimer = new CountDownTimer(15000, 1000) {
-            @Override
-            public void onTick(long millisUntilFinished) {
-                long secondsRemaining = millisUntilFinished / 1000;
-                buttonResend.setText("Resend (" + secondsRemaining + "s)");
-            }
-
-            @Override
-            public void onFinish() {
-                buttonResend.setText("Resend");
-                buttonResend.setEnabled(true);
-            }
-        };
-
-        countDownTimer.start();
-    }
-
-    private void handleBackPress() {
-        // Cancel timer if running
-        if (countDownTimer != null) {
-            countDownTimer.cancel();
+        // Validate password length
+        if (newPassword.length() < 6) {
+            editTextNewPassword.setError("Password must be at least 6 characters long");
+            editTextNewPassword.requestFocus();
+            animateErrorShake(editTextNewPassword);
+            return;
         }
-        finish();
+
+        // Get the username and phone number from the intent extras
+        String username = getIntent().getStringExtra("account_name");
+        String phoneNumber = getIntent().getStringExtra("mobile_number");
+        String userId = getIntent().getStringExtra("user_id");
+
+        if (username == null || phoneNumber == null) {
+            Toast.makeText(this, "Missing account information. Please try again.", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
+
+        // Call the API to update password
+        updatePasswordWithAPI(username, phoneNumber, newPassword, userId);
     }
 
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        handleBackPress();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        // Cancel timer to prevent memory leaks
-        if (countDownTimer != null) {
-            countDownTimer.cancel();
-        }
+        finish();
     }
 }
