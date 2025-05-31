@@ -125,6 +125,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         // Add smooth back animation
+        super.onBackPressed();
         rootLayout.animate()
                 .alpha(0f)
                 .setDuration(200)
