@@ -233,7 +233,7 @@
                     android:textSize="14sp"
                     android:textColor="#A0AEC0"
                     android:layout_marginTop="2dp"
-                    android:textDecoration="line-through" />
+                    />
 
             </LinearLayout>
 

@@ -7,8 +7,6 @@
         android:startColor="#344A4A4A"
         android:endColor="#45a5fb00"
         android:useLevel="false"
-        android:gradientRadius="90"
-        android:positions="0.0,0.8,1.0"
-        android:colors="#FF0000,#FF0000,#0000FF"/>
+        android:gradientRadius="90" />
     <corners android:radius="15dp" />
 </shape>

@@ -386,9 +386,13 @@ public class Homepage extends AppCompatActivity {
 
     // Click handlers
     private void handleHostEarn() {
-        // Navigate to host & earn screen
-        // Intent intent = new Intent(Homepage.this, HostEarnActivity.class);
-        // startActivity(intent);
+        Intent intent = new Intent(Homepage.this, com.midterm.mobiledesignfinalterm.CarListing.CarListing.class);
+        intent.putExtra("user_phone", userPhone);
+        intent.putExtra("user_name", userName);
+        if (userRoles != null) {
+            intent.putStringArrayListExtra("user_roles", new ArrayList<>(userRoles));
+        }
+        startActivity(intent);
     }
 
     private void handleViewAllBrands() {
