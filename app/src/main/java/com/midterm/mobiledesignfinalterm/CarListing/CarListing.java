@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.animation.OvershootInterpolator;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -30,14 +31,12 @@ import java.util.List;
 public class CarListing extends AppCompatActivity {
 
     // UI Components
-    private TextView textViewLocation;
-    private TextView textViewDateTime;
     private TextView textViewUserName;
     private TextView textViewUserPhone;
     private TextView textViewCarCount;
     private EditText editTextSearch;
     private Button buttonDateTime;
-    private Button buttonFilter;
+    private ImageButton buttonFilter;
     private RecyclerView recyclerViewCars;
     private ImageView imageViewProfile;
     private LinearLayout profileSection;
@@ -57,6 +56,12 @@ public class CarListing extends AppCompatActivity {
     private CarListingAdapter carAdapter;
     private List<CarItem> carList;
     private List<CarItem> filteredCarList;
+
+    // Thông tin thời gian và địa điểm
+    private String pickupTime = "21:00 21/6/2025";
+    private String returnTime = "19:00 23/6/2025";
+    private String pickupLocation = "Headquarter: 123 Main St, Đà Nẵng";
+    private String returnLocation = "Headquarter: 123 Main St, Đà Nẵng";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,6 +83,7 @@ public class CarListing extends AppCompatActivity {
         setupClickListeners();
         setupRecyclerView();
         displayUserInfo();
+        updateDateTimeLocationButton();
         loadCarData();
 
         // Initial animations
@@ -104,22 +110,28 @@ public class CarListing extends AppCompatActivity {
     }
 
     private void initializeViews() {
-        textViewLocation = findViewById(R.id.textViewLocation);
-        textViewDateTime = findViewById(R.id.textViewDateTime);
+        // Removed textViewLocation and textViewDateTime as they don't exist in XML
         textViewUserName = findViewById(R.id.textViewUserName);
         textViewUserPhone = findViewById(R.id.textViewUserPhone);
         textViewCarCount = findViewById(R.id.textViewCarCount);
         editTextSearch = findViewById(R.id.editTextSearch);
         buttonDateTime = findViewById(R.id.buttonDateTime);
-        buttonFilter = findViewById(R.id.buttonFilter);
+        buttonFilter = findViewById(R.id.btn_Filter);
         recyclerViewCars = findViewById(R.id.recyclerViewCars);
         imageViewProfile = findViewById(R.id.imageViewProfile);
         profileSection = findViewById(R.id.profileSection);
         dropdownMenu = findViewById(R.id.dropdownMenu);
-        btnMyProfile = findViewById(R.id.btnMyProfile);
-        btnMyBooking = findViewById(R.id.btnMyBooking);
-        btnSettings = findViewById(R.id.btnSettings);
-        btnSignOut = findViewById(R.id.btnSignOut);
+        btnMyProfile = findViewById(R.id.btn_MyProfile);
+        btnMyBooking = findViewById(R.id.btn_MyBooking);
+        btnSettings = findViewById(R.id.btn_Settings);
+        btnSignOut = findViewById(R.id.btn_SignOut);
+    }
+
+    private void updateDateTimeLocationButton() {
+        // Cập nhật text cho button với thông tin thời gian và địa điểm
+        String buttonText = "Nhận xe: " + pickupTime + " tại " + pickupLocation +
+                "\nTrả xe: " + returnTime + " tại " + returnLocation;
+        buttonDateTime.setText(buttonText);
     }
 
     private void setupClickListeners() {
@@ -262,8 +274,14 @@ public class CarListing extends AppCompatActivity {
 
     // Click handlers
     private void handleDateTimeLocationSetting() {
-        // TODO: Open date/time/location picker dialog
-        Toast.makeText(this, "Date/Time/Location picker - Coming soon", Toast.LENGTH_SHORT).show();
+        // TODO: Mở dialog để chọn thời gian nhận và trả xe
+        // Hiện tại chỉ hiển thị thông báo
+        String message = "Chọn thời gian và địa điểm:\n" +
+                "Nhận xe: " + pickupTime + "\n" +
+                "Địa điểm nhận: " + pickupLocation + "\n" +
+                "Trả xe: " + returnTime + "\n" +
+                "Địa điểm trả: " + returnLocation;
+        Toast.makeText(this, message, Toast.LENGTH_LONG).show();
     }
 
     private void handleFilterOptions() {
@@ -280,6 +298,10 @@ public class CarListing extends AppCompatActivity {
         // intent.putExtra("car_data", car);
         // intent.putExtra("user_phone", userPhone);
         // intent.putExtra("user_name", userName);
+        // intent.putExtra("pickup_time", pickupTime);
+        // intent.putExtra("return_time", returnTime);
+        // intent.putExtra("pickup_location", pickupLocation);
+        // intent.putExtra("return_location", returnLocation);
         // startActivity(intent);
     }
 
@@ -363,8 +385,7 @@ public class CarListing extends AppCompatActivity {
 
     // Animation Methods
     private void animateInitialEntrance() {
-        View[] views = {textViewLocation, textViewDateTime, editTextSearch, buttonDateTime,
-                buttonFilter, recyclerViewCars, profileSection};
+        View[] views = {editTextSearch, buttonDateTime, buttonFilter, recyclerViewCars, profileSection};
 
         for (int i = 0; i < views.length; i++) {
             View view = views[i];
@@ -444,6 +465,44 @@ public class CarListing extends AppCompatActivity {
         } else {
             super.onBackPressed();
         }
+    }
+
+    // Getter methods for time and location (for use in other activities)
+    public String getPickupTime() {
+        return pickupTime;
+    }
+
+    public String getReturnTime() {
+        return returnTime;
+    }
+
+    public String getPickupLocation() {
+        return pickupLocation;
+    }
+
+    public String getReturnLocation() {
+        return returnLocation;
+    }
+
+    // Setter methods to update time and location
+    public void setPickupTime(String pickupTime) {
+        this.pickupTime = pickupTime;
+        updateDateTimeLocationButton();
+    }
+
+    public void setReturnTime(String returnTime) {
+        this.returnTime = returnTime;
+        updateDateTimeLocationButton();
+    }
+
+    public void setPickupLocation(String pickupLocation) {
+        this.pickupLocation = pickupLocation;
+        updateDateTimeLocationButton();
+    }
+
+    public void setReturnLocation(String returnLocation) {
+        this.returnLocation = returnLocation;
+        updateDateTimeLocationButton();
     }
 
     // Car Item Data Class

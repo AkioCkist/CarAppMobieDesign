@@ -8,7 +8,7 @@
     android:background="#F8F9FA"
     tools:context=".CarListing.CarListing">
 
-    <!-- Top Section with Location and Profile -->
+    <!-- Top Section with Navigation and Profile -->
     <LinearLayout
         android:id="@+id/topSection"
         android:layout_width="match_parent"
@@ -20,34 +20,23 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <!-- Location Info -->
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_weight="1"
+        <!-- Navigation Button -->
+        <ImageButton
+            android:id="@+id/buttonNavigation"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:src="@drawable/ic_menu_navigation"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Navigation Menu"
+            android:padding="8dp"/>
 
-            <TextView
-                android:id="@+id/textViewLocation"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Thành phố Đà Nẵng"
-                android:textSize="16sp"
-                android:textColor="#333333"
-                android:textStyle="bold" />
+        <!-- Spacer to push profile to the right -->
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
 
-            <TextView
-                android:id="@+id/textViewDateTime"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="21:00 21/6/2025 --- 19:00 23/6/2025"
-                android:textSize="12sp"
-                android:textColor="#666666"
-                android:layout_marginTop="4dp" />
-
-        </LinearLayout>
-
-        <!-- Profile Section -->
+        <!-- Profile Section (Giữ nguyên) -->
         <LinearLayout
             android:id="@+id/profileSection"
             android:layout_width="wrap_content"
@@ -82,7 +71,6 @@
                     android:text="+84 123 456 789"
                     android:textSize="12sp"
                     android:textColor="#666666" />
-
             </LinearLayout>
 
             <ImageView
@@ -92,12 +80,10 @@
                 android:src="@drawable/ic_profile"
                 android:background="@drawable/circle_background"
                 android:scaleType="centerCrop" />
-
         </LinearLayout>
-
     </LinearLayout>
 
-    <!-- Dropdown Menu (Homepage style) -->
+    <!-- Dropdown Menu (Giữ nguyên) -->
     <LinearLayout
         android:id="@+id/dropdownMenu"
         android:layout_width="200dp"
@@ -111,7 +97,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginEnd="16dp"
         android:layout_marginTop="8dp">
-
+        <!-- Các button trong dropdown giữ nguyên -->
         <Button
             android:id="@+id/btn_MyProfile"
             android:layout_width="match_parent"
@@ -190,9 +176,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <!-- Search Bar -->
-
-        <!-- Date/Time and Filter Section -->
         <EditText
             android:id="@+id/editTextSearch"
             android:layout_width="match_parent"
@@ -212,36 +195,36 @@
             android:orientation="horizontal"
             android:layout_marginTop="16dp">
 
-            <!-- Date/Time/Location Button -->
+            <!-- Date/Time/Location Button - Sẽ hiển thị thông tin -->
             <Button
                 android:id="@+id/buttonDateTime"
                 android:layout_width="0dp"
                 android:layout_weight="1"
-                android:layout_height="56dp"
+                android:layout_height="wrap_content"
+                android:minHeight="56dp"
                 android:background="@drawable/button_outline"
                 android:drawableStart="@drawable/carlisting_ic_calendar"
                 android:drawablePadding="8dp"
+                tools:text="Thành phố Đà Nẵng --- Hà Nội\n21:00 21/6 --- 19:00 23/6"
                 android:text="Set Time and Location"
                 android:textColor="#333333"
                 android:textSize="14sp"
                 android:gravity="center_vertical|start"
                 android:paddingStart="16dp"
                 android:paddingEnd="16dp"
-                android:layout_marginEnd="8dp" />
+                android:layout_marginEnd="8dp"
+                android:textAllCaps="false"
+                android:lineSpacingMultiplier="1.2"/>
 
-            <!-- Filter Button -->
-            <Button
-                android:id="@+id/buttonFilter"
+            <ImageButton
+                android:id="@+id/btn_Filter"
                 android:layout_width="56dp"
                 android:layout_height="56dp"
                 android:background="@drawable/carlisting_button_filter"
-                android:drawableStart="@drawable/ic_filter"
-                android:drawablePadding="0dp"
-                android:text=""
+                android:src="@drawable/ic_filter"
+                android:contentDescription="filter"
                 android:layout_marginStart="8dp" />
-
         </LinearLayout>
-
     </LinearLayout>
 
     <!-- Car List Section -->
