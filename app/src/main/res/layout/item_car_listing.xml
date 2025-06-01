@@ -6,12 +6,15 @@
     android:layout_margin="8dp"
     app:cardCornerRadius="16dp"
     app:cardElevation="4dp"
-    android:backgroundTint="#4A5568">
+    android:backgroundTint="#4C494B">
+    <!-- Card background color -->
 
+    <!-- Main LinearLayout for the car listing item -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
+        android:background="@drawable/glow_gradient"
         android:padding="16dp">
 
         <!-- Car Header with Heart -->
