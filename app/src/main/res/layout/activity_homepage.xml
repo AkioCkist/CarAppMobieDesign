@@ -114,12 +114,12 @@
                             android:id="@+id/textViewUserName"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="User Name"
-                            android:textColor="@color/white"
-                            android:textSize="14sp"
+                            android:ellipsize="end"
                             android:fontFamily="@font/notosans_semibold"
                             android:maxLines="1"
-                            android:ellipsize="end" />
+                            android:text="User Name"
+                            android:textColor="@color/white"
+                            android:textSize="14sp" />
 
                         <TextView
                             android:id="@+id/textViewUserPhone"
