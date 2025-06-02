@@ -45,4 +45,6 @@ dependencies {
     implementation ("androidx.transition:transition:1.4.1")
 
     implementation ("mysql:mysql-connector-java:8.0.28")
+
+    implementation ("org.mindrot:jbcrypt:0.4")
 }
