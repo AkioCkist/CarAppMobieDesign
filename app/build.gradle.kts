@@ -47,4 +47,5 @@ dependencies {
     implementation ("mysql:mysql-connector-java:8.0.28")
 
     implementation ("org.mindrot:jbcrypt:0.4")
+    implementation ("com.android.volley:volley:1.2.1")
 }
