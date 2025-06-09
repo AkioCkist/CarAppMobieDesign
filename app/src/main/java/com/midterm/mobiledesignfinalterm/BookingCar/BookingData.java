@@ -1,9 +1,14 @@
 package com.midterm.mobiledesignfinalterm.BookingCar;
 
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+import java.util.UUID;
 
 public class BookingData implements Serializable {
     private String bookingId;
+    private String carName;
     private String pickupLocation;
     private String dropoffLocation;
     private String pickupDate;
@@ -18,9 +23,74 @@ public class BookingData implements Serializable {
     private String paymentMethod;
     private double totalAmount;
     private long bookingTimestamp;
+    private String bookingStatus;
+    private String formattedBookingDate;
 
     public BookingData() {
+        // Generate unique booking ID with current timestamp
         this.bookingTimestamp = System.currentTimeMillis();
+        this.bookingId = generateBookingId();
+        this.bookingStatus = "PENDING";
+        this.formattedBookingDate = getCurrentFormattedDate();
+    }
+
+    // Constructor with car name parameter
+    public BookingData(String carName) {
+        this();
+        this.carName = carName;
+    }
+
+    // Generate unique booking ID
+    private String generateBookingId() {
+        String timestamp = String.valueOf(System.currentTimeMillis());
+        String uuid = UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+        return "BK" + timestamp.substring(timestamp.length() - 6) + uuid;
+    }
+
+    // Get current formatted date
+    private String getCurrentFormattedDate() {
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault());
+        return sdf.format(new Date(bookingTimestamp));
+    }
+
+    // Method to update booking timestamp to current time
+    public void updateTimestamp() {
+        this.bookingTimestamp = System.currentTimeMillis();
+        this.formattedBookingDate = getCurrentFormattedDate();
+    }
+
+    // Method to calculate rental duration in hours
+    public long getRentalDurationInHours() {
+        // This is a simplified calculation - you might want to implement proper date/time parsing
+        // For now, returning a default value - implement based on your date format
+        return 24; // Default 24 hours
+    }
+
+    // Method to validate booking data
+    public boolean isValidBookingData() {
+        return pickupLocation != null && !pickupLocation.trim().isEmpty() &&
+                dropoffLocation != null && !dropoffLocation.trim().isEmpty() &&
+                pickupDate != null && !pickupDate.trim().isEmpty() &&
+                pickupTime != null && !pickupTime.trim().isEmpty() &&
+                dropoffDate != null && !dropoffDate.trim().isEmpty() &&
+                dropoffTime != null && !dropoffTime.trim().isEmpty() &&
+                fullName != null && !fullName.trim().isEmpty() &&
+                email != null && !email.trim().isEmpty() &&
+                phone != null && !phone.trim().isEmpty();
+    }
+
+    // Method to get booking summary
+    public String getBookingSummary() {
+        return String.format(
+                "Booking ID: %s\nCar: %s\nFrom: %s to %s\nPickup: %s %s\nDropoff: %s %s\nCustomer: %s\nAmount: $%.2f",
+                bookingId,
+                carName != null ? carName : "Not specified",
+                pickupLocation, dropoffLocation,
+                pickupDate, pickupTime,
+                dropoffDate, dropoffTime,
+                fullName,
+                totalAmount
+        );
     }
 
     // Getters and Setters
@@ -30,6 +100,14 @@ public class BookingData implements Serializable {
 
     public void setBookingId(String bookingId) {
         this.bookingId = bookingId;
+    }
+
+    public String getCarName() {
+        return carName;
+    }
+
+    public void setCarName(String carName) {
+        this.carName = carName;
     }
 
     public String getPickupLocation() {
@@ -142,18 +220,38 @@ public class BookingData implements Serializable {
 
     public void setBookingTimestamp(long bookingTimestamp) {
         this.bookingTimestamp = bookingTimestamp;
+        this.formattedBookingDate = getCurrentFormattedDate();
+    }
+
+    public String getBookingStatus() {
+        return bookingStatus;
+    }
+
+    public void setBookingStatus(String bookingStatus) {
+        this.bookingStatus = bookingStatus;
+    }
+
+    public String getFormattedBookingDate() {
+        return formattedBookingDate;
     }
 
     @Override
     public String toString() {
         return "BookingData{" +
                 "bookingId='" + bookingId + '\'' +
+                ", carName='" + carName + '\'' +
                 ", pickupLocation='" + pickupLocation + '\'' +
                 ", dropoffLocation='" + dropoffLocation + '\'' +
                 ", pickupDate='" + pickupDate + '\'' +
                 ", pickupTime='" + pickupTime + '\'' +
+                ", dropoffDate='" + dropoffDate + '\'' +
+                ", dropoffTime='" + dropoffTime + '\'' +
                 ", fullName='" + fullName + '\'' +
+                ", email='" + email + '\'' +
+                ", phone='" + phone + '\'' +
                 ", totalAmount=" + totalAmount +
+                ", bookingStatus='" + bookingStatus + '\'' +
+                ", formattedBookingDate='" + formattedBookingDate + '\'' +
                 '}';
     }
 }

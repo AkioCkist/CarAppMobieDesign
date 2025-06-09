@@ -2,6 +2,8 @@ package com.midterm.mobiledesignfinalterm.BookingCar;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
+import android.util.Patterns;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -9,6 +11,7 @@ import android.widget.ImageView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import com.midterm.mobiledesignfinalterm.R;
+
 public class UserInfoActivity extends AppCompatActivity {
 
     private EditText etFullName, etEmail, etPhone, etAadharNumber, etPanNumber;
@@ -54,6 +57,10 @@ public class UserInfoActivity extends AppCompatActivity {
 
         btnNextStep.setOnClickListener(v -> {
             if (validateInputs()) {
+                // Show loading state
+                btnNextStep.setEnabled(false);
+                btnNextStep.setText("Processing...");
+
                 Intent intent = new Intent(UserInfoActivity.this, CheckoutActivity.class);
                 // Pass booking details
                 intent.putExtra("pickup_location", pickupLocation);
@@ -63,41 +70,96 @@ public class UserInfoActivity extends AppCompatActivity {
                 intent.putExtra("dropoff_date", dropoffDate);
                 intent.putExtra("dropoff_time", dropoffTime);
                 // Pass user info
-                intent.putExtra("full_name", etFullName.getText().toString());
-                intent.putExtra("email", etEmail.getText().toString());
-                intent.putExtra("phone", etPhone.getText().toString());
-                intent.putExtra("aadhar_number", etAadharNumber.getText().toString());
-                intent.putExtra("pan_number", etPanNumber.getText().toString());
+                intent.putExtra("full_name", etFullName.getText().toString().trim());
+                intent.putExtra("email", etEmail.getText().toString().trim());
+                intent.putExtra("phone", etPhone.getText().toString().trim());
+                intent.putExtra("aadhar_number", etAadharNumber.getText().toString().trim());
+                intent.putExtra("pan_number", etPanNumber.getText().toString().trim());
+
                 startActivity(intent);
+
+                // Reset button state
+                btnNextStep.setEnabled(true);
+                btnNextStep.setText("Next Step");
             }
         });
     }
 
     private boolean validateInputs() {
-        if (etFullName.getText().toString().trim().isEmpty()) {
-            Toast.makeText(this, "Please enter your full name", Toast.LENGTH_SHORT).show();
+        // Full Name validation
+        String fullName = etFullName.getText().toString().trim();
+        if (TextUtils.isEmpty(fullName)) {
+            etFullName.setError("Please enter your full name");
+            etFullName.requestFocus();
             return false;
         }
-        if (etEmail.getText().toString().trim().isEmpty()) {
-            Toast.makeText(this, "Please enter your email", Toast.LENGTH_SHORT).show();
+        if (fullName.length() < 2) {
+            etFullName.setError("Name must be at least 2 characters");
+            etFullName.requestFocus();
             return false;
         }
-        if (etPhone.getText().toString().trim().isEmpty()) {
-            Toast.makeText(this, "Please enter your phone number", Toast.LENGTH_SHORT).show();
+
+        // Email validation
+        String email = etEmail.getText().toString().trim();
+        if (TextUtils.isEmpty(email)) {
+            etEmail.setError("Please enter your email");
+            etEmail.requestFocus();
             return false;
         }
-        if (etAadharNumber.getText().toString().trim().isEmpty()) {
-            Toast.makeText(this, "Please enter your Aadhar number", Toast.LENGTH_SHORT).show();
+        if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            etEmail.setError("Please enter a valid email address");
+            etEmail.requestFocus();
             return false;
         }
-        if (etPanNumber.getText().toString().trim().isEmpty()) {
-            Toast.makeText(this, "Please enter your PAN number", Toast.LENGTH_SHORT).show();
+
+        // Phone validation
+        String phone = etPhone.getText().toString().trim();
+        if (TextUtils.isEmpty(phone)) {
+            etPhone.setError("Please enter your phone number");
+            etPhone.requestFocus();
             return false;
         }
+        if (!Patterns.PHONE.matcher(phone).matches() || phone.length() < 10) {
+            etPhone.setError("Please enter a valid phone number");
+            etPhone.requestFocus();
+            return false;
+        }
+
+        // Aadhar validation
+        String aadhar = etAadharNumber.getText().toString().trim();
+        if (TextUtils.isEmpty(aadhar)) {
+            etAadharNumber.setError("Please enter your Aadhar number");
+            etAadharNumber.requestFocus();
+            return false;
+        }
+        if (aadhar.length() != 12 || !aadhar.matches("\\d+")) {
+            etAadharNumber.setError("Aadhar number must be 12 digits");
+            etAadharNumber.requestFocus();
+            return false;
+        }
+
+        // PAN validation
+        String pan = etPanNumber.getText().toString().trim().toUpperCase();
+        if (TextUtils.isEmpty(pan)) {
+            etPanNumber.setError("Please enter your PAN number");
+            etPanNumber.requestFocus();
+            return false;
+        }
+
+        // Terms acceptance
         if (!cbTermsAccepted.isChecked()) {
             Toast.makeText(this, "Please accept the Terms of Service", Toast.LENGTH_SHORT).show();
             return false;
         }
+
         return true;
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Reset button state when returning to this activity
+        btnNextStep.setEnabled(true);
+        btnNextStep.setText("Next Step");
     }
 }
