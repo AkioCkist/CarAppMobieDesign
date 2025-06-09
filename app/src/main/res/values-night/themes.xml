@@ -29,5 +29,6 @@
 
         <!-- Remove window content transitions for clean look -->
         <item name="android:windowContentTransitions">false</item>
+
     </style>
 </resources>

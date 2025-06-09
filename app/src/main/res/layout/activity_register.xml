@@ -8,12 +8,10 @@
     android:padding="24dp"
     android:gravity="center_vertical">
 
-    <!-- Status bar spacer -->
     <View
         android:layout_width="match_parent"
         android:layout_height="48dp" />
 
-    <!-- Welcome Text -->
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -24,7 +22,6 @@
         android:lineSpacingExtra="4dp"
         android:layout_marginBottom="8dp" />
 
-    <!-- Subtitle -->
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -34,7 +31,6 @@
         android:textColor="@color/text_secondary"
         android:textSize="20sp" />
 
-    <!-- Name Input -->
     <EditText
         android:id="@+id/editTextName"
         android:layout_width="match_parent"
@@ -49,22 +45,20 @@
         android:paddingEnd="20dp"
         android:layout_marginBottom="16dp" />
 
-    <!-- Email Input -->
     <EditText
-        android:id="@+id/editTextEmail"
+        android:id="@+id/editTextPhoneNumber"
         android:layout_width="match_parent"
         android:layout_height="56dp"
         android:background="@drawable/input_background"
-        android:hint="johndoe@mail.com"
+        android:hint="Phone Number"
         android:textColorHint="@color/text_hint"
         android:textColor="@color/white"
         android:textSize="16sp"
-        android:inputType="textEmailAddress"
+        android:inputType="phone"
         android:paddingStart="20dp"
         android:paddingEnd="20dp"
         android:layout_marginBottom="16dp" />
 
-    <!-- Password Input -->
     <EditText
         android:id="@+id/editTextPassword"
         android:layout_width="match_parent"
@@ -79,7 +73,6 @@
         android:paddingEnd="20dp"
         android:layout_marginBottom="16dp" />
 
-    <!-- Confirm Password Input -->
     <EditText
         android:id="@+id/editTextConfirmPassword"
         android:layout_width="match_parent"
@@ -94,7 +87,6 @@
         android:paddingEnd="20dp"
         android:layout_marginBottom="24dp" />
 
-    <!-- Terms and Conditions Checkbox -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -120,7 +112,6 @@
             android:onClick="onTermsTextClicked"/>
     </LinearLayout>
 
-    <!-- Register Button -->
     <Button
         android:id="@+id/buttonRegister"
         android:layout_width="match_parent"
@@ -134,7 +125,6 @@
         android:fontFamily="@font/notosans_semibold"
         style="@style/Widget.AppCompat.Button.Borderless" />
 
-    <!-- Already have an account Text -->
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
