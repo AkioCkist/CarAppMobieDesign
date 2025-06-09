@@ -59,7 +59,7 @@ public class UserInfoActivity extends AppCompatActivity {
             if (validateInputs()) {
                 // Show loading state
                 btnNextStep.setEnabled(false);
-                btnNextStep.setText("Processing...");
+                btnNextStep.setText("Verifying...");
 
                 Intent intent = new Intent(UserInfoActivity.this, CheckoutActivity.class);
                 // Pass booking details
@@ -80,7 +80,7 @@ public class UserInfoActivity extends AppCompatActivity {
 
                 // Reset button state
                 btnNextStep.setEnabled(true);
-                btnNextStep.setText("Next Step");
+                btnNextStep.setText("Verify");
             }
         });
     }
@@ -160,6 +160,6 @@ public class UserInfoActivity extends AppCompatActivity {
         super.onResume();
         // Reset button state when returning to this activity
         btnNextStep.setEnabled(true);
-        btnNextStep.setText("Next Step");
+        btnNextStep.setText("Verify");
     }
 }
