@@ -36,50 +36,55 @@
             android:layout_height="0dp"
             android:layout_weight="1" />
 
-        <!-- Profile Section (Giữ nguyên) -->
+        <!-- Profile Section (Replaced) -->
         <LinearLayout
             android:id="@+id/profileSection"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:padding="8dp"
+            android:background="?android:attr/selectableItemBackground"
             android:clickable="true"
             android:focusable="true"
-            android:background="?android:attr/selectableItemBackground">
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:gravity="end"
-                android:layout_marginEnd="8dp">
-
-                <TextView
-                    android:id="@+id/textViewUserName"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="User Name"
-                    android:textSize="14sp"
-                    android:textColor="#333333"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/textViewUserPhone"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="+84 123 456 789"
-                    android:textSize="12sp"
-                    android:textColor="#666666" />
-            </LinearLayout>
+            android:padding="8dp">
 
             <ImageView
                 android:id="@+id/imageViewProfile"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:src="@drawable/ic_profile"
+                android:src="@drawable/default_avatar"
                 android:background="@drawable/circle_background"
-                android:scaleType="centerCrop" />
+                android:scaleType="centerCrop"
+                android:layout_marginEnd="12dp" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="start">
+
+                <TextView
+                    android:id="@+id/textViewUserName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:fontFamily="@font/notosans_semibold"
+                    android:maxLines="1"
+                    android:text="User Name"
+                    android:textColor="@color/black"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:id="@+id/textViewUserPhone"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Phone Number"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="12sp"
+                    android:fontFamily="@font/notosans_regular"
+                    android:maxLines="1"
+                    android:ellipsize="end" />
+            </LinearLayout>
         </LinearLayout>
     </LinearLayout>
 

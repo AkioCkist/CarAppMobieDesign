@@ -60,8 +60,8 @@ public class CarListing extends AppCompatActivity {
     // Thông tin thời gian và địa điểm
     private String pickupTime = "21:00 21/6/2025";
     private String returnTime = "19:00 23/6/2025";
-    private String pickupLocation = "Headquarter: 123 Main St, Đà Nẵng";
-    private String returnLocation = "Headquarter: 123 Main St, Đà Nẵng";
+    private String pickupLocation = "123 Main St, Đà Nẵng";
+    private String returnLocation = "123 Main St, Đà Nẵng";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
