@@ -352,19 +352,32 @@ public class CarListing extends AppCompatActivity {
     }
 
     private void handleRentalNow(CarItem car) {
-        // TODO: Navigate to Car Detail activity
+        // Navigate to Car Detail activity
         Toast.makeText(this, "Opening details for " + car.getName(), Toast.LENGTH_SHORT).show();
 
-        // Uncomment when CarDetail activity is created
-        // Intent intent = new Intent(CarListing.this, CarDetailActivity.class);
-        // intent.putExtra("car_data", car);
-        // intent.putExtra("user_phone", userPhone);
-        // intent.putExtra("user_name", userName);
-        // intent.putExtra("pickup_time", pickupTime);
-        // intent.putExtra("return_time", returnTime);
-        // intent.putExtra("pickup_location", pickupLocation);
-        // intent.putExtra("return_location", returnLocation);
-        // startActivity(intent);
+        // Create intent and pass car data to CarDetailActivity
+        Intent intent = new Intent(CarListing.this, com.midterm.mobiledesignfinalterm.CarDetail.CarDetailActivity.class);
+        intent.putExtra("car_name", car.getName());
+        intent.putExtra("car_type", car.getType());
+        intent.putExtra("car_fuel", car.getFuelType());
+        intent.putExtra("car_transmission", car.getTransmission());
+        intent.putExtra("car_seats", car.getSeats());
+        intent.putExtra("car_consumption", car.getConsumption());
+        intent.putExtra("car_price", car.getPrice());
+        intent.putExtra("car_original_price", car.getOriginalPrice());
+        intent.putExtra("car_image", car.getImageResource());
+
+        // Pass user information
+        intent.putExtra("user_phone", userPhone);
+        intent.putExtra("user_name", userName);
+
+        // Pass booking details
+        intent.putExtra("pickup_time", pickupTime);
+        intent.putExtra("return_time", returnTime);
+        intent.putExtra("pickup_location", pickupLocation);
+        intent.putExtra("return_location", returnLocation);
+
+        startActivity(intent);
     }
 
     private void handleFavoriteToggle(CarItem car, int position) {
