@@ -60,8 +60,8 @@ public class CarListing extends AppCompatActivity {
     // Thông tin thời gian và địa điểm
     private String pickupTime = "21:00 21/6/2025";
     private String returnTime = "19:00 23/6/2025";
-    private String pickupLocation = "Headquarter: 123 Main St, Đà Nẵng";
-    private String returnLocation = "Headquarter: 123 Main St, Đà Nẵng";
+    private String pickupLocation = "123 Main St, Đà Nẵng";
+    private String returnLocation = "123 Main St, Đà Nẵng";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -128,9 +128,9 @@ public class CarListing extends AppCompatActivity {
     }
 
     private void updateDateTimeLocationButton() {
-        // Cập nhật text cho button với thông tin thời gian và địa điểm
-        String buttonText = "Nhận xe: " + pickupTime + " tại " + pickupLocation +
-                "\nTrả xe: " + returnTime + " tại " + returnLocation;
+        // Format: Đà Nẵng --- Đà Nẵng\n12:00 21/07/2025 --- 12:00 31/07/2025
+        String buttonText = pickupLocation + " --- " + returnLocation + "\n"
+                + pickupTime + " --- " + returnTime;
         buttonDateTime.setText(buttonText);
     }
 
@@ -274,14 +274,76 @@ public class CarListing extends AppCompatActivity {
 
     // Click handlers
     private void handleDateTimeLocationSetting() {
-        // TODO: Mở dialog để chọn thời gian nhận và trả xe
-        // Hiện tại chỉ hiển thị thông báo
-        String message = "Chọn thời gian và địa điểm:\n" +
-                "Nhận xe: " + pickupTime + "\n" +
-                "Địa điểm nhận: " + pickupLocation + "\n" +
-                "Trả xe: " + returnTime + "\n" +
-                "Địa điểm trả: " + returnLocation;
-        Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+        // Show custom dialog for selecting location and time
+        showDateTimeLocationDialog();
+    }
+
+    private void showDateTimeLocationDialog() {
+        // Create a custom dialog view
+        android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this);
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_datetime_location, null);
+        builder.setView(dialogView);
+
+        // Location spinners
+        android.widget.Spinner spinnerPickupLocation = dialogView.findViewById(R.id.spinnerPickupLocation);
+        android.widget.Spinner spinnerReturnLocation = dialogView.findViewById(R.id.spinnerReturnLocation);
+        // Time buttons
+        Button btnPickupTime = dialogView.findViewById(R.id.btnPickupTime);
+        Button btnReturnTime = dialogView.findViewById(R.id.btnReturnTime);
+        // Confirm button
+        Button btnConfirm = dialogView.findViewById(R.id.btnConfirm);
+        Button btnCancel = dialogView.findViewById(R.id.btnCancel);
+
+        // Setup location options
+        String[] locations = {"Đà Nẵng", "Hồ Chí Minh", "Hà Nội"};
+        android.widget.ArrayAdapter<String> adapter = new android.widget.ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, locations);
+        spinnerPickupLocation.setAdapter(adapter);
+        spinnerReturnLocation.setAdapter(adapter);
+        // Set current selection
+        spinnerPickupLocation.setSelection(java.util.Arrays.asList(locations).indexOf(pickupLocation));
+        spinnerReturnLocation.setSelection(java.util.Arrays.asList(locations).indexOf(returnLocation));
+
+        // Set current time
+        btnPickupTime.setText(pickupTime);
+        btnReturnTime.setText(returnTime);
+
+        // Time pickers
+        btnPickupTime.setOnClickListener(v -> showDateTimePicker(btnPickupTime));
+        btnReturnTime.setOnClickListener(v -> showDateTimePicker(btnReturnTime));
+
+        android.app.AlertDialog dialog = builder.create();
+        btnConfirm.setOnClickListener(v -> {
+            pickupLocation = spinnerPickupLocation.getSelectedItem().toString();
+            returnLocation = spinnerReturnLocation.getSelectedItem().toString();
+            pickupTime = btnPickupTime.getText().toString();
+            returnTime = btnReturnTime.getText().toString();
+            updateDateTimeLocationButton();
+            dialog.dismiss();
+        });
+        btnCancel.setOnClickListener(v -> dialog.dismiss());
+        dialog.show();
+    }
+
+    private void showDateTimePicker(Button targetButton) {
+        // Parse current value
+        String current = targetButton.getText().toString();
+        java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("HH:mm dd/MM/yyyy");
+        java.util.Calendar calendar = java.util.Calendar.getInstance();
+        try { calendar.setTime(sdf.parse(current)); } catch (Exception ignored) {}
+        int year = calendar.get(java.util.Calendar.YEAR);
+        int month = calendar.get(java.util.Calendar.MONTH);
+        int day = calendar.get(java.util.Calendar.DAY_OF_MONTH);
+        int hour = calendar.get(java.util.Calendar.HOUR_OF_DAY);
+        int minute = calendar.get(java.util.Calendar.MINUTE);
+        android.app.DatePickerDialog datePicker = new android.app.DatePickerDialog(this, (view, y, m, d) -> {
+            android.app.TimePickerDialog timePicker = new android.app.TimePickerDialog(this, (tp, h, min) -> {
+                java.util.Calendar cal = java.util.Calendar.getInstance();
+                cal.set(y, m, d, h, min);
+                targetButton.setText(sdf.format(cal.getTime()));
+            }, hour, minute, true);
+            timePicker.show();
+        }, year, month, day);
+        datePicker.show();
     }
 
     private void handleFilterOptions() {
@@ -290,19 +352,32 @@ public class CarListing extends AppCompatActivity {
     }
 
     private void handleRentalNow(CarItem car) {
-        // TODO: Navigate to Car Detail activity
+        // Navigate to Car Detail activity
         Toast.makeText(this, "Opening details for " + car.getName(), Toast.LENGTH_SHORT).show();
 
-        // Uncomment when CarDetail activity is created
-        // Intent intent = new Intent(CarListing.this, CarDetailActivity.class);
-        // intent.putExtra("car_data", car);
-        // intent.putExtra("user_phone", userPhone);
-        // intent.putExtra("user_name", userName);
-        // intent.putExtra("pickup_time", pickupTime);
-        // intent.putExtra("return_time", returnTime);
-        // intent.putExtra("pickup_location", pickupLocation);
-        // intent.putExtra("return_location", returnLocation);
-        // startActivity(intent);
+        // Create intent and pass car data to CarDetailActivity
+        Intent intent = new Intent(CarListing.this, com.midterm.mobiledesignfinalterm.CarDetail.CarDetailActivity.class);
+        intent.putExtra("car_name", car.getName());
+        intent.putExtra("car_type", car.getType());
+        intent.putExtra("car_fuel", car.getFuelType());
+        intent.putExtra("car_transmission", car.getTransmission());
+        intent.putExtra("car_seats", car.getSeats());
+        intent.putExtra("car_consumption", car.getConsumption());
+        intent.putExtra("car_price", car.getPrice());
+        intent.putExtra("car_original_price", car.getOriginalPrice());
+        intent.putExtra("car_image", car.getImageResource());
+
+        // Pass user information
+        intent.putExtra("user_phone", userPhone);
+        intent.putExtra("user_name", userName);
+
+        // Pass booking details
+        intent.putExtra("pickup_time", pickupTime);
+        intent.putExtra("return_time", returnTime);
+        intent.putExtra("pickup_location", pickupLocation);
+        intent.putExtra("return_location", returnLocation);
+
+        startActivity(intent);
     }
 
     private void handleFavoriteToggle(CarItem car, int position) {
@@ -565,3 +640,4 @@ public class CarListing extends AppCompatActivity {
         public void setFavorite(boolean favorite) { isFavorite = favorite; }
     }
 }
+

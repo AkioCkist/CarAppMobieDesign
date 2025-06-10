@@ -510,7 +510,20 @@ public class Homepage extends AppCompatActivity implements LocationListener {
             @Override
             public void onClick(View v) {
                 animateButtonClick(v);
-                handleProceedToSearch();
+                // Start CarListing activity and pass user info and pickup/drop-off data
+                Intent intent = new Intent(Homepage.this, com.midterm.mobiledesignfinalterm.CarListing.CarListing.class);
+                intent.putExtra("user_phone", userPhone);
+                intent.putExtra("user_name", userName);
+                if (userRoles != null) {
+                    intent.putStringArrayListExtra("user_roles", new ArrayList<>(userRoles));
+                }
+                intent.putExtra("pickup_location", textViewPickupLocation.getText().toString());
+                intent.putExtra("dropoff_location", textViewDropoffLocation.getText().toString());
+                intent.putExtra("pickup_date", textViewPickupDate.getText().toString());
+                intent.putExtra("pickup_time", textViewPickupTime.getText().toString());
+                intent.putExtra("dropoff_date", textViewDropoffDate.getText().toString());
+                intent.putExtra("dropoff_time", textViewDropoffTime.getText().toString());
+                startActivity(intent);
             }
         });
     }
@@ -809,3 +822,4 @@ public class Homepage extends AppCompatActivity implements LocationListener {
         public int getImageResource() { return imageResource; }
     }
 }
+

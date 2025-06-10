@@ -35,4 +35,19 @@
     <color name="rating_yellow">#FFC107</color>
 
     <color name="primary">#FFD700</color>
+
+    <!-- Primary Colors -->
+    <color name="green_primary">#4CAF50</color>
+    <color name="background_primary_cardetail">#F5F5F5</color>
+
+    <!-- Basic Colors -->
+    <color name="dark_gray">#2E2E2E</color>
+
+    <!-- Text Colors -->
+    <color name="text_secondary_cardetail">#757575</color>
+    <color name="text_light_gray">#BDBDBD</color>
+
+    <!-- Status Colors -->
+    <color name="blue_primary">#2196F3</color>
+    <color name="orange_primary">#FF9800</color>
 </resources>

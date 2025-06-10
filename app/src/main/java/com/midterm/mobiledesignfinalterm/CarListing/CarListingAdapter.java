@@ -160,7 +160,7 @@ public class CarListingAdapter extends RecyclerView.Adapter<CarListingAdapter.Ca
         }
 
         private void animateFavoriteClick(View view) {
-            // Heart animation
+            // Heart animation chỉ scale và xoay, không thay đổi elevation
             ObjectAnimator scaleX = ObjectAnimator.ofFloat(view, "scaleX", 1f, 1.5f, 1f);
             ObjectAnimator scaleY = ObjectAnimator.ofFloat(view, "scaleY", 1f, 1.5f, 1f);
             ObjectAnimator rotation = ObjectAnimator.ofFloat(view, "rotation", 0f, 360f);
