@@ -98,7 +98,8 @@
                         android:layout_width="16dp"
                         android:layout_height="16dp"
                         android:src="@drawable/carlisting_ic_fuel"
-                        android:layout_marginEnd="8dp" />
+                        android:layout_marginEnd="8dp"
+                        app:tint="#18F45D" />
 
                     <TextView
                         android:id="@+id/textViewFuelType"
@@ -106,7 +107,7 @@
                         android:layout_height="wrap_content"
                         android:text="Xăng"
                         android:textSize="12sp"
-                        android:textColor="#A0AEC0" />
+                        android:textColor="#FFFFFF" />
 
                 </LinearLayout>
 
@@ -122,7 +123,8 @@
                         android:layout_width="16dp"
                         android:layout_height="16dp"
                         android:src="@drawable/carlisting_ic_transmission"
-                        android:layout_marginEnd="8dp" />
+                        android:layout_marginEnd="8dp"
+                        app:tint="#18F45D"/>
 
                     <TextView
                         android:id="@+id/textViewTransmission"
@@ -130,7 +132,7 @@
                         android:layout_height="wrap_content"
                         android:text="Số sàn"
                         android:textSize="12sp"
-                        android:textColor="#A0AEC0" />
+                        android:textColor="#FFFFFF" />
 
                 </LinearLayout>
 
@@ -146,7 +148,8 @@
                         android:layout_width="16dp"
                         android:layout_height="16dp"
                         android:src="@drawable/carlisting_ic_seat"
-                        android:layout_marginEnd="8dp" />
+                        android:layout_marginEnd="8dp"
+                        app:tint="#18F45D"/>
 
                     <TextView
                         android:id="@+id/textViewSeats"
@@ -154,7 +157,7 @@
                         android:layout_height="wrap_content"
                         android:text="6 People"
                         android:textSize="12sp"
-                        android:textColor="#A0AEC0" />
+                        android:textColor="#FFFFFF" />
 
                 </LinearLayout>
 
@@ -169,7 +172,8 @@
                         android:layout_width="16dp"
                         android:layout_height="16dp"
                         android:src="@drawable/carlisting_ic_consumption"
-                        android:layout_marginEnd="8dp" />
+                        android:layout_marginEnd="8dp"
+                        app:tint="#18F45D"/>
 
                     <TextView
                         android:id="@+id/textViewConsumption"
@@ -177,7 +181,7 @@
                         android:layout_height="wrap_content"
                         android:text="5L/100km"
                         android:textSize="12sp"
-                        android:textColor="#A0AEC0" />
+                        android:textColor="#FFFFFF" />
 
                 </LinearLayout>
 
