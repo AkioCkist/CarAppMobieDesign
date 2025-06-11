@@ -32,7 +32,7 @@
                 android:src="@drawable/ic_menu_navigation"
                 android:background="?android:attr/selectableItemBackgroundBorderless"
                 android:contentDescription="Navigation Menu"
-                android:tint="#18F45D"
+                app:tint="#18F45D"
                 android:padding="8dp"/>
 
             <!-- Spacer -->
@@ -98,17 +98,18 @@
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="250dp"
-            android:background="@color/dark_gray">
+            android:background="222126">
 
             <ImageView
                 android:id="@+id/imageViewCarMain"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_margin="16dp"
+                android:layout_margin="10dp"
                 android:adjustViewBounds="true"
                 android:clipToOutline="true"
                 android:scaleType="centerCrop"
-                android:src="@drawable/intro_bg_1" />
+                android:src="@drawable/intro_bg_1"
+                android:background="@drawable/cardetail_rounded_corner"/>
 
             <!-- Image indicators -->
             <LinearLayout
@@ -126,7 +127,8 @@
                     android:adjustViewBounds="true"
                     android:clipToOutline="true"
                     android:scaleType="centerCrop"
-                    android:src="@drawable/intro_bg_2" />
+                    android:src="@drawable/intro_bg_2"
+                    android:background="@drawable/cardetail_rounded_corner"/>
 
                 <ImageView
                     android:id="@+id/thumbnail2"
@@ -136,7 +138,8 @@
                     android:adjustViewBounds="true"
                     android:clipToOutline="true"
                     android:scaleType="centerCrop"
-                    android:src="@drawable/intro_bg_1" />
+                    android:src="@drawable/intro_bg_1"
+                    android:background="@drawable/cardetail_rounded_corner"/>
 
                 <ImageView
                     android:id="@+id/thumbnail3"
@@ -145,7 +148,8 @@
                     android:adjustViewBounds="true"
                     android:clipToOutline="true"
                     android:scaleType="centerCrop"
-                    android:src="@drawable/intro_bg_3" />
+                    android:src="@drawable/intro_bg_3"
+                    android:background="@drawable/cardetail_rounded_corner"/>
             </LinearLayout>
         </FrameLayout>
 
@@ -153,13 +157,14 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:background="@color/dark_gray"
+            android:background="@drawable/cardetail_rounded_corner"
             android:padding="16dp"
-            android:layout_marginTop="8dp">
+            android:layout_margin="10dp"
+            >
 
             <!-- Car Model -->
             <TextView
-                android:id="@+id/textViewCarModel"
+                android:id="@+id/tv_CarName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Nissan GT-R"
@@ -167,25 +172,84 @@
                 android:textSize="20sp"
                 android:fontFamily="@font/notosans_bold"
                 android:layout_marginBottom="8dp" />
-
-            <!-- Car Description -->
-            <TextView
-                android:id="@+id/textViewCarDescription"
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Xe thể thao cao cấp với động cơ mạnh mẽ và thiết kế thời trang. Phù hợp cho những chuyến đi ngắn và trải nghiệm lái xe tuyệt vời."
-                android:textColor="@color/text_light_gray"
-                android:textSize="14sp"
-                android:fontFamily="@font/notosans_regular"
-                android:lineSpacingExtra="4dp"
-                android:layout_marginBottom="16dp" />
+                android:layout_height="22dp"
+                android:orientation="horizontal"
+                android:layout_marginBottom="8dp">
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginRight="10dp">
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_marginRight="5dp"
+                        android:src="@drawable/cardetail_star">
+                    </ImageView>
+                    <TextView
+                        android:id="@+id/tv_rating"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:text="4.5"
+                        android:textColor="@color/white"
+                        android:textSize="14sp"
+                        android:fontFamily="@font/notosans_regular" />
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_marginRight="5dp"
+                        android:src="@drawable/cardetail_trips">
+                    </ImageView>
+                    <TextView
+                        android:id="@+id/tv_trips"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:text="446 Chuyến"
+                        android:textColor="@color/white"
+                        android:textSize="14sp"
+                        android:fontFamily="@font/notosans_regular" />
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_marginRight="5dp"
+                        android:src="@drawable/cardetail_location">
+                    </ImageView>
+                    <TextView
+                        android:id="@+id/tv_location"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:text="Hà Nội, Việt Nam"
+                        android:textColor="@color/white"
+                        android:textSize="14sp"
+                        android:fontFamily="@font/notosans_regular" />
+                </LinearLayout>
+            </LinearLayout>
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginBottom="8dp"
+                android:background="@color/black"
+                >
+            </View>
 
             <!-- Specifications Grid -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_marginBottom="16dp">
+                android:layout_marginBottom="5dp">
 
                 <!-- Left Column -->
                 <LinearLayout
@@ -199,10 +263,17 @@
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
                         android:layout_marginBottom="8dp">
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/carlisting_ic_transmission"
+                            android:layout_marginRight="10dp">
+                        </ImageView>
                         <TextView
+                            android:id="@+id/tv_transmission"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="⚙️ Manual"
+                            android:text="Manual"
                             android:textColor="@color/white"
                             android:textSize="12sp"
                             android:fontFamily="@font/notosans_regular" />
@@ -213,10 +284,17 @@
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
                         android:layout_marginBottom="8dp">
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/carlisting_ic_fuel"
+                            android:layout_marginRight="10dp">
+                        </ImageView>
                         <TextView
+                            android:id="@+id/tv_fuelType"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="⛽ Diesel"
+                            android:text="Diesel"
                             android:textColor="@color/white"
                             android:textSize="12sp"
                             android:fontFamily="@font/notosans_regular" />
@@ -235,10 +313,17 @@
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
                         android:layout_marginBottom="8dp">
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/carlisting_ic_seat"
+                            android:layout_marginRight="10dp">
+                        </ImageView>
                         <TextView
+                            android:id="@+id/tv_seatCount"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="👥 4 Person"
+                            android:text="4 Person"
                             android:textColor="@color/white"
                             android:textSize="12sp"
                             android:fontFamily="@font/notosans_regular" />
@@ -249,10 +334,17 @@
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
                         android:layout_marginBottom="8dp">
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/carlisting_ic_consumption"
+                            android:layout_marginRight="10dp">
+                        </ImageView>
                         <TextView
+                            android:id="@+id/tv_consumption"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="🏎️ Sport"
+                            android:text="7L/100km"
                             android:textColor="@color/white"
                             android:textSize="12sp"
                             android:fontFamily="@font/notosans_regular" />
@@ -266,9 +358,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:background="@color/dark_gray"
+            android:background="@drawable/cardetail_rounded_corner"
             android:padding="16dp"
-            android:layout_marginTop="8dp">
+            android:layout_margin="10dp">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -374,9 +466,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:background="@color/dark_gray"
+            android:background="@drawable/cardetail_rounded_corner"
             android:padding="16dp"
-            android:layout_marginTop="8dp">
+            android:layout_margin="10dp">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -388,6 +480,7 @@
                 android:layout_marginBottom="12dp" />
 
             <TextView
+                android:id="@+id/tv_description"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Sự dụng xe dùng hình chúm của tôi thì xe dùng xe thuê dịch vụ thuê xe hơi online. Xe có nội thất cao cấp và được bảo dưỡng định kỳ. Xe còn rất mới và phù hợp cho cả chuyến đi business và du lịch gia đình. Xe được vệ sinh sạch sẽ sau mỗi chuyến. Có thể giao xe tận nơi theo yêu cầu. Thích hợp cho những ai cần thuê xe trong thời gian ngắn hoặc dài hạn với giá cả hợp lý và chất lượng tốt nhất."
@@ -402,9 +495,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:background="@color/dark_gray"
+            android:background="@drawable/cardetail_rounded_corner"
             android:padding="16dp"
-            android:layout_marginTop="8dp">
+            android:layout_margin="10dp">
 
             <!-- Rental Price -->
             <LinearLayout
