@@ -285,7 +285,6 @@
             android:clipToPadding="false"
             android:paddingBottom="16dp"
             tools:listitem="@layout/item_car_listing" />
-
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

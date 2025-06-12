@@ -23,7 +23,11 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.midterm.mobiledesignfinalterm.R;
+import com.midterm.mobiledesignfinalterm.api.CarApiService;
+import com.midterm.mobiledesignfinalterm.api.RetrofitClient;
 import com.midterm.mobiledesignfinalterm.authentication.Login;
+import com.midterm.mobiledesignfinalterm.models.ApiResponse;
+import com.midterm.mobiledesignfinalterm.models.Car;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,8 +58,8 @@ public class CarListing extends AppCompatActivity {
 
     // Car data
     private CarListingAdapter carAdapter;
-    private List<CarItem> carList;
-    private List<CarItem> filteredCarList;
+    private List<Car> carList;
+    private List<Car> filteredCarList;
 
     // Thông tin thời gian và địa điểm
     private String pickupTime = "21:00 21/6/2025";
@@ -133,6 +137,8 @@ public class CarListing extends AppCompatActivity {
                 + pickupTime + " --- " + returnTime;
         buttonDateTime.setText(buttonText);
     }
+
+
 
     private void setupClickListeners() {
         // Search functionality
@@ -222,12 +228,12 @@ public class CarListing extends AppCompatActivity {
 
         carAdapter = new CarListingAdapter(filteredCarList, new CarListingAdapter.OnCarItemClickListener() {
             @Override
-            public void onRentalClick(CarItem car) {
+            public void onRentalClick(Car car) {
                 handleRentalNow(car);
             }
 
             @Override
-            public void onFavoriteClick(CarItem car, int position) {
+            public void onFavoriteClick(Car car, int position) {
                 handleFavoriteToggle(car, position);
             }
         });
@@ -247,21 +253,89 @@ public class CarListing extends AppCompatActivity {
     }
 
     private void loadCarData() {
-        // Simulate API call - replace with actual API integration
+        // Show loading indicator
+        View loadingView = findViewById(R.id.loadingView);
+        if (loadingView != null) {
+            loadingView.setVisibility(View.VISIBLE);
+        }
+
+        // Use RetrofitClient to call API
+        CarApiService apiService = RetrofitClient.getCarApiService();
+        apiService.getAllCars().enqueue(new retrofit2.Callback<ApiResponse<List<Car>>>() {
+            @Override
+            public void onResponse(retrofit2.Call<ApiResponse<List<Car>>> call, retrofit2.Response<ApiResponse<List<Car>>> response) {
+                if (loadingView != null) {
+                    loadingView.setVisibility(View.GONE);
+                }
+
+                if (response.isSuccessful() && response.body() != null && response.body().getData() != null) {
+                    // Success - get cars from response
+                    List<Car> fetchedCars = response.body().getData();
+                    carList.clear();
+                    carList.addAll(fetchedCars);
+
+                    // Update filtered list and adapter
+                    filteredCarList.clear();
+                    filteredCarList.addAll(carList);
+                    carAdapter.notifyDataSetChanged();
+
+                    // Update car count
+                    textViewCarCount.setText("Found " + filteredCarList.size() + " cars");
+                } else {
+                    // Error handling
+                    Toast.makeText(CarListing.this, "Failed to load cars", Toast.LENGTH_SHORT).show();
+                    loadSampleCarData(); // Fallback to sample data
+                }
+            }
+
+            @Override
+            public void onFailure(retrofit2.Call<ApiResponse<List<Car>>> call, Throwable t) {
+                if (loadingView != null) {
+                    loadingView.setVisibility(View.GONE);
+                }
+                Toast.makeText(CarListing.this, "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                loadSampleCarData(); // Fallback to sample data
+                t.printStackTrace();
+            }
+        });
+    }
+    // Fallback method to load sample data when API fails
+    private void loadSampleCarData() {
         carList.clear();
 
-        // Sample car data - replace with API response
-        carList.add(new CarItem("All New Rush", "SUV", "Xăng", "Số sàn", "6 People",
-                "5L/100km", "$72.00", "$80.00", R.drawable.tesla_model_x, false));
+        // Create Car objects using the correct constructor parameters
+        // Examine the fields you're accessing in the CarListingAdapter:
+        // name, brandCar, fuelType, transmission, seats, consumption, basePrice, priceFormatted, primaryImage, favorite
 
-        carList.add(new CarItem("CR - V", "SUV", "Xăng", "Số sàn", "6 People",
-                "5L/100km", "$80.00", "$90.00", R.drawable.tesla_model_3, true));
+        Car car1 = new Car();
+        car1.setVehicleId(1);
+        car1.setName("Honda Civic");
+        car1.setBrandCar("Honda");
+        car1.setFuelType("Petrol");
+        car1.setTransmission("Automatic");
+        car1.setSeats(5);
+        car1.setFuel_consumption(String.valueOf(6.5));
+        car1.setBasePrice(1500000);
+        car1.setPriceFormatted("1,500,000 VND");
+        car1.setPrimaryImage("https://example.com/car1.jpg");
+        car1.setFavorite(false);
+        carList.add(car1);
 
-        carList.add(new CarItem("Tesla Model S", "Sedan", "Electric", "Auto", "5 People",
-                "0L/100km", "$95.00", "$110.00", R.drawable.tesla_model_x, false));
+        Car car2 = new Car();
+        car2.setVehicleId(2);
+        car2.setName("Toyota Corolla");
+        car2.setBrandCar("Toyota");
+        car2.setFuelType("Hybrid");
+        car2.setTransmission("Automatic");
+        car2.setSeats(5);
+        car2.setFuel_consumption(String.valueOf(5.5));
+        car2.setBasePrice(1800000);
+        car2.setPriceFormatted("1,800,000 VND");
+        car2.setPrimaryImage("https://example.com/car2.jpg");
+        car2.setFavorite(true);
+        carList.add(car2);
 
-        carList.add(new CarItem("BMW X5", "SUV", "Xăng", "Auto", "7 People",
-                "8L/100km", "$120.00", "$140.00", R.drawable.tesla_model_3, false));
+        // Add more sample cars here if needed
 
         // Update filtered list and adapter
         filteredCarList.clear();
@@ -351,21 +425,21 @@ public class CarListing extends AppCompatActivity {
         Toast.makeText(this, "Filter options - Coming soon", Toast.LENGTH_SHORT).show();
     }
 
-    private void handleRentalNow(CarItem car) {
+    private void handleRentalNow(Car car) {
         // Navigate to Car Detail activity
         Toast.makeText(this, "Opening details for " + car.getName(), Toast.LENGTH_SHORT).show();
 
         // Create intent and pass car data to CarDetailActivity
         Intent intent = new Intent(CarListing.this, com.midterm.mobiledesignfinalterm.CarDetail.CarDetailActivity.class);
         intent.putExtra("car_name", car.getName());
-        intent.putExtra("car_type", car.getType());
+        intent.putExtra("car_type", car.getBrandCar());
         intent.putExtra("car_fuel", car.getFuelType());
         intent.putExtra("car_transmission", car.getTransmission());
         intent.putExtra("car_seats", car.getSeats());
-        intent.putExtra("car_consumption", car.getConsumption());
-        intent.putExtra("car_price", car.getPrice());
-        intent.putExtra("car_original_price", car.getOriginalPrice());
-        intent.putExtra("car_image", car.getImageResource());
+        intent.putExtra("car_consumption", car.getFormattedConsumption());
+        intent.putExtra("car_price", car.getPriceFormatted());
+//        intent.putExtra("car_original_price", car.getOriginalPrice());
+        intent.putExtra("car_image", car.getPrimaryImage());
 
         // Pass user information
         intent.putExtra("user_phone", userPhone);
@@ -380,7 +454,7 @@ public class CarListing extends AppCompatActivity {
         startActivity(intent);
     }
 
-    private void handleFavoriteToggle(CarItem car, int position) {
+    private void handleFavoriteToggle(Car car, int position) {
         car.setFavorite(!car.isFavorite());
         carAdapter.notifyItemChanged(position);
 
@@ -578,66 +652,6 @@ public class CarListing extends AppCompatActivity {
     public void setReturnLocation(String returnLocation) {
         this.returnLocation = returnLocation;
         updateDateTimeLocationButton();
-    }
-
-    // Car Item Data Class
-    public static class CarItem {
-        private String name;
-        private String type;
-        private String fuelType;
-        private String transmission;
-        private String seats;
-        private String consumption;
-        private String price;
-        private String originalPrice;
-        private int imageResource;
-        private boolean isFavorite;
-
-        public CarItem(String name, String type, String fuelType, String transmission,
-                       String seats, String consumption, String price, String originalPrice,
-                       int imageResource, boolean isFavorite) {
-            this.name = name;
-            this.type = type;
-            this.fuelType = fuelType;
-            this.transmission = transmission;
-            this.seats = seats;
-            this.consumption = consumption;
-            this.price = price;
-            this.originalPrice = originalPrice;
-            this.imageResource = imageResource;
-            this.isFavorite = isFavorite;
-        }
-
-        // Getters and Setters
-        public String getName() { return name; }
-        public void setName(String name) { this.name = name; }
-
-        public String getType() { return type; }
-        public void setType(String type) { this.type = type; }
-
-        public String getFuelType() { return fuelType; }
-        public void setFuelType(String fuelType) { this.fuelType = fuelType; }
-
-        public String getTransmission() { return transmission; }
-        public void setTransmission(String transmission) { this.transmission = transmission; }
-
-        public String getSeats() { return seats; }
-        public void setSeats(String seats) { this.seats = seats; }
-
-        public String getConsumption() { return consumption; }
-        public void setConsumption(String consumption) { this.consumption = consumption; }
-
-        public String getPrice() { return price; }
-        public void setPrice(String price) { this.price = price; }
-
-        public String getOriginalPrice() { return originalPrice; }
-        public void setOriginalPrice(String originalPrice) { this.originalPrice = originalPrice; }
-
-        public int getImageResource() { return imageResource; }
-        public void setImageResource(int imageResource) { this.imageResource = imageResource; }
-
-        public boolean isFavorite() { return isFavorite; }
-        public void setFavorite(boolean favorite) { isFavorite = favorite; }
     }
 }
 

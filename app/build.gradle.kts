@@ -48,4 +48,19 @@ dependencies {
 
     implementation ("org.mindrot:jbcrypt:0.4")
     implementation ("com.android.volley:volley:1.2.1")
+
+    // Retrofit for API calls
+    implementation ("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation ("com.squareup.retrofit2:converter-gson:2.9.0")
+
+    // OkHttp for network requests
+    implementation ("com.squareup.okhttp3:okhttp:4.10.0")
+    implementation ("com.squareup.okhttp3:logging-interceptor:4.10.0")
+
+    // Gson for JSON parsing
+    implementation ("com.google.code.gson:gson:2.10")
+
+    // Glide for image loading
+    implementation ("com.github.bumptech.glide:glide:4.16.0")
+    annotationProcessor ("com.github.bumptech.glide:compiler:4.16.0")
 }

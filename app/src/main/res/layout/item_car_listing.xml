@@ -31,7 +31,7 @@
                 android:orientation="vertical">
 
                 <TextView
-                    android:id="@+id/textViewCarName"
+                    android:id="@+id/tv_cardCarName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="All New Rush"
@@ -40,7 +40,7 @@
                     android:textStyle="bold" />
 
                 <TextView
-                    android:id="@+id/textViewCarType"
+                    android:id="@+id/tv_cardCarType"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="SUV"
@@ -72,7 +72,7 @@
 
             <!-- Car Image -->
             <ImageView
-                android:id="@+id/imageViewCar"
+                android:id="@+id/iv_primaryImageCar"
                 android:layout_width="220dp"
                 android:layout_height="80dp"
                 android:src="@drawable/tesla_model_x"
@@ -102,7 +102,7 @@
                         app:tint="#18F45D" />
 
                     <TextView
-                        android:id="@+id/textViewFuelType"
+                        android:id="@+id/tv_CardFuelType"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Xăng"
@@ -127,7 +127,7 @@
                         app:tint="#18F45D"/>
 
                     <TextView
-                        android:id="@+id/textViewTransmission"
+                        android:id="@+id/tv_CardTransmission"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Số sàn"
@@ -152,7 +152,7 @@
                         app:tint="#18F45D"/>
 
                     <TextView
-                        android:id="@+id/textViewSeats"
+                        android:id="@+id/tv_Seats"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="6 People"
@@ -176,7 +176,7 @@
                         app:tint="#18F45D"/>
 
                     <TextView
-                        android:id="@+id/textViewConsumption"
+                        android:id="@+id/tv_cardConsumption"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="5L/100km"
@@ -211,7 +211,7 @@
                     android:gravity="center_vertical">
 
                     <TextView
-                        android:id="@+id/textViewPrice"
+                        android:id="@+id/tv_BasePrice"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="$72.00"
@@ -229,21 +229,21 @@
 
                 </LinearLayout>
 
-                <TextView
-                    android:id="@+id/textViewOriginalPrice"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="$80.00"
-                    android:textSize="14sp"
-                    android:textColor="#A0AEC0"
-                    android:layout_marginTop="2dp"
-                    />
+<!--                <TextView-->
+<!--                    android:id="@+id/textViewOriginalPrice"-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:text="$80.00"-->
+<!--                    android:textSize="14sp"-->
+<!--                    android:textColor="#A0AEC0"-->
+<!--                    android:layout_marginTop="2dp"-->
+<!--                    />-->
 
             </LinearLayout>
 
             <!-- Rental Button -->
             <Button
-                android:id="@+id/buttonRentalNow"
+                android:id="@+id/btn_rentalNow"
                 android:layout_width="wrap_content"
                 android:layout_height="40dp"
                 android:background="@drawable/carlisting_button_rental"
@@ -258,5 +258,4 @@
         </LinearLayout>
 
     </LinearLayout>
-
 </androidx.cardview.widget.CardView>
