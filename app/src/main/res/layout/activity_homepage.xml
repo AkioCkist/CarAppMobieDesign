@@ -99,41 +99,6 @@
                         android:scaleType="centerCrop"
                         android:layout_marginEnd="12dp" />
 
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:gravity="start">
-
-                        <TextView
-                            android:id="@+id/textViewUserName"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:ellipsize="end"
-                            android:fontFamily="@font/notosans_semibold"
-                            android:maxLines="1"
-                            android:text="User Name"
-                            android:textColor="@color/white"
-                            android:textSize="14sp" />
-
-                        <TextView
-                            android:id="@+id/textViewUserPhone"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Phone Number"
-                            android:textColor="@color/text_secondary"
-                            android:textSize="12sp"
-                            android:fontFamily="@font/notosans_regular"
-                            android:maxLines="1"
-                            android:ellipsize="end" />
-                    </LinearLayout>
-
-                    <ImageView
-                        android:layout_width="12dp"
-                        android:layout_height="12dp"
-                        android:src="@drawable/ic_dropdown"
-                        android:layout_marginStart="8dp"
-                        app:tint="@color/text_secondary" />
                 </LinearLayout>
             </LinearLayout>
 
@@ -655,66 +620,50 @@
 
     <LinearLayout
         android:id="@+id/dropdownMenu"
-        android:layout_width="200dp"
-        android:layout_height="wrap_content"
+        android:layout_width="180dp" android:layout_height="wrap_content"
         android:layout_gravity="top|end"
         android:layout_marginTop="120dp"
         android:layout_marginEnd="24dp"
         android:background="@drawable/dropdown_background"
         android:orientation="vertical"
-        android:padding="8dp"
-        android:elevation="12dp"
+        android:padding="6dp" android:elevation="12dp"
         android:visibility="gone">
 
         <Button
             android:id="@+id/btnMyProfile"
             android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:background="@drawable/menu_item_background"
+            android:layout_height="40dp" android:background="@drawable/menu_item_background_dark"
             android:text="My Profile"
             android:textColor="@color/white"
-            android:textSize="14sp"
-            android:fontFamily="@font/notosans_regular"
+            android:textSize="14sp" android:fontFamily="@font/notosans_semibold"
             android:gravity="start|center_vertical"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
-            android:drawablePadding="12dp"
-            android:drawableTint="@color/text_secondary"
+            android:paddingStart="12dp" android:paddingEnd="12dp" android:drawableStart="@drawable/ic_profile"
+            android:drawablePadding="10dp" android:drawableTint="@color/primary"
             style="@style/Widget.AppCompat.Button.Borderless" />
 
         <Button
             android:id="@+id/btnMyBooking"
             android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:background="@drawable/menu_item_background"
+            android:layout_height="40dp" android:background="@drawable/menu_item_background_dark"
             android:text="My Booking"
             android:textColor="@color/white"
-            android:textSize="14sp"
-            android:fontFamily="@font/notosans_regular"
+            android:textSize="14sp" android:fontFamily="@font/notosans_semibold"
             android:gravity="start|center_vertical"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
-            android:drawableStart="@drawable/ic_booking"
-            android:drawablePadding="12dp"
-            android:drawableTint="@color/text_secondary"
+            android:paddingStart="12dp" android:paddingEnd="12dp" android:drawableStart="@drawable/ic_booking"
+            android:drawablePadding="10dp" android:drawableTint="@color/primary"
             android:layout_marginTop="4dp"
             style="@style/Widget.AppCompat.Button.Borderless" />
 
         <Button
             android:id="@+id/btnSettings"
             android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:background="@drawable/menu_item_background"
+            android:layout_height="40dp" android:background="@drawable/menu_item_background_dark"
             android:text="Settings"
             android:textColor="@color/white"
-            android:textSize="14sp"
-            android:fontFamily="@font/notosans_regular"
+            android:textSize="14sp" android:fontFamily="@font/notosans_semibold"
             android:gravity="start|center_vertical"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
-            android:drawableStart="@drawable/ic_settings"
-            android:drawablePadding="12dp"
-            android:drawableTint="@color/text_secondary"
+            android:paddingStart="12dp" android:paddingEnd="12dp" android:drawableStart="@drawable/ic_settings"
+            android:drawablePadding="10dp" android:drawableTint="@color/primary"
             android:layout_marginTop="4dp"
             style="@style/Widget.AppCompat.Button.Borderless" />
 
@@ -723,24 +672,16 @@
             android:layout_height="1dp"
             android:background="@color/text_secondary"
             android:alpha="0.3"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="8dp" />
-
-        <Button
-            android:id="@+id/btnSignOut"
-            android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:background="@drawable/menu_item_background"
-            android:text="Sign Out"
-            android:textColor="#FF4444"
-            android:textSize="14sp"
-            android:fontFamily="@font/notosans_semibold"
-            android:gravity="start|center_vertical"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
-            android:drawableStart="@drawable/ic_logout"
-            android:drawablePadding="12dp"
-            android:drawableTint="#FF4444"
-            style="@style/Widget.AppCompat.Button.Borderless" />
+            android:layout_marginTop="6dp" android:layout_marginBottom="6dp" /> <Button
+        android:id="@+id/btnSignOut"
+        android:layout_width="match_parent"
+        android:layout_height="40dp" android:background="@drawable/menu_item_background_dark"
+        android:text="Sign Out"
+        android:textColor="#FF4444"
+        android:textSize="14sp" android:fontFamily="@font/notosans_semibold"
+        android:gravity="start|center_vertical"
+        android:paddingStart="12dp" android:paddingEnd="12dp" android:drawableStart="@drawable/ic_logout"
+        android:drawablePadding="10dp" android:drawableTint="#FF4444"
+        style="@style/Widget.AppCompat.Button.Borderless" />
     </LinearLayout>
 </FrameLayout>
