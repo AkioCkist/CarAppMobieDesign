@@ -186,7 +186,7 @@
                         android:layout_width="20dp"
                         android:layout_height="20dp"
                         android:layout_marginRight="5dp"
-                        android:src="@drawable/cardetail_star">
+                        android:src="@drawable/cardetail_ic_star">
                     </ImageView>
                     <TextView
                         android:id="@+id/tv_rating"
@@ -199,13 +199,15 @@
                 </LinearLayout>
                 <LinearLayout
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
+                    android:layout_height="22dp"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="8dp"
+                    android:layout_marginRight="10dp">
                     <ImageView
                         android:layout_width="20dp"
                         android:layout_height="20dp"
                         android:layout_marginRight="5dp"
-                        android:src="@drawable/cardetail_trips">
+                        android:src="@drawable/cardetail_ic_trips">
                     </ImageView>
                     <TextView
                         android:id="@+id/tv_trips"
@@ -218,13 +220,14 @@
                 </LinearLayout>
                 <LinearLayout
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
+                    android:layout_height="22dp"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="8dp">
                     <ImageView
                         android:layout_width="20dp"
                         android:layout_height="20dp"
                         android:layout_marginRight="5dp"
-                        android:src="@drawable/cardetail_location">
+                        android:src="@drawable/cardetail_ic_location">
                     </ImageView>
                     <TextView
                         android:id="@+id/tv_location"
@@ -353,7 +356,7 @@
             </LinearLayout>
         </LinearLayout>
 
-        <!-- Features Section -->
+        <!-- Amenity Section -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -365,100 +368,20 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Tính năng"
+                android:text="Tiện nghi"
                 android:textColor="@color/white"
                 android:textSize="18sp"
                 android:fontFamily="@font/notosans_bold"
                 android:layout_marginBottom="12dp" />
 
             <!-- Features Grid -->
-            <GridLayout
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerViewAmenities"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:columnCount="2"
-                android:rowCount="4">
-
-                <!-- Feature Items -->
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_columnWeight="1"
-                    android:text="🔒 Tự động khóa cửa"
-                    android:textColor="@color/white"
-                    android:textSize="12sp"
-                    android:fontFamily="@font/notosans_regular"
-                    android:padding="4dp" />
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_columnWeight="1"
-                    android:text="📱 Camera lùi 360°"
-                    android:textColor="@color/white"
-                    android:textSize="12sp"
-                    android:fontFamily="@font/notosans_regular"
-                    android:padding="4dp" />
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_columnWeight="1"
-                    android:text="🎵 Tivi, đài và nhạc"
-                    android:textColor="@color/white"
-                    android:textSize="12sp"
-                    android:fontFamily="@font/notosans_regular"
-                    android:padding="4dp" />
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_columnWeight="1"
-                    android:text="❄️ Điều hóa 2 chiều"
-                    android:textColor="@color/white"
-                    android:textSize="12sp"
-                    android:fontFamily="@font/notosans_regular"
-                    android:padding="4dp" />
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_columnWeight="1"
-                    android:text="💺 Camera hành trình"
-                    android:textColor="@color/white"
-                    android:textSize="12sp"
-                    android:fontFamily="@font/notosans_regular"
-                    android:padding="4dp" />
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_columnWeight="1"
-                    android:text="🔑 Chìa khóa thông minh"
-                    android:textColor="@color/white"
-                    android:textSize="12sp"
-                    android:fontFamily="@font/notosans_regular"
-                    android:padding="4dp" />
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_columnWeight="1"
-                    android:text="🗺️ Bản đồ, GPS"
-                    android:textColor="@color/white"
-                    android:textSize="12sp"
-                    android:fontFamily="@font/notosans_regular"
-                    android:padding="4dp" />
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_columnWeight="1"
-                    android:text="📟 Cảm biến lốp"
-                    android:textColor="@color/white"
-                    android:textSize="12sp"
-                    android:fontFamily="@font/notosans_regular"
-                    android:padding="4dp" />
-            </GridLayout>
+                android:layout_margin="5dp"
+                android:background="@drawable/cardetail_rounded_corner">
+            </androidx.recyclerview.widget.RecyclerView>
         </LinearLayout>
 
         <!-- Description Section -->
@@ -520,6 +443,7 @@
                     android:layout_weight="1" />
 
                 <TextView
+                    android:id="@+id/tv_price"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="500.000 VND/day"
@@ -549,12 +473,13 @@
                     android:layout_weight="1" />
 
                 <TextView
+                    android:id="@+id/tv_insurance_price"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:fontFamily="@font/notosans_regular"
                     android:text="50.000 VND"
                     android:textColor="@color/white"
-                    android:textSize="14sp"
-                    android:fontFamily="@font/notosans_regular" />
+                    android:textSize="14sp" />
             </LinearLayout>
 
             <!-- Divider -->
@@ -585,6 +510,7 @@
                     android:layout_weight="1" />
 
                 <TextView
+                    android:id="@+id/tv_total_price"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="550.000 VND"
