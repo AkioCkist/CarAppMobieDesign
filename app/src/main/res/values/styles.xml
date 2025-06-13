@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Style for our location dropdown PopupWindow animations -->
+    <style name="LocationDropdownAnimation">
+        <item name="android:windowEnterAnimation">@anim/slide_in_top</item>
+        <item name="android:windowExitAnimation">@anim/fade_out</item>
+    </style>
+
+    <!-- Dark theme for dialogs including location selection dialog -->
+    <style name="Theme.Dialog.Dark" parent="Theme.AppCompat.Dialog.Alert">
+        <item name="android:background">#2D2A36</item>
+        <item name="android:textColorPrimary">@color/white</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="colorAccent">@color/primary</item>
+    </style>
+</resources>
+

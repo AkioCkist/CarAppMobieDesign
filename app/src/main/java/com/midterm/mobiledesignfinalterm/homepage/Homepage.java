@@ -14,6 +14,7 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.animation.OvershootInterpolator;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
@@ -551,28 +552,39 @@ public class Homepage extends AppCompatActivity implements LocationListener {
     }
 
     /**
-     * Shows a PopupMenu for selecting a city from a predefined list with dropdown animation.
+     * Shows a custom animated dropdown for selecting a city from a predefined list.
      * @param locationTextView The TextView to update with the selected location.
      */
     private void showLocationSelectionDialog(final TextView locationTextView) {
         final String[] cities = {"Hanoi", "Da Nang", "Ho Chi Minh"};
-        View anchorView = locationTextView;
-        PopupMenu popupMenu = new PopupMenu(this, anchorView);
-        for (int i = 0; i < cities.length; i++) {
-            popupMenu.getMenu().add(0, i, i, cities[i]);
-        }
-        popupMenu.setOnMenuItemClickListener(item -> {
-            String selectedCity = cities[item.getItemId()];
+
+        // Create AlertDialog with custom theme
+        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.Theme_Dialog_Dark);
+        builder.setTitle("Select City");
+
+        // Use custom array adapter to ensure text displays correctly
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(
+                this,
+                android.R.layout.simple_list_item_1,
+                cities) {
+            @Override
+            public View getView(int position, View convertView, ViewGroup parent) {
+                View view = super.getView(position, convertView, parent);
+                TextView text = view.findViewById(android.R.id.text1);
+                text.setTextColor(getResources().getColor(R.color.white, null));
+                return view;
+            }
+        };
+
+        builder.setAdapter(adapter, (dialog, which) -> {
+            String selectedCity = cities[which];
             locationTextView.setText(selectedCity);
             Toast.makeText(Homepage.this, "Selected: " + selectedCity, Toast.LENGTH_SHORT).show();
-            return true;
         });
-        // Optional: Add a fade-in animation for dropdown effect
-        anchorView.post(() -> {
-            anchorView.setAlpha(0f);
-            anchorView.animate().alpha(1f).setDuration(200).start();
-            popupMenu.show();
-        });
+
+        AlertDialog dialog = builder.create();
+        dialog.getWindow().setBackgroundDrawableResource(R.drawable.dropdown_background);
+        dialog.show();
     }
 
     /**
