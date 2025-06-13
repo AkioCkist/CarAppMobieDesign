@@ -12,11 +12,14 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.animation.OvershootInterpolator;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Button;
 import android.widget.LinearLayout;
+
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -25,14 +28,22 @@ import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import com.google.android.material.datepicker.MaterialDatePicker;
+import com.google.android.material.datepicker.CalendarConstraints;
+import com.google.android.material.datepicker.DateValidatorPointForward;
+import com.google.android.material.timepicker.MaterialTimePicker;
+import com.google.android.material.timepicker.TimeFormat;
 import com.midterm.mobiledesignfinalterm.R;
+import com.midterm.mobiledesignfinalterm.aboutUs.AboutUs;
 import com.midterm.mobiledesignfinalterm.authentication.Login;
 
 import android.widget.Toast;
 import android.Manifest;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
@@ -44,8 +55,6 @@ public class Homepage extends AppCompatActivity implements LocationListener {
 
     private TextView textViewLocation;
     private TextView textViewPoints;
-    private TextView textViewUserName;
-    private TextView textViewUserPhone;
     private TextView textViewTopBrands;
     private TextView textViewViewAllBrands;
     private TextView textViewTopRatedCars;
@@ -62,12 +71,9 @@ public class Homepage extends AppCompatActivity implements LocationListener {
     private LinearLayout layoutBookingSection;
     private LinearLayout layoutTopBrandsSection;
     private LinearLayout layoutTopCarsSection;
-    private LinearLayout layoutPointsSection;
     private Button btnMyProfile;
-    private Button btnMyBooking;
-    private Button btnSettings;
+    private Button btnAboutUs; // Changed from btnMyBooking to match layout
     private Button btnSignOut;
-    private Button buttonRedeem;
 
     // Pickup/Drop-off elements
     private TextView textViewPickupLocation;
@@ -94,6 +100,10 @@ public class Homepage extends AppCompatActivity implements LocationListener {
     private LocationManager locationManager;
     private boolean isLocationEnabled = false;
     private boolean canGetLocation = false;
+
+    // Calendar instances for date/time pickers
+    private Calendar pickupCalendar;
+    private Calendar dropoffCalendar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -122,15 +132,15 @@ public class Homepage extends AppCompatActivity implements LocationListener {
         setupClickListeners();
         setupRecyclerViews();
 
-        // Setup user info display
-        displayUserInfo();
-
         // Initialize dropdown as hidden
         if (dropdownMenu != null) {
             dropdownMenu.setVisibility(View.GONE);
             dropdownMenu.setAlpha(0f);
             dropdownMenu.setTranslationY(-20f);
         }
+
+        // Initialize default dates and times for pickers
+        initializeDefaultDateTime();
 
         // Initialize location services
         initializeLocation();
@@ -150,31 +160,23 @@ public class Homepage extends AppCompatActivity implements LocationListener {
 
     private void initializeViews() {
         textViewLocation = findViewById(R.id.textViewLocation);
-        textViewPoints = findViewById(R.id.textViewPoints);
-        textViewUserName = findViewById(R.id.textViewUserName);
-        textViewUserPhone = findViewById(R.id.textViewUserPhone);
         textViewTopBrands = findViewById(R.id.textViewTopBrands);
         textViewViewAllBrands = findViewById(R.id.textViewViewAllBrands);
         textViewTopRatedCars = findViewById(R.id.textViewTopRatedCars);
         textViewViewAllCars = findViewById(R.id.textViewViewAllCars);
         textViewWelcome = findViewById(R.id.textViewWelcome);
-        textViewPointsLabel = findViewById(R.id.textViewPointsLabel);
         recyclerViewBrands = findViewById(R.id.recyclerViewBrands);
         recyclerViewCars = findViewById(R.id.recyclerViewCars);
         imageViewProfile = findViewById(R.id.imageViewProfile);
-        imageViewPoints = findViewById(R.id.imageViewPoints);
         profileSection = findViewById(R.id.profileSection);
         dropdownMenu = findViewById(R.id.dropdownMenu);
         layoutLocationHeader = findViewById(R.id.layoutLocationHeader);
         layoutBookingSection = findViewById(R.id.layoutBookingSection);
         layoutTopBrandsSection = findViewById(R.id.layoutTopBrandsSection);
         layoutTopCarsSection = findViewById(R.id.layoutTopCarsSection);
-        layoutPointsSection = findViewById(R.id.layoutPointsSection);
         btnMyProfile = findViewById(R.id.btnMyProfile);
-        btnMyBooking = findViewById(R.id.btnMyBooking);
-        btnSettings = findViewById(R.id.btnSettings);
+        btnAboutUs = findViewById(R.id.btnAboutUs);
         btnSignOut = findViewById(R.id.btnSignOut);
-        buttonRedeem = findViewById(R.id.buttonRedeem);
 
         // Initialize pickup/drop-off elements
         layoutPickupLocation = findViewById(R.id.layoutPickupLocation);
@@ -185,13 +187,25 @@ public class Homepage extends AppCompatActivity implements LocationListener {
         layoutDropoffTime = findViewById(R.id.layoutDropoffTime);
         imageViewSwapLocations = findViewById(R.id.imageViewSwapLocations);
 
-        // Keep existing TextViews for data display
+        // TextViews for data display
         textViewPickupLocation = findViewById(R.id.textViewPickupLocation);
         textViewPickupDate = findViewById(R.id.textViewPickupDate);
         textViewPickupTime = findViewById(R.id.textViewPickupTime);
         textViewDropoffLocation = findViewById(R.id.textViewDropoffLocation);
         textViewDropoffDate = findViewById(R.id.textViewDropoffDate);
         textViewDropoffTime = findViewById(R.id.textViewDropoffTime);
+    }
+
+    private void initializeDefaultDateTime() {
+        pickupCalendar = Calendar.getInstance();
+        dropoffCalendar = Calendar.getInstance();
+        dropoffCalendar.add(Calendar.DAY_OF_YEAR, 1); // Default drop-off to next day
+
+        // Set initial text for date and time fields
+        updateDateTextView(textViewPickupDate, pickupCalendar);
+        updateTimeTextView(textViewPickupTime, pickupCalendar);
+        updateDateTextView(textViewDropoffDate, dropoffCalendar);
+        updateTimeTextView(textViewDropoffTime, dropoffCalendar);
     }
 
     private void initializeLocation() {
@@ -376,155 +390,96 @@ public class Homepage extends AppCompatActivity implements LocationListener {
 
     private void setupClickListeners() {
         // Location header click listener
-        layoutLocationHeader.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                animateTextClick(v);
-                // Refresh location
-                getLocation();
-                Toast.makeText(Homepage.this, "Refreshing location...", Toast.LENGTH_SHORT).show();
-            }
+        layoutLocationHeader.setOnClickListener(v -> {
+            animateTextClick(v);
+            // Refresh location
+            getLocation();
+            Toast.makeText(Homepage.this, "Refreshing location...", Toast.LENGTH_SHORT).show();
         });
 
-        textViewViewAllBrands.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                animateTextClick(v);
-                handleViewAllBrands();
-            }
+        textViewViewAllBrands.setOnClickListener(v -> {
+            animateTextClick(v);
+            handleViewAllBrands();
         });
 
-        textViewViewAllCars.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                animateTextClick(v);
-                handleViewAllCars();
-            }
+        textViewViewAllCars.setOnClickListener(v -> {
+            animateTextClick(v);
+            handleViewAllCars();
         });
 
-        profileSection.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                animateProfileClick(v);
-                toggleDropdownMenu();
-            }
+        profileSection.setOnClickListener(v -> {
+            animateProfileClick(v);
+            toggleDropdownMenu();
         });
 
         // Dropdown menu item listeners
-        btnMyProfile.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                animateMenuItemClick(v);
-                hideDropdownMenu();
-                handleMyProfile();
-            }
+        btnMyProfile.setOnClickListener(v -> {
+            animateMenuItemClick(v);
+            hideDropdownMenu();
+            handleMyProfile();
         });
 
-        btnMyBooking.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                animateMenuItemClick(v);
-                hideDropdownMenu();
-                handleMyBooking();
-            }
+        btnAboutUs.setOnClickListener(v -> {
+            animateMenuItemClick(v);
+            hideDropdownMenu();
+            Intent intent = new Intent(Homepage.this, AboutUs.class);
+            startActivity(intent);
         });
 
-        btnSettings.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                animateMenuItemClick(v);
-                hideDropdownMenu();
-                handleSettings();
-            }
-        });
-
-        btnSignOut.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                animateMenuItemClick(v);
-                hideDropdownMenu();
-                handleSignOut();
-            }
-        });
-
-        // Redeem button click listener
-        buttonRedeem.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                animateButtonClick(v);
-                Toast.makeText(Homepage.this, "Redeem points feature coming soon!", Toast.LENGTH_SHORT).show();
-            }
+        btnSignOut.setOnClickListener(v -> {
+            animateMenuItemClick(v);
+            hideDropdownMenu();
+            handleSignOut();
         });
 
         // Pickup/Drop-off click listeners
-        layoutPickupLocation.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                animateTextClick(v);
-                handlePickupLocationClick();
-            }
+        layoutPickupLocation.setOnClickListener(v -> {
+            animateTextClick(v);
+            showLocationSelectionDialog(textViewPickupLocation);
         });
 
-        layoutPickupDate.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                animateTextClick(v);
-                handlePickupDateClick();
-            }
+        layoutPickupDate.setOnClickListener(v -> {
+            animateTextClick(v);
+            showDatePicker(textViewPickupDate, pickupCalendar);
         });
 
-        layoutPickupTime.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                animateTextClick(v);
-                handlePickupTimeClick();
-            }
+        layoutPickupTime.setOnClickListener(v -> {
+            animateTextClick(v);
+            showTimePicker(textViewPickupTime, pickupCalendar);
         });
 
-        layoutDropoffLocation.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                animateTextClick(v);
-                handleDropoffLocationClick();
-            }
+        layoutDropoffLocation.setOnClickListener(v -> {
+            animateTextClick(v);
+            showLocationSelectionDialog(textViewDropoffLocation);
         });
 
-        layoutDropoffDate.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                animateTextClick(v);
-                handleDropoffDateClick();
-            }
+        layoutDropoffDate.setOnClickListener(v -> {
+            animateTextClick(v);
+            showDatePicker(textViewDropoffDate, dropoffCalendar);
         });
 
-        layoutDropoffTime.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                animateTextClick(v);
-                handleDropoffTimeClick();
-            }
+        layoutDropoffTime.setOnClickListener(v -> {
+            animateTextClick(v);
+            showTimePicker(textViewDropoffTime, dropoffCalendar);
         });
 
         // Search/proceed button (central arrow)
-        imageViewSwapLocations.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                animateButtonClick(v);
-                // Start CarListing activity and pass user info and pickup/drop-off data
-                Intent intent = new Intent(Homepage.this, com.midterm.mobiledesignfinalterm.CarListing.CarListing.class);
-                intent.putExtra("user_phone", userPhone);
-                intent.putExtra("user_name", userName);
-                if (userRoles != null) {
-                    intent.putStringArrayListExtra("user_roles", new ArrayList<>(userRoles));
-                }
-                intent.putExtra("pickup_location", textViewPickupLocation.getText().toString());
-                intent.putExtra("dropoff_location", textViewDropoffLocation.getText().toString());
-                intent.putExtra("pickup_date", textViewPickupDate.getText().toString());
-                intent.putExtra("pickup_time", textViewPickupTime.getText().toString());
-                intent.putExtra("dropoff_date", textViewDropoffDate.getText().toString());
-                intent.putExtra("dropoff_time", textViewDropoffTime.getText().toString());
-                startActivity(intent);
+        imageViewSwapLocations.setOnClickListener(v -> {
+            animateButtonClick(v);
+            // Start CarListing activity and pass user info and pickup/drop-off data
+            Intent intent = new Intent(Homepage.this, com.midterm.mobiledesignfinalterm.CarListing.CarListing.class);
+            intent.putExtra("user_phone", userPhone);
+            intent.putExtra("user_name", userName);
+            if (userRoles != null) {
+                intent.putStringArrayListExtra("user_roles", new ArrayList<>(userRoles));
             }
+            intent.putExtra("pickup_location", textViewPickupLocation.getText().toString());
+            intent.putExtra("dropoff_location", textViewDropoffLocation.getText().toString());
+            intent.putExtra("pickup_date", textViewPickupDate.getText().toString());
+            intent.putExtra("pickup_time", textViewPickupTime.getText().toString());
+            intent.putExtra("dropoff_date", textViewDropoffDate.getText().toString());
+            intent.putExtra("dropoff_time", textViewDropoffTime.getText().toString());
+            startActivity(intent);
         });
     }
 
@@ -538,17 +493,6 @@ public class Homepage extends AppCompatActivity implements LocationListener {
         recyclerViewCars.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         CarAdapter carAdapter = new CarAdapter(getCarsList());
         recyclerViewCars.setAdapter(carAdapter);
-    }
-
-    private void displayUserInfo() {
-        if (userPhone != null) {
-            String displayName = userName != null ? userName : "User";
-            textViewUserName.setText(displayName);
-            textViewUserPhone.setText(userPhone);
-        } else {
-            textViewUserName.setText("User");
-            textViewUserPhone.setText("Phone not available");
-        }
     }
 
     private void toggleDropdownMenu() {
@@ -601,6 +545,163 @@ public class Homepage extends AppCompatActivity implements LocationListener {
         animatorSet.start();
     }
 
+    /**
+     * Shows a custom animated dropdown for selecting a city from a predefined list.
+     * @param locationTextView The TextView to update with the selected location.
+     */
+    private void showLocationSelectionDialog(final TextView locationTextView) {
+        final String[] cities = {"Hanoi", "Da Nang", "Ho Chi Minh"};
+
+        // Create AlertDialog with custom theme
+        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.Theme_Dialog_Dark);
+        builder.setTitle("Select City");
+
+        // Use custom array adapter to ensure text displays correctly
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(
+                this,
+                android.R.layout.simple_list_item_1,
+                cities) {
+            @Override
+            public View getView(int position, View convertView, ViewGroup parent) {
+                View view = super.getView(position, convertView, parent);
+                TextView text = view.findViewById(android.R.id.text1);
+                text.setTextColor(getResources().getColor(R.color.white, null));
+                return view;
+            }
+        };
+
+        builder.setAdapter(adapter, (dialog, which) -> {
+            String selectedCity = cities[which];
+            locationTextView.setText(selectedCity);
+            Toast.makeText(Homepage.this, "Selected: " + selectedCity, Toast.LENGTH_SHORT).show();
+        });
+
+        AlertDialog dialog = builder.create();
+        dialog.getWindow().setBackgroundDrawableResource(R.drawable.dropdown_background);
+        dialog.show();
+    }
+
+    /**
+     * Shows a modern Material Design DatePicker for selecting a date.
+     * @param dateTextView The TextView to update with the selected date.
+     * @param calendar The Calendar instance to use for initial date and to update after selection.
+     */
+    private void showDatePicker(final TextView dateTextView, final Calendar calendar) {
+        // Create constraints to limit date selection
+        // Setting minimum date to today to prevent selecting past dates
+        Calendar minDate = Calendar.getInstance();
+
+        // Create the date picker builder
+        MaterialDatePicker.Builder<Long> builder = MaterialDatePicker.Builder.datePicker();
+        builder.setTitleText("Select Date");
+        builder.setSelection(calendar.getTimeInMillis());
+        builder.setCalendarConstraints(new CalendarConstraints.Builder()
+                .setValidator(DateValidatorPointForward.from(minDate.getTimeInMillis()))
+                .build());
+
+        // Apply custom dark theme
+        builder.setTheme(R.style.CustomMaterialCalendar);
+
+        // Create and customize the date picker
+        MaterialDatePicker<Long> datePicker = builder.build();
+
+        // Set up the positive button click listener
+        datePicker.addOnPositiveButtonClickListener(selection -> {
+            calendar.setTimeInMillis(selection);
+            updateDateTextView(dateTextView, calendar);
+
+            // Check if pickup date is after dropoff date and adjust if necessary
+            if (dateTextView == textViewPickupDate &&
+                calendar.getTimeInMillis() > dropoffCalendar.getTimeInMillis()) {
+                // Set dropoff date to be at least one day after pickup
+                dropoffCalendar.setTimeInMillis(selection);
+                dropoffCalendar.add(Calendar.DAY_OF_YEAR, 1);
+                updateDateTextView(textViewDropoffDate, dropoffCalendar);
+                Toast.makeText(Homepage.this, "Return date adjusted to day after pickup", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        // Show the date picker with a subtle animation
+        datePicker.show(getSupportFragmentManager(), "DATE_PICKER");
+    }
+
+    /**
+     * Updates the given TextView with the formatted date from the Calendar instance.
+     * @param dateTextView The TextView to update.
+     * @param calendar The Calendar instance containing the date.
+     */
+    private void updateDateTextView(TextView dateTextView, Calendar calendar) {
+        String dateFormat = "dd MMMM yyyy"; // e.g., 20 July 2022
+        SimpleDateFormat sdf = new SimpleDateFormat(dateFormat, Locale.getDefault());
+        dateTextView.setText(sdf.format(calendar.getTime()));
+    }
+
+    /**
+     * Shows a modern Material Design TimePicker for selecting a time.
+     * @param timeTextView The TextView to update with the selected time.
+     * @param calendar The Calendar instance to use for initial time and to update after selection.
+     */
+    private void showTimePicker(final TextView timeTextView, final Calendar calendar) {
+        int hour = calendar.get(Calendar.HOUR_OF_DAY);
+        int minute = calendar.get(Calendar.MINUTE);
+
+        // Create the Material TimePicker
+        MaterialTimePicker.Builder builder = new MaterialTimePicker.Builder()
+                .setTimeFormat(TimeFormat.CLOCK_24H)
+                .setHour(hour)
+                .setMinute(minute)
+                .setTitleText("Select Time")
+                .setTheme(R.style.CustomMaterialTimePicker); // Apply custom dark theme
+
+        final MaterialTimePicker timePicker = builder.build();
+
+        // Set up listeners for the time picker
+        timePicker.addOnPositiveButtonClickListener(view -> {
+            calendar.set(Calendar.HOUR_OF_DAY, timePicker.getHour());
+            calendar.set(Calendar.MINUTE, timePicker.getMinute());
+            updateTimeTextView(timeTextView, calendar);
+
+            // If pickup time is selected and dropoff is on the same day, validate the times
+            if (timeTextView == textViewPickupTime &&
+                isSameDay(pickupCalendar, dropoffCalendar) &&
+                pickupCalendar.after(dropoffCalendar)) {
+
+                // Set dropoff time to be 1 hour after pickup if on the same day
+                dropoffCalendar.setTimeInMillis(pickupCalendar.getTimeInMillis());
+                dropoffCalendar.add(Calendar.HOUR_OF_DAY, 1);
+                updateTimeTextView(textViewDropoffTime, dropoffCalendar);
+                Toast.makeText(Homepage.this,
+                    "Return time adjusted to be after pickup time",
+                    Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        // Show the time picker
+        timePicker.show(getSupportFragmentManager(), "TIME_PICKER");
+    }
+
+    /**
+     * Checks if two Calendar instances represent the same day.
+     * @param cal1 First Calendar instance
+     * @param cal2 Second Calendar instance
+     * @return true if both calendars represent the same day
+     */
+    private boolean isSameDay(Calendar cal1, Calendar cal2) {
+        return cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR) &&
+               cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR);
+    }
+
+    /**
+     * Updates the given TextView with the formatted time from the Calendar instance.
+     * @param timeTextView The TextView to update.
+     * @param calendar The Calendar instance containing the time.
+     */
+    private void updateTimeTextView(TextView timeTextView, Calendar calendar) {
+        String timeFormat = "HH:mm"; // e.g., 07:00
+        SimpleDateFormat sdf = new SimpleDateFormat(timeFormat, Locale.getDefault());
+        timeTextView.setText(sdf.format(calendar.getTime()));
+    }
+
     private List<Brand> getBrandsList() {
         List<Brand> brands = new ArrayList<>();
         brands.add(new Brand("All", R.drawable.ic_all_brands));
@@ -624,8 +725,7 @@ public class Homepage extends AppCompatActivity implements LocationListener {
                 layoutLocationHeader, textViewWelcome, profileSection,
                 layoutBookingSection,
                 layoutTopBrandsSection, recyclerViewBrands,
-                layoutTopCarsSection, recyclerViewCars,
-                layoutPointsSection
+                layoutTopCarsSection, recyclerViewCars
         };
 
         for (int i = 0; i < views.length; i++) {
@@ -720,14 +820,6 @@ public class Homepage extends AppCompatActivity implements LocationListener {
         // startActivity(intent);
     }
 
-    private void handleMyBooking() {
-        Toast.makeText(this, "My Booking", Toast.LENGTH_SHORT).show();
-        // Navigate to bookings screen
-        // Intent intent = new Intent(Homepage.this, BookingActivity.class);
-        // intent.putExtra("user_phone", userPhone);
-        // startActivity(intent);
-    }
-
     private void handleSettings() {
         Toast.makeText(this, "Settings", Toast.LENGTH_SHORT).show();
         // Navigate to settings screen
@@ -743,30 +835,8 @@ public class Homepage extends AppCompatActivity implements LocationListener {
         finish();
     }
 
-    // Pickup/Drop-off handlers
-    private void handlePickupLocationClick() {
-        Toast.makeText(this, "Select pickup location", Toast.LENGTH_SHORT).show();
-    }
-
-    private void handlePickupDateClick() {
-        Toast.makeText(this, "Select pickup date", Toast.LENGTH_SHORT).show();
-    }
-
-    private void handlePickupTimeClick() {
-        Toast.makeText(this, "Select pickup time", Toast.LENGTH_SHORT).show();
-    }
-
-    private void handleDropoffLocationClick() {
-        Toast.makeText(this, "Select drop-off location", Toast.LENGTH_SHORT).show();
-    }
-
-    private void handleDropoffDateClick() {
-        Toast.makeText(this, "Select drop-off date", Toast.LENGTH_SHORT).show();
-    }
-
-    private void handleDropoffTimeClick() {
-        Toast.makeText(this, "Select drop-off time", Toast.LENGTH_SHORT).show();
-    }
+    // Pickup/Drop-off handlers (Removed individual handlers as they now call the generic picker methods)
+    // The logic to call the pickers is directly in setupClickListeners
 
     private void handleProceedToSearch() {
         String pickup = textViewPickupLocation.getText().toString();

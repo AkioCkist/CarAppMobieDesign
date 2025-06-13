@@ -37,7 +37,7 @@
     <color name="primary">#FFD700</color>
 
     <!-- Primary Colors -->
-    <color name="green_primary">#4CAF50</color>
+    <color name="green_primary">#18F45D</color>
     <color name="background_primary_cardetail">#F5F5F5</color>
 
     <!-- Basic Colors -->
@@ -50,4 +50,10 @@
     <!-- Status Colors -->
     <color name="blue_primary">#2196F3</color>
     <color name="orange_primary">#FF9800</color>
+
+    <color name="dialog_background">#2C2B30</color>
+
+    <!-- AboutUs screen colors -->
+    <color name="stat_card_background">#333333</color>
 </resources>
+
