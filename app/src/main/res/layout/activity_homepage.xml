@@ -585,23 +585,10 @@
             style="@style/Widget.AppCompat.Button.Borderless" />
 
         <Button
-            android:id="@+id/btnMyBooking"
+            android:id="@+id/btnAboutUs"
             android:layout_width="match_parent"
             android:layout_height="40dp" android:background="@drawable/menu_item_background_dark"
-            android:text="My Booking"
-            android:textColor="@color/white"
-            android:textSize="14sp" android:fontFamily="@font/notosans_semibold"
-            android:gravity="start|center_vertical"
-            android:paddingStart="12dp" android:paddingEnd="12dp" android:drawableStart="@drawable/ic_booking"
-            android:drawablePadding="10dp" android:drawableTint="@color/primary"
-            android:layout_marginTop="4dp"
-            style="@style/Widget.AppCompat.Button.Borderless" />
-
-        <Button
-            android:id="@+id/btnSettings"
-            android:layout_width="match_parent"
-            android:layout_height="40dp" android:background="@drawable/menu_item_background_dark"
-            android:text="Settings"
+            android:text="About Us"
             android:textColor="@color/white"
             android:textSize="14sp" android:fontFamily="@font/notosans_semibold"
             android:gravity="start|center_vertical"

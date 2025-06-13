@@ -3,7 +3,6 @@ package com.midterm.mobiledesignfinalterm.homepage;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.app.DatePickerDialog;
-import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Address;
@@ -32,6 +31,12 @@ import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import com.google.android.material.datepicker.MaterialDatePicker;
+import com.google.android.material.datepicker.CalendarConstraints;
+import com.google.android.material.datepicker.DateValidatorPointForward;
+import com.google.android.material.timepicker.MaterialTimePicker;
+import com.google.android.material.timepicker.MaterialTimePicker.Builder;
+import com.google.android.material.timepicker.TimeFormat;
 import com.midterm.mobiledesignfinalterm.R;
 import com.midterm.mobiledesignfinalterm.authentication.Login;
 
@@ -71,8 +76,7 @@ public class Homepage extends AppCompatActivity implements LocationListener {
     private LinearLayout layoutTopBrandsSection;
     private LinearLayout layoutTopCarsSection;
     private Button btnMyProfile;
-    private Button btnMyBooking;
-    private Button btnSettings;
+    private Button btnAboutUs; // Changed from btnMyBooking to match layout
     private Button btnSignOut;
 
     // Pickup/Drop-off elements
@@ -175,8 +179,7 @@ public class Homepage extends AppCompatActivity implements LocationListener {
         layoutTopBrandsSection = findViewById(R.id.layoutTopBrandsSection);
         layoutTopCarsSection = findViewById(R.id.layoutTopCarsSection);
         btnMyProfile = findViewById(R.id.btnMyProfile);
-        btnMyBooking = findViewById(R.id.btnMyBooking);
-        btnSettings = findViewById(R.id.btnSettings);
+        btnAboutUs = findViewById(R.id.btnAboutUs);
         btnSignOut = findViewById(R.id.btnSignOut);
 
         // Initialize pickup/drop-off elements
@@ -420,16 +423,9 @@ public class Homepage extends AppCompatActivity implements LocationListener {
             handleMyProfile();
         });
 
-        btnMyBooking.setOnClickListener(v -> {
+        btnAboutUs.setOnClickListener(v -> {
             animateMenuItemClick(v);
             hideDropdownMenu();
-            handleMyBooking();
-        });
-
-        btnSettings.setOnClickListener(v -> {
-            animateMenuItemClick(v);
-            hideDropdownMenu();
-            handleSettings();
         });
 
         btnSignOut.setOnClickListener(v -> {
@@ -588,29 +584,47 @@ public class Homepage extends AppCompatActivity implements LocationListener {
     }
 
     /**
-     * Shows a DatePickerDialog for selecting a date.
+     * Shows a modern Material Design DatePicker for selecting a date.
      * @param dateTextView The TextView to update with the selected date.
      * @param calendar The Calendar instance to use for initial date and to update after selection.
      */
     private void showDatePicker(final TextView dateTextView, final Calendar calendar) {
-        int year = calendar.get(Calendar.YEAR);
-        int month = calendar.get(Calendar.MONTH);
-        int day = calendar.get(Calendar.DAY_OF_MONTH);
+        // Create constraints to limit date selection
+        // Setting minimum date to today to prevent selecting past dates
+        Calendar minDate = Calendar.getInstance();
 
-        DatePickerDialog datePickerDialog = new DatePickerDialog(
-                this,
-                // Using a custom theme to ensure dark mode compatibility if needed
-                // For a default dark theme, you might not need a specific style here
-                android.R.style.Theme_Holo_Dialog_MinWidth, // Or Theme_DeviceDefault_Dialog_NoActionBar_MinWidth for a more modern dark look
-                (view, year1, monthOfYear, dayOfMonth) -> {
-                    calendar.set(Calendar.YEAR, year1);
-                    calendar.set(Calendar.MONTH, monthOfYear);
-                    calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-                    updateDateTextView(dateTextView, calendar);
-                }, year, month, day);
+        // Create the date picker builder
+        MaterialDatePicker.Builder<Long> builder = MaterialDatePicker.Builder.datePicker();
+        builder.setTitleText("Select Date");
+        builder.setSelection(calendar.getTimeInMillis());
+        builder.setCalendarConstraints(new CalendarConstraints.Builder()
+                .setValidator(DateValidatorPointForward.from(minDate.getTimeInMillis()))
+                .build());
 
-        datePickerDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent); // Optional: makes background transparent to better show dialog corners
-        datePickerDialog.show();
+        // Apply custom dark theme
+        builder.setTheme(R.style.CustomMaterialCalendar);
+
+        // Create and customize the date picker
+        MaterialDatePicker<Long> datePicker = builder.build();
+
+        // Set up the positive button click listener
+        datePicker.addOnPositiveButtonClickListener(selection -> {
+            calendar.setTimeInMillis(selection);
+            updateDateTextView(dateTextView, calendar);
+
+            // Check if pickup date is after dropoff date and adjust if necessary
+            if (dateTextView == textViewPickupDate &&
+                calendar.getTimeInMillis() > dropoffCalendar.getTimeInMillis()) {
+                // Set dropoff date to be at least one day after pickup
+                dropoffCalendar.setTimeInMillis(selection);
+                dropoffCalendar.add(Calendar.DAY_OF_YEAR, 1);
+                updateDateTextView(textViewDropoffDate, dropoffCalendar);
+                Toast.makeText(Homepage.this, "Return date adjusted to day after pickup", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        // Show the date picker with a subtle animation
+        datePicker.show(getSupportFragmentManager(), "DATE_PICKER");
     }
 
     /**
@@ -625,7 +639,7 @@ public class Homepage extends AppCompatActivity implements LocationListener {
     }
 
     /**
-     * Shows a TimePickerDialog for selecting a time.
+     * Shows a modern Material Design TimePicker for selecting a time.
      * @param timeTextView The TextView to update with the selected time.
      * @param calendar The Calendar instance to use for initial time and to update after selection.
      */
@@ -633,18 +647,50 @@ public class Homepage extends AppCompatActivity implements LocationListener {
         int hour = calendar.get(Calendar.HOUR_OF_DAY);
         int minute = calendar.get(Calendar.MINUTE);
 
-        TimePickerDialog timePickerDialog = new TimePickerDialog(
-                this,
-                // Using a custom theme to ensure dark mode compatibility if needed
-                android.R.style.Theme_Holo_Dialog_MinWidth, // Or Theme_DeviceDefault_Dialog_NoActionBar_MinWidth
-                (view, hourOfDay, minute1) -> {
-                    calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
-                    calendar.set(Calendar.MINUTE, minute1);
-                    updateTimeTextView(timeTextView, calendar);
-                }, hour, minute, true); // true for 24 hour format
+        // Create the Material TimePicker
+        MaterialTimePicker.Builder builder = new MaterialTimePicker.Builder()
+                .setTimeFormat(TimeFormat.CLOCK_24H)
+                .setHour(hour)
+                .setMinute(minute)
+                .setTitleText("Select Time")
+                .setTheme(R.style.CustomMaterialTimePicker); // Apply custom dark theme
 
-        timePickerDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent); // Optional
-        timePickerDialog.show();
+        final MaterialTimePicker timePicker = builder.build();
+
+        // Set up listeners for the time picker
+        timePicker.addOnPositiveButtonClickListener(view -> {
+            calendar.set(Calendar.HOUR_OF_DAY, timePicker.getHour());
+            calendar.set(Calendar.MINUTE, timePicker.getMinute());
+            updateTimeTextView(timeTextView, calendar);
+
+            // If pickup time is selected and dropoff is on the same day, validate the times
+            if (timeTextView == textViewPickupTime &&
+                isSameDay(pickupCalendar, dropoffCalendar) &&
+                pickupCalendar.after(dropoffCalendar)) {
+
+                // Set dropoff time to be 1 hour after pickup if on the same day
+                dropoffCalendar.setTimeInMillis(pickupCalendar.getTimeInMillis());
+                dropoffCalendar.add(Calendar.HOUR_OF_DAY, 1);
+                updateTimeTextView(textViewDropoffTime, dropoffCalendar);
+                Toast.makeText(Homepage.this,
+                    "Return time adjusted to be after pickup time",
+                    Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        // Show the time picker
+        timePicker.show(getSupportFragmentManager(), "TIME_PICKER");
+    }
+
+    /**
+     * Checks if two Calendar instances represent the same day.
+     * @param cal1 First Calendar instance
+     * @param cal2 Second Calendar instance
+     * @return true if both calendars represent the same day
+     */
+    private boolean isSameDay(Calendar cal1, Calendar cal2) {
+        return cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR) &&
+               cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR);
     }
 
     /**
@@ -773,14 +819,6 @@ public class Homepage extends AppCompatActivity implements LocationListener {
         // intent.putExtra("user_phone", userPhone);
         // intent.putExtra("user_name", userName);
         // intent.putStringArrayListExtra("user_roles", (ArrayList<String>) userRoles);
-        // startActivity(intent);
-    }
-
-    private void handleMyBooking() {
-        Toast.makeText(this, "My Booking", Toast.LENGTH_SHORT).show();
-        // Navigate to bookings screen
-        // Intent intent = new Intent(Homepage.this, BookingActivity.class);
-        // intent.putExtra("user_phone", userPhone);
         // startActivity(intent);
     }
 
