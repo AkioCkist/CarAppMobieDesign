@@ -106,7 +106,7 @@ public class CarListingAdapter extends RecyclerView.Adapter<CarListingAdapter.Ca
         public void bind(Car car, int position) {
             // Set car data
             textViewCarName.setText(car.getName());
-            textViewCarType.setText(car.getBrandCar());
+            textViewCarType.setText(car.getVehicleType());
             textViewFuelType.setText(car.getFuelType());
             textViewTransmission.setText(car.getTransmission());
             textViewSeats.setText(car.getFormattedSeats());

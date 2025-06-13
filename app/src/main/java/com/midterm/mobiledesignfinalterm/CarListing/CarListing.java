@@ -62,10 +62,12 @@ public class CarListing extends AppCompatActivity {
     private List<Car> filteredCarList;
 
     // Thông tin thời gian và địa điểm
-    private String pickupTime = "21:00 21/6/2025";
-    private String returnTime = "19:00 23/6/2025";
-    private String pickupLocation = "123 Main St, Đà Nẵng";
-    private String returnLocation = "123 Main St, Đà Nẵng";
+    private String pickupTime;
+    private String pickupDate;
+    private String dropoffDate;
+    private String dropoffTime;
+    private String pickupLocation;
+    private String dropoffLocation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,7 +83,6 @@ public class CarListing extends AppCompatActivity {
 
         // Get user information from intent
         getUserInfoFromIntent();
-
         // Initialize views and setup
         initializeViews();
         setupClickListeners();
@@ -89,10 +90,8 @@ public class CarListing extends AppCompatActivity {
         displayUserInfo();
         updateDateTimeLocationButton();
         loadCarData();
-
         // Initial animations
         animateInitialEntrance();
-
         // Initialize dropdown as hidden
         dropdownMenu.setVisibility(View.GONE);
         dropdownMenu.setAlpha(0f);
@@ -110,6 +109,12 @@ public class CarListing extends AppCompatActivity {
             userPhone = intent.getStringExtra("user_phone");
             userName = intent.getStringExtra("user_name");
             userRoles = intent.getStringArrayListExtra("user_roles");
+            pickupLocation = intent.getStringExtra("pickup_location");
+            dropoffLocation = intent.getStringExtra("dropoff_location");
+            pickupDate = intent.getStringExtra("pickup_date");
+            pickupTime = intent.getStringExtra("pickup_time");
+            dropoffDate = intent.getStringExtra("dropoff_date");
+            dropoffTime = intent.getStringExtra("dropoff_time");
         }
     }
 
@@ -132,13 +137,47 @@ public class CarListing extends AppCompatActivity {
     }
 
     private void updateDateTimeLocationButton() {
-        // Format: Đà Nẵng --- Đà Nẵng\n12:00 21/07/2025 --- 12:00 31/07/2025
-        String buttonText = pickupLocation + " --- " + returnLocation + "\n"
-                + pickupTime + " --- " + returnTime;
-        buttonDateTime.setText(buttonText);
+        String formattedText = formatDateTimeLocationText(
+                pickupLocation, dropoffLocation,
+                pickupTime, pickupDate,
+                dropoffTime, dropoffDate);
+        buttonDateTime.setText(formattedText);
     }
 
+    private String formatDateTimeLocationText(
+            String pickupLocation, String dropoffLocation,
+            String pickupTime, String pickupDate,
+            String dropoffTime, String dropoffDate) {
 
+        StringBuilder sb = new StringBuilder();
+
+        // First line: Pickup Location --- Dropoff Location
+        if (pickupLocation != null && dropoffLocation != null) {
+            sb.append(pickupLocation)
+                    .append(" --- ")
+                    .append(dropoffLocation);
+        } else {
+            sb.append("Location not specified");
+        }
+
+        // Add newline
+        sb.append("\n");
+
+        // Second line: Pickup Time, Pickup Date --- Dropoff Time, Dropoff Date
+        if (pickupTime != null && pickupDate != null && dropoffTime != null && dropoffDate != null) {
+            sb.append(pickupTime)
+                    .append(", ")
+                    .append(pickupDate)
+                    .append(" --- ")
+                    .append(dropoffTime)
+                    .append(", ")
+                    .append(dropoffDate);
+        } else {
+            sb.append("Time and date not specified");
+        }
+
+        return sb.toString();
+    }
 
     private void setupClickListeners() {
         // Search functionality
@@ -284,7 +323,6 @@ public class CarListing extends AppCompatActivity {
                 } else {
                     // Error handling
                     Toast.makeText(CarListing.this, "Failed to load cars", Toast.LENGTH_SHORT).show();
-                    loadSampleCarData(); // Fallback to sample data
                 }
             }
 
@@ -294,56 +332,9 @@ public class CarListing extends AppCompatActivity {
                     loadingView.setVisibility(View.GONE);
                 }
                 Toast.makeText(CarListing.this, "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-                loadSampleCarData(); // Fallback to sample data
                 t.printStackTrace();
             }
         });
-    }
-    // Fallback method to load sample data when API fails
-    private void loadSampleCarData() {
-        carList.clear();
-
-        // Create Car objects using the correct constructor parameters
-        // Examine the fields you're accessing in the CarListingAdapter:
-        // name, brandCar, fuelType, transmission, seats, consumption, basePrice, priceFormatted, primaryImage, favorite
-
-        Car car1 = new Car();
-        car1.setVehicleId(1);
-        car1.setName("Honda Civic");
-        car1.setBrandCar("Honda");
-        car1.setFuelType("Petrol");
-        car1.setTransmission("Automatic");
-        car1.setSeats(5);
-        car1.setFuel_consumption(String.valueOf(6.5));
-        car1.setBasePrice(1500000);
-        car1.setPriceFormatted("1,500,000 VND");
-        car1.setPrimaryImage("https://example.com/car1.jpg");
-        car1.setFavorite(false);
-        carList.add(car1);
-
-        Car car2 = new Car();
-        car2.setVehicleId(2);
-        car2.setName("Toyota Corolla");
-        car2.setBrandCar("Toyota");
-        car2.setFuelType("Hybrid");
-        car2.setTransmission("Automatic");
-        car2.setSeats(5);
-        car2.setFuel_consumption(String.valueOf(5.5));
-        car2.setBasePrice(1800000);
-        car2.setPriceFormatted("1,800,000 VND");
-        car2.setPrimaryImage("https://example.com/car2.jpg");
-        car2.setFavorite(true);
-        carList.add(car2);
-
-        // Add more sample cars here if needed
-
-        // Update filtered list and adapter
-        filteredCarList.clear();
-        filteredCarList.addAll(carList);
-        carAdapter.notifyDataSetChanged();
-
-        // Update car count
-        textViewCarCount.setText("Found " + filteredCarList.size() + " cars");
     }
 
     // Click handlers
@@ -375,11 +366,11 @@ public class CarListing extends AppCompatActivity {
         spinnerReturnLocation.setAdapter(adapter);
         // Set current selection
         spinnerPickupLocation.setSelection(java.util.Arrays.asList(locations).indexOf(pickupLocation));
-        spinnerReturnLocation.setSelection(java.util.Arrays.asList(locations).indexOf(returnLocation));
+        spinnerReturnLocation.setSelection(java.util.Arrays.asList(locations).indexOf(dropoffLocation));
 
         // Set current time
         btnPickupTime.setText(pickupTime);
-        btnReturnTime.setText(returnTime);
+        btnReturnTime.setText(dropoffTime);
 
         // Time pickers
         btnPickupTime.setOnClickListener(v -> showDateTimePicker(btnPickupTime));
@@ -388,9 +379,9 @@ public class CarListing extends AppCompatActivity {
         android.app.AlertDialog dialog = builder.create();
         btnConfirm.setOnClickListener(v -> {
             pickupLocation = spinnerPickupLocation.getSelectedItem().toString();
-            returnLocation = spinnerReturnLocation.getSelectedItem().toString();
+            dropoffLocation = spinnerReturnLocation.getSelectedItem().toString();
             pickupTime = btnPickupTime.getText().toString();
-            returnTime = btnReturnTime.getText().toString();
+            dropoffTime = btnReturnTime.getText().toString();
             updateDateTimeLocationButton();
             dialog.dismiss();
         });
@@ -432,7 +423,7 @@ public class CarListing extends AppCompatActivity {
         // Create intent and pass car data to CarDetailActivity
         Intent intent = new Intent(CarListing.this, com.midterm.mobiledesignfinalterm.CarDetail.CarDetailActivity.class);
         intent.putExtra("car_name", car.getName());
-        intent.putExtra("car_type", car.getBrandCar());
+        intent.putExtra("car_type", car.getVehicleType());
         intent.putExtra("car_fuel", car.getFuelType());
         intent.putExtra("car_transmission", car.getTransmission());
         intent.putExtra("car_seats", car.getSeats());
@@ -447,9 +438,9 @@ public class CarListing extends AppCompatActivity {
 
         // Pass booking details
         intent.putExtra("pickup_time", pickupTime);
-        intent.putExtra("return_time", returnTime);
+        intent.putExtra("return_time", dropoffTime);
         intent.putExtra("pickup_location", pickupLocation);
-        intent.putExtra("return_location", returnLocation);
+        intent.putExtra("return_location", dropoffLocation);
 
         startActivity(intent);
     }
@@ -622,7 +613,7 @@ public class CarListing extends AppCompatActivity {
     }
 
     public String getReturnTime() {
-        return returnTime;
+        return dropoffTime;
     }
 
     public String getPickupLocation() {
@@ -630,7 +621,7 @@ public class CarListing extends AppCompatActivity {
     }
 
     public String getReturnLocation() {
-        return returnLocation;
+        return dropoffLocation;
     }
 
     // Setter methods to update time and location
@@ -640,7 +631,7 @@ public class CarListing extends AppCompatActivity {
     }
 
     public void setReturnTime(String returnTime) {
-        this.returnTime = returnTime;
+        this.dropoffTime = returnTime;
         updateDateTimeLocationButton();
     }
 
@@ -650,7 +641,7 @@ public class CarListing extends AppCompatActivity {
     }
 
     public void setReturnLocation(String returnLocation) {
-        this.returnLocation = returnLocation;
+        this.dropoffLocation = returnLocation;
         updateDateTimeLocationButton();
     }
 }
