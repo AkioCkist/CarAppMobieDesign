@@ -66,12 +66,10 @@ public class Homepage extends AppCompatActivity implements LocationListener {
     private LinearLayout layoutBookingSection;
     private LinearLayout layoutTopBrandsSection;
     private LinearLayout layoutTopCarsSection;
-    private LinearLayout layoutPointsSection;
     private Button btnMyProfile;
     private Button btnMyBooking;
     private Button btnSettings;
     private Button btnSignOut;
-    private Button buttonRedeem;
 
     // Pickup/Drop-off elements
     private TextView textViewPickupLocation;
@@ -158,29 +156,24 @@ public class Homepage extends AppCompatActivity implements LocationListener {
 
     private void initializeViews() {
         textViewLocation = findViewById(R.id.textViewLocation);
-        textViewPoints = findViewById(R.id.textViewPoints);
         textViewTopBrands = findViewById(R.id.textViewTopBrands);
         textViewViewAllBrands = findViewById(R.id.textViewViewAllBrands);
         textViewTopRatedCars = findViewById(R.id.textViewTopRatedCars);
         textViewViewAllCars = findViewById(R.id.textViewViewAllCars);
         textViewWelcome = findViewById(R.id.textViewWelcome);
-        textViewPointsLabel = findViewById(R.id.textViewPointsLabel);
         recyclerViewBrands = findViewById(R.id.recyclerViewBrands);
         recyclerViewCars = findViewById(R.id.recyclerViewCars);
         imageViewProfile = findViewById(R.id.imageViewProfile);
-        imageViewPoints = findViewById(R.id.imageViewPoints);
         profileSection = findViewById(R.id.profileSection);
         dropdownMenu = findViewById(R.id.dropdownMenu);
         layoutLocationHeader = findViewById(R.id.layoutLocationHeader);
         layoutBookingSection = findViewById(R.id.layoutBookingSection);
         layoutTopBrandsSection = findViewById(R.id.layoutTopBrandsSection);
         layoutTopCarsSection = findViewById(R.id.layoutTopCarsSection);
-        layoutPointsSection = findViewById(R.id.layoutPointsSection);
         btnMyProfile = findViewById(R.id.btnMyProfile);
         btnMyBooking = findViewById(R.id.btnMyBooking);
         btnSettings = findViewById(R.id.btnSettings);
         btnSignOut = findViewById(R.id.btnSignOut);
-        buttonRedeem = findViewById(R.id.buttonRedeem);
 
         // Initialize pickup/drop-off elements
         layoutPickupLocation = findViewById(R.id.layoutPickupLocation);
@@ -441,12 +434,6 @@ public class Homepage extends AppCompatActivity implements LocationListener {
             handleSignOut();
         });
 
-        // Redeem button click listener
-        buttonRedeem.setOnClickListener(v -> {
-            animateButtonClick(v);
-            Toast.makeText(Homepage.this, "Redeem points feature coming soon!", Toast.LENGTH_SHORT).show();
-        });
-
         // Pickup/Drop-off click listeners
         layoutPickupLocation.setOnClickListener(v -> {
             animateTextClick(v);
@@ -671,8 +658,7 @@ public class Homepage extends AppCompatActivity implements LocationListener {
                 layoutLocationHeader, textViewWelcome, profileSection,
                 layoutBookingSection,
                 layoutTopBrandsSection, recyclerViewBrands,
-                layoutTopCarsSection, recyclerViewCars,
-                layoutPointsSection
+                layoutTopCarsSection, recyclerViewCars
         };
 
         for (int i = 0; i < views.length; i++) {
@@ -847,3 +833,4 @@ public class Homepage extends AppCompatActivity implements LocationListener {
         public int getImageResource() { return imageResource; }
     }
 }
+
