@@ -20,6 +20,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.PopupMenu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -548,20 +551,28 @@ public class Homepage extends AppCompatActivity implements LocationListener {
     }
 
     /**
-     * Shows a dialog for selecting a city from a predefined list.
+     * Shows a PopupMenu for selecting a city from a predefined list with dropdown animation.
      * @param locationTextView The TextView to update with the selected location.
      */
     private void showLocationSelectionDialog(final TextView locationTextView) {
         final String[] cities = {"Hanoi", "Da Nang", "Ho Chi Minh"};
-        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.AlertDialogTheme); // Use a custom theme for dark background
-        builder.setTitle("Select City");
-        builder.setItems(cities, (dialog, which) -> {
-            String selectedCity = cities[which];
+        View anchorView = locationTextView;
+        PopupMenu popupMenu = new PopupMenu(this, anchorView);
+        for (int i = 0; i < cities.length; i++) {
+            popupMenu.getMenu().add(0, i, i, cities[i]);
+        }
+        popupMenu.setOnMenuItemClickListener(item -> {
+            String selectedCity = cities[item.getItemId()];
             locationTextView.setText(selectedCity);
             Toast.makeText(Homepage.this, "Selected: " + selectedCity, Toast.LENGTH_SHORT).show();
+            return true;
         });
-        AlertDialog dialog = builder.create();
-        dialog.show();
+        // Optional: Add a fade-in animation for dropdown effect
+        anchorView.post(() -> {
+            anchorView.setAlpha(0f);
+            anchorView.animate().alpha(1f).setDuration(200).start();
+            popupMenu.show();
+        });
     }
 
     /**
