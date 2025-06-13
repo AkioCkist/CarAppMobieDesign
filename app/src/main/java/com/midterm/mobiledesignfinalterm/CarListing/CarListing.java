@@ -13,7 +13,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-
+import android.view.ViewGroup;
+import android.widget.TextView;
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
@@ -352,31 +353,64 @@ public class CarListing extends AppCompatActivity {
         // Location spinners
         android.widget.Spinner spinnerPickupLocation = dialogView.findViewById(R.id.spinnerPickupLocation);
         android.widget.Spinner spinnerReturnLocation = dialogView.findViewById(R.id.spinnerReturnLocation);
+
         // Time buttons
         Button btnPickupTime = dialogView.findViewById(R.id.btnPickupTime);
         Button btnReturnTime = dialogView.findViewById(R.id.btnReturnTime);
+
         // Confirm button
         Button btnConfirm = dialogView.findViewById(R.id.btnConfirm);
         Button btnCancel = dialogView.findViewById(R.id.btnCancel);
 
-        // Setup location options
+        // Change text color for buttons
+        btnPickupTime.setTextColor(android.graphics.Color.BLACK);
+        btnReturnTime.setTextColor(android.graphics.Color.BLACK);
+        btnConfirm.setTextColor(android.graphics.Color.BLACK);
+        btnCancel.setTextColor(android.graphics.Color.BLACK);
+
+        // Setup location options with custom adapter for black text
         String[] locations = {"Đà Nẵng", "Hồ Chí Minh", "Hà Nội"};
-        android.widget.ArrayAdapter<String> adapter = new android.widget.ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, locations);
+        android.widget.ArrayAdapter<String> adapter = new android.widget.ArrayAdapter<String>(
+                this,
+                android.R.layout.simple_spinner_item,
+                locations
+        ) {
+            @Override
+            public View getView(int position, View convertView, ViewGroup parent) {
+                View view = super.getView(position, convertView, parent);
+                TextView textView = (TextView) view;
+                textView.setTextColor(android.graphics.Color.BLACK);
+                return view;
+            }
+
+            @Override
+            public View getDropDownView(int position, View convertView, ViewGroup parent) {
+                View view = super.getDropDownView(position, convertView, parent);
+                TextView textView = (TextView) view;
+                textView.setTextColor(android.graphics.Color.BLACK);
+                return view;
+            }
+        };
+
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerPickupLocation.setAdapter(adapter);
         spinnerReturnLocation.setAdapter(adapter);
         // Set current selection
         spinnerPickupLocation.setSelection(java.util.Arrays.asList(locations).indexOf(pickupLocation));
         spinnerReturnLocation.setSelection(java.util.Arrays.asList(locations).indexOf(dropoffLocation));
-
         // Set current time
         btnPickupTime.setText(pickupTime);
         btnReturnTime.setText(dropoffTime);
+        // Create dialog first so we can reference it
+        android.app.AlertDialog dialog = builder.create();
+        // Store dialog reference in button tags for later access
+        btnPickupTime.setTag(dialog);
+        btnReturnTime.setTag(dialog);
 
         // Time pickers
         btnPickupTime.setOnClickListener(v -> showDateTimePicker(btnPickupTime));
         btnReturnTime.setOnClickListener(v -> showDateTimePicker(btnReturnTime));
 
-        android.app.AlertDialog dialog = builder.create();
         btnConfirm.setOnClickListener(v -> {
             pickupLocation = spinnerPickupLocation.getSelectedItem().toString();
             dropoffLocation = spinnerReturnLocation.getSelectedItem().toString();
@@ -385,6 +419,9 @@ public class CarListing extends AppCompatActivity {
             updateDateTimeLocationButton();
             dialog.dismiss();
         });
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        }
         btnCancel.setOnClickListener(v -> dialog.dismiss());
         dialog.show();
     }
@@ -395,22 +432,99 @@ public class CarListing extends AppCompatActivity {
         java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("HH:mm dd/MM/yyyy");
         java.util.Calendar calendar = java.util.Calendar.getInstance();
         try { calendar.setTime(sdf.parse(current)); } catch (Exception ignored) {}
-        int year = calendar.get(java.util.Calendar.YEAR);
-        int month = calendar.get(java.util.Calendar.MONTH);
-        int day = calendar.get(java.util.Calendar.DAY_OF_MONTH);
-        int hour = calendar.get(java.util.Calendar.HOUR_OF_DAY);
-        int minute = calendar.get(java.util.Calendar.MINUTE);
-        android.app.DatePickerDialog datePicker = new android.app.DatePickerDialog(this, (view, y, m, d) -> {
-            android.app.TimePickerDialog timePicker = new android.app.TimePickerDialog(this, (tp, h, min) -> {
-                java.util.Calendar cal = java.util.Calendar.getInstance();
-                cal.set(y, m, d, h, min);
-                targetButton.setText(sdf.format(cal.getTime()));
-            }, hour, minute, true);
-            timePicker.show();
-        }, year, month, day);
-        datePicker.show();
+        // Directly show Material date picker for the button that was clicked
+        showMaterialDatePicker(targetButton, calendar);
+    }
+    private void showMaterialDatePicker(Button targetButton, java.util.Calendar calendar) {
+        // Create constraints to limit date selection
+        // Setting minimum date to today to prevent selecting past dates
+        java.util.Calendar minDate = java.util.Calendar.getInstance();
+
+        // Create the date picker builder
+        com.google.android.material.datepicker.MaterialDatePicker.Builder<Long> builder =
+                com.google.android.material.datepicker.MaterialDatePicker.Builder.datePicker();
+        if (targetButton.getId() == R.id.btnPickupTime) {
+            builder.setTitleText("Select Pickup Date");
+        } else {
+            builder.setTitleText("Select Return Date");
+        }
+        builder.setSelection(calendar.getTimeInMillis());
+        builder.setCalendarConstraints(new com.google.android.material.datepicker.CalendarConstraints.Builder()
+                .setValidator(com.google.android.material.datepicker.DateValidatorPointForward.from(minDate.getTimeInMillis()))
+                .build());
+
+        // Apply custom dark theme
+        builder.setTheme(R.style.CustomMaterialCalendar);
+
+        // Create and customize the date picker
+        com.google.android.material.datepicker.MaterialDatePicker<Long> datePicker = builder.build();
+
+        // Set up the positive button click listener
+        datePicker.addOnPositiveButtonClickListener(selection -> {
+            calendar.setTimeInMillis(selection);
+
+            // After date is selected, show time picker for the SAME button that was clicked
+            showMaterialTimePicker(targetButton, calendar);
+        });
+        // Show the date picker with a subtle animation
+        datePicker.show(getSupportFragmentManager(), "DATE_PICKER");
     }
 
+    private void showMaterialTimePicker(Button targetButton, java.util.Calendar calendar) {
+        int hour = calendar.get(java.util.Calendar.HOUR_OF_DAY);
+        int minute = calendar.get(java.util.Calendar.MINUTE);
+
+        // Create the Material TimePicker
+        com.google.android.material.timepicker.MaterialTimePicker.Builder builder =
+                new com.google.android.material.timepicker.MaterialTimePicker.Builder()
+                        .setTimeFormat(com.google.android.material.timepicker.TimeFormat.CLOCK_24H)
+                        .setHour(hour)
+                        .setMinute(minute)
+                        .setTheme(R.style.CustomMaterialTimePicker); // Apply custom dark theme
+        // Set different title based on which button was clicked
+        if (targetButton.getId() == R.id.btnPickupTime) {
+            builder.setTitleText("Select Pickup Time");
+        } else {
+            builder.setTitleText("Select Return Time");
+        }
+        com.google.android.material.timepicker.MaterialTimePicker timePicker = builder.build();
+
+        // Set up listeners for the time picker
+        timePicker.addOnPositiveButtonClickListener(view -> {
+            calendar.set(java.util.Calendar.HOUR_OF_DAY, timePicker.getHour());
+            calendar.set(java.util.Calendar.MINUTE, timePicker.getMinute());
+
+            java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("HH:mm dd/MM/yyyy");
+            targetButton.setText(sdf.format(calendar.getTime()));
+
+            // Check if this is pickup time and adjust dropoff if needed
+            Button btnReturnTime = ((android.app.AlertDialog)targetButton.getTag()).findViewById(R.id.btnReturnTime);
+
+            if (targetButton.getId() == R.id.btnPickupTime && btnReturnTime != null) {
+                String returnTimeStr = btnReturnTime.getText().toString();
+                java.util.Calendar returnCal = java.util.Calendar.getInstance();
+                try {
+                    returnCal.setTime(sdf.parse(returnTimeStr));
+                    // If return date/time is before pickup date/time, adjust it
+                    if (returnCal.before(calendar)) {
+                        // Set return time to 1 hour after pickup
+                        returnCal.setTimeInMillis(calendar.getTimeInMillis());
+                        returnCal.add(java.util.Calendar.HOUR_OF_DAY, 1);
+                        btnReturnTime.setText(sdf.format(returnCal.getTime()));
+                        Toast.makeText(CarListing.this, "Return time adjusted to be after pickup time", Toast.LENGTH_SHORT).show();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        // Show the time picker
+        timePicker.show(getSupportFragmentManager(), "TIME_PICKER");
+    }
+    private boolean isSameDay(java.util.Calendar cal1, java.util.Calendar cal2) {
+        return cal1.get(java.util.Calendar.YEAR) == cal2.get(java.util.Calendar.YEAR) &&
+                cal1.get(java.util.Calendar.DAY_OF_YEAR) == cal2.get(java.util.Calendar.DAY_OF_YEAR);
+    }
     private void handleFilterOptions() {
         // TODO: Open filter options dialog
         Toast.makeText(this, "Filter options - Coming soon", Toast.LENGTH_SHORT).show();

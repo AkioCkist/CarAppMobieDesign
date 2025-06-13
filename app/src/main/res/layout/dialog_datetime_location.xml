@@ -11,7 +11,7 @@
         android:layout_height="wrap_content"
         android:text="Địa điểm nhận xe"
         android:textStyle="bold"
-        android:textColor="#222222"
+        android:textColor="#FFFFFF"
         android:layout_marginTop="8dp"/>
     <Spinner
         android:id="@+id/spinnerPickupLocation"
@@ -25,7 +25,7 @@
         android:layout_height="wrap_content"
         android:text="Địa điểm trả xe"
         android:textStyle="bold"
-        android:textColor="#222222"/>
+        android:textColor="#FFFFFF"/>
     <Spinner
         android:id="@+id/spinnerReturnLocation"
         android:layout_width="match_parent"
@@ -38,7 +38,7 @@
         android:layout_height="wrap_content"
         android:text="Thời gian nhận xe"
         android:textStyle="bold"
-        android:textColor="#222222"/>
+        android:textColor="#FFFFFF"/>
     <Button
         android:id="@+id/btnPickupTime"
         android:layout_width="match_parent"
@@ -53,7 +53,7 @@
         android:layout_height="wrap_content"
         android:text="Thời gian trả xe"
         android:textStyle="bold"
-        android:textColor="#222222"/>
+        android:textColor="#FFFFFF"/>
     <Button
         android:id="@+id/btnReturnTime"
         android:layout_width="match_parent"
