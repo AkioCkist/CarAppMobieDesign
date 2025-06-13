@@ -2,7 +2,6 @@ package com.midterm.mobiledesignfinalterm.homepage;
 
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
-import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Address;
@@ -20,9 +19,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Button;
 import android.widget.LinearLayout;
-import android.widget.PopupMenu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
+
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -35,9 +32,9 @@ import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.datepicker.CalendarConstraints;
 import com.google.android.material.datepicker.DateValidatorPointForward;
 import com.google.android.material.timepicker.MaterialTimePicker;
-import com.google.android.material.timepicker.MaterialTimePicker.Builder;
 import com.google.android.material.timepicker.TimeFormat;
 import com.midterm.mobiledesignfinalterm.R;
+import com.midterm.mobiledesignfinalterm.aboutUs.AboutUs;
 import com.midterm.mobiledesignfinalterm.authentication.Login;
 
 import android.widget.Toast;
@@ -46,7 +43,6 @@ import android.Manifest;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
@@ -426,6 +422,8 @@ public class Homepage extends AppCompatActivity implements LocationListener {
         btnAboutUs.setOnClickListener(v -> {
             animateMenuItemClick(v);
             hideDropdownMenu();
+            Intent intent = new Intent(Homepage.this, AboutUs.class);
+            startActivity(intent);
         });
 
         btnSignOut.setOnClickListener(v -> {
