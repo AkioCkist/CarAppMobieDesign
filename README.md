@@ -1,6 +1,6 @@
 # Whale Xe - Mobile Rental App (Android)
 
-![Whale Xe](https://images.vexels.com/media/users/3/144355/isolated/lists/0a53cf7ef3dcdc995f7f20c13c697a25-speed-car-lines-logo.png)
+![Whale Xe](app/src/main/res/drawable/logo.png)
 
 *Drive Your Journey with Effortless Car Rentals – On Mobile*
 
