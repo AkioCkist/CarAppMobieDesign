@@ -286,17 +286,17 @@
                     android:id="@+id/layoutSwapSection"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:layout_marginBottom="16dp">
+                    android:layout_marginBottom="16dp"
+                    android:gravity="center">
 
                     <ImageView
                         android:id="@+id/imageViewSwapLocations"
-                        android:background="@drawable/green_accent_button_background"
-                        android:padding="16dp"
                         android:layout_width="56dp"
                         android:layout_height="56dp"
-                        android:src="@drawable/ic_arrow_forward"
+                        android:background="@drawable/green_accent_button_background"
                         android:contentDescription="Search Cars"
+                        android:padding="16dp"
+                        android:src="@drawable/ic_arrow_forward"
                         app:tint="@color/black" />
                 </LinearLayout>
 

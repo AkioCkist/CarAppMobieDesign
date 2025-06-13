@@ -9,6 +9,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -18,8 +19,8 @@ import com.midterm.mobiledesignfinalterm.R;
 
 public class AboutUs extends AppCompatActivity {
 
-    private CardView logoCard;
-    private TextView brandName, tagline1, tagline2;
+    private ImageView logoImage;
+    private TextView tagline1, tagline2;
     private CardView missionCard, visionCard, statsCard, contactCard;
 
     @Override
@@ -33,8 +34,7 @@ public class AboutUs extends AppCompatActivity {
     }
 
     private void initializeViews() {
-        logoCard = findViewById(R.id.logoCard);
-        brandName = findViewById(R.id.brandName);
+        logoImage = findViewById(R.id.logoImage);
         tagline1 = findViewById(R.id.tagline1);
         tagline2 = findViewById(R.id.tagline2);
         missionCard = findViewById(R.id.missionCard);
@@ -44,11 +44,10 @@ public class AboutUs extends AppCompatActivity {
     }
 
     private void startEntryAnimations() {
-        logoCard.setScaleX(0.5f);
-        logoCard.setScaleY(0.5f);
-        logoCard.setAlpha(0f);
+        logoImage.setScaleX(0.5f);
+        logoImage.setScaleY(0.5f);
+        logoImage.setAlpha(0f);
 
-        brandName.setAlpha(0f);
         tagline1.setAlpha(0f);
         tagline2.setAlpha(0f);
 
@@ -62,13 +61,9 @@ public class AboutUs extends AppCompatActivity {
         PropertyValuesHolder logoScaleX = PropertyValuesHolder.ofFloat(View.SCALE_X, 1f);
         PropertyValuesHolder logoScaleY = PropertyValuesHolder.ofFloat(View.SCALE_Y, 1f);
         PropertyValuesHolder logoAlpha = PropertyValuesHolder.ofFloat(View.ALPHA, 1f);
-        ObjectAnimator logoAnimator = ObjectAnimator.ofPropertyValuesHolder(logoCard, logoScaleX, logoScaleY, logoAlpha);
+        ObjectAnimator logoAnimator = ObjectAnimator.ofPropertyValuesHolder(logoImage, logoScaleX, logoScaleY, logoAlpha);
         logoAnimator.setDuration(600);
         logoAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
-
-        // Text Animators: fade in (from 0 to 1)
-        ObjectAnimator brandNameAnimator = ObjectAnimator.ofFloat(brandName, "alpha", 0f, 1f);
-        brandNameAnimator.setDuration(500);
 
         ObjectAnimator tagline1Animator = ObjectAnimator.ofFloat(tagline1, "alpha", 0f, 1f);
         tagline1Animator.setDuration(500);
@@ -78,7 +73,7 @@ public class AboutUs extends AppCompatActivity {
 
         // --- Animation Orchestration with AnimatorSet ---
         AnimatorSet heroTextAnimatorSet = new AnimatorSet();
-        heroTextAnimatorSet.playSequentially(brandNameAnimator, tagline1Animator, tagline2Animator);
+        heroTextAnimatorSet.playSequentially(tagline1Animator, tagline2Animator);
 
         AnimatorSet heroSectionAnimatorSet = new AnimatorSet();
         heroSectionAnimatorSet.playTogether(logoAnimator, heroTextAnimatorSet);
