@@ -4,6 +4,7 @@ import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.animation.OvershootInterpolator;
 import android.widget.ArrayAdapter;
@@ -98,7 +99,10 @@ public class CarListing extends AppCompatActivity {
         dropdownMenu.setVisibility(View.GONE);
         dropdownMenu.setAlpha(0f);
         dropdownMenu.setTranslationY(-20f);
-
+        if (pickupLocation != null && !pickupLocation.isEmpty()) {
+            // Apply initial location filtering if a location was passed in the intent
+            handleFilterByLocation();
+        }
         // Show welcome message
         if (userName != null && !userName.isEmpty()) {
             Toast.makeText(this, "Welcome to Car Listing, " + userName + "!", Toast.LENGTH_SHORT).show();
@@ -201,8 +205,9 @@ public class CarListing extends AppCompatActivity {
         buttonDateTime.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Log.d("CarListing", "DEBUG: Filtering by location: '" + pickupLocation + "'");
                 animateButtonClick(v);
-                handleDateTimeLocationSetting();
+                showDateTimeLocationDialog();
             }
         });
 
@@ -293,6 +298,55 @@ public class CarListing extends AppCompatActivity {
         }
     }
 
+    private void handleFilterByLocation() {
+        Log.d("CarListing", "DEBUG: Filtering by location: '" + pickupLocation + "'");
+
+        // Clear the filtered list
+        filteredCarList.clear();
+
+        // If pickup location is not specified, show all cars
+        if (pickupLocation == null || pickupLocation.isEmpty()) {
+            filteredCarList.addAll(carList);
+        } else {
+            // Filter cars that match the pickup location
+            for (Car car : carList) {
+                String carLocation = car.getLocation();
+                if (carLocation != null && matchesCity(carLocation, pickupLocation)) {
+                    filteredCarList.add(car);
+                    Log.d("CarListing", "Added car with location: " + carLocation);
+                }
+            }
+        }
+
+        // Update the UI
+        carAdapter.notifyDataSetChanged();
+        textViewCarCount.setText("Found " + filteredCarList.size() + " cars");
+
+        // Show a message if no cars found
+        if (filteredCarList.isEmpty() && !carList.isEmpty()) {
+            Toast.makeText(this, "No cars available in " + pickupLocation, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    // Helper method to match city names
+    private boolean matchesCity(String carLocation, String selectedCity) {
+        // Handle "Hồ Chí Minh" vs "TP.HCM" special case
+        if ((selectedCity.equals("TP.HCM") || selectedCity.equals("Hồ Chí Minh")) &&
+                (carLocation.contains("TP.HCM") || carLocation.contains("Hồ Chí Minh"))) {
+            return true;
+        }
+
+        // Extract city name from car location (format is typically "City - Address")
+        String[] parts = carLocation.split(" - ", 2);
+        if (parts.length > 0) {
+            String cityPart = parts[0].trim();
+            return cityPart.equals(selectedCity) ||
+                    cityPart.contains(selectedCity) ||
+                    selectedCity.contains(cityPart);
+        }
+
+        return carLocation.contains(selectedCity) || selectedCity.contains(carLocation);
+    }
     private void loadCarData() {
         // Show loading indicator
         View loadingView = findViewById(R.id.loadingView);
@@ -370,7 +424,7 @@ public class CarListing extends AppCompatActivity {
         btnCancel.setTextColor(android.graphics.Color.BLACK);
 
         // Setup location options with custom adapter for black text
-        String[] locations = {"Đà Nẵng", "Hồ Chí Minh", "Hà Nội"};
+        String[] locations = {"Đà Nẵng", "TP.HCM", "Hà Nội", "Huế", "Bắc Ninh"};
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(
                 this,
                 R.layout.item_spinner_location,
@@ -378,33 +432,54 @@ public class CarListing extends AppCompatActivity {
         ) {
             @Override
             public View getView(int position, View convertView, ViewGroup parent) {
-                if (convertView == null) {
-                    convertView = getLayoutInflater().inflate(R.layout.item_spinner_location, parent, false);
-                }
-                TextView textView = convertView.findViewById(R.id.textViewSpinnerItem);
-                textView.setText(getItem(position));
-                return convertView;
+                TextView textView = (TextView) super.getView(position, convertView, parent);
+                textView.setTextColor(android.graphics.Color.BLACK);
+                return textView;
             }
+
             @Override
             public View getDropDownView(int position, View convertView, ViewGroup parent) {
-                if (convertView == null) {
-                    convertView = getLayoutInflater().inflate(R.layout.item_spinner_location, parent, false);
-                }
-                TextView textView = convertView.findViewById(R.id.textViewSpinnerItem);
-                textView.setText(getItem(position));
-                return convertView;
+                TextView textView = (TextView) super.getDropDownView(position, convertView, parent);
+                textView.setTextColor(android.graphics.Color.BLACK);
+                return textView;
             }
         };
+
         spinnerPickupLocation.setAdapter(adapter);
         spinnerReturnLocation.setAdapter(adapter);
-        // Set current selection
-        spinnerPickupLocation.setSelection(java.util.Arrays.asList(locations).indexOf(pickupLocation));
-        spinnerReturnLocation.setSelection(java.util.Arrays.asList(locations).indexOf(dropoffLocation));
+
+        // Store the current location to compare later
+        String previousPickupLocation = pickupLocation;
+
+        // Set current selection if available
+        if (pickupLocation != null && !pickupLocation.isEmpty()) {
+            int pickupIndex = findLocationIndex(locations, pickupLocation);
+            if (pickupIndex != -1) {
+                spinnerPickupLocation.setSelection(pickupIndex);
+            }
+        }
+
+        if (dropoffLocation != null && !dropoffLocation.isEmpty()) {
+            int dropoffIndex = findLocationIndex(locations, dropoffLocation);
+            if (dropoffIndex != -1) {
+                spinnerReturnLocation.setSelection(dropoffIndex);
+            }
+        } else if (pickupLocation != null) {
+            // Default dropoff to pickup if not set
+            int pickupIndex = findLocationIndex(locations, pickupLocation);
+            if (pickupIndex != -1) {
+                spinnerReturnLocation.setSelection(pickupIndex);
+            }
+        }
+
         // Set current time
-        btnPickupTime.setText(pickupTime);
-        btnReturnTime.setText(dropoffTime);
+        btnPickupTime.setText(pickupTime != null ? pickupTime : "Select Time");
+        btnReturnTime.setText(dropoffTime != null ? dropoffTime : "Select Time");
+
         // Create dialog first so we can reference it
         android.app.AlertDialog dialog = builder.create();
+        dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+
         // Store dialog reference in button tags for later access
         btnPickupTime.setTag(dialog);
         btnReturnTime.setTag(dialog);
@@ -413,19 +488,52 @@ public class CarListing extends AppCompatActivity {
         btnPickupTime.setOnClickListener(v -> showDateTimePicker(btnPickupTime));
         btnReturnTime.setOnClickListener(v -> showDateTimePicker(btnReturnTime));
 
+        // Instead of using CheckBox, we'll use a simple check for same location
+        boolean sameLocation = (pickupLocation != null &&
+                dropoffLocation != null &&
+                pickupLocation.equals(dropoffLocation));
+
         btnConfirm.setOnClickListener(v -> {
+            // Get selected pickup location
             pickupLocation = spinnerPickupLocation.getSelectedItem().toString();
+
+            // Get return location (we don't have a checkbox, so just get the selected item)
             dropoffLocation = spinnerReturnLocation.getSelectedItem().toString();
-            pickupTime = btnPickupTime.getText().toString();
-            dropoffTime = btnReturnTime.getText().toString();
+
+            // Update the button text
             updateDateTimeLocationButton();
+
+            // Apply the location filter if location changed
+            if (!pickupLocation.equals(previousPickupLocation)) {
+                handleFilterByLocation();
+            }
+
             dialog.dismiss();
         });
-        if (dialog.getWindow() != null) {
-            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-        }
+
         btnCancel.setOnClickListener(v -> dialog.dismiss());
+
         dialog.show();
+    }
+
+    // Helper method to find location index in array
+    private int findLocationIndex(String[] locations, String location) {
+        if (location == null) return -1;
+
+        // Handle different location formats
+        String normalizedLocation = location;
+        if (location.contains(" - ")) {
+            normalizedLocation = location.split(" - ")[0]; // Extract city name before dash
+        }
+
+        for (int i = 0; i < locations.length; i++) {
+            if (locations[i].equals(normalizedLocation) ||
+                    normalizedLocation.contains(locations[i]) ||
+                    locations[i].contains(normalizedLocation)) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     private void showDateTimePicker(Button targetButton) {

@@ -550,7 +550,7 @@ public class Homepage extends AppCompatActivity implements LocationListener {
      * @param locationTextView The TextView to update with the selected location.
      */
     private void showLocationSelectionDialog(final TextView locationTextView) {
-        final String[] cities = {"Hanoi", "Da Nang", "Ho Chi Minh"};
+        final String[] cities = {"Hà Nội", "Đà Nẵng", "TP.HCM"};
 
         // Create AlertDialog with custom theme
         AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.Theme_Dialog_Dark);
