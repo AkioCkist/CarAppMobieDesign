@@ -41,6 +41,10 @@ public class AboutUs extends AppCompatActivity {
         visionCard = findViewById(R.id.visionCard);
         statsCard = findViewById(R.id.statsCard);
         contactCard = findViewById(R.id.contactCard);
+
+        // Initialize back arrow
+        ImageView backArrow = findViewById(R.id.back_arrow);
+        backArrow.setOnClickListener(v -> onBackPressed());
     }
 
     private void startEntryAnimations() {

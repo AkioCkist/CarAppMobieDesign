@@ -12,6 +12,23 @@
         android:orientation="vertical"
         android:layout_marginTop="36dp">
 
+        <!-- Back Arrow -->
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingStart="24dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp">
+
+            <ImageView
+                android:id="@+id/back_arrow"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/arrow_left"
+                android:contentDescription="Go back"
+                app:tint="@android:color/white" />
+        </FrameLayout>
+
         <!-- Hero Brand Section with Animation -->
         <LinearLayout
             android:id="@+id/heroSection"
