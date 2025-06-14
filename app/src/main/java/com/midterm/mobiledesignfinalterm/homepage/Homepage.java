@@ -34,6 +34,7 @@ import com.google.android.material.datepicker.DateValidatorPointForward;
 import com.google.android.material.timepicker.MaterialTimePicker;
 import com.google.android.material.timepicker.TimeFormat;
 import com.midterm.mobiledesignfinalterm.R;
+import com.midterm.mobiledesignfinalterm.UserDashboard.UserDashboard;
 import com.midterm.mobiledesignfinalterm.aboutUs.AboutUs;
 import com.midterm.mobiledesignfinalterm.authentication.Login;
 
@@ -811,13 +812,12 @@ public class Homepage extends AppCompatActivity implements LocationListener {
     }
 
     private void handleMyProfile() {
-        Toast.makeText(this, "My Profile", Toast.LENGTH_SHORT).show();
         // Navigate to profile screen with user info
-        // Intent intent = new Intent(Homepage.this, ProfileActivity.class);
-        // intent.putExtra("user_phone", userPhone);
-        // intent.putExtra("user_name", userName);
-        // intent.putStringArrayListExtra("user_roles", (ArrayList<String>) userRoles);
-        // startActivity(intent);
+         Intent intent = new Intent(Homepage.this, UserDashboard.class);
+         intent.putExtra("user_phone", userPhone);
+         intent.putExtra("user_name", userName);
+         intent.putStringArrayListExtra("user_roles", (ArrayList<String>) userRoles);
+         startActivity(intent);
     }
 
     private void handleSettings() {

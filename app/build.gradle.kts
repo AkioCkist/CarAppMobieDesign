@@ -48,4 +48,5 @@ dependencies {
 
     implementation ("org.mindrot:jbcrypt:0.4")
     implementation ("com.android.volley:volley:1.2.1")
+    implementation ("de.hdodenhof:circleimageview:3.1.0")
 }
