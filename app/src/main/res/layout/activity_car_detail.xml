@@ -98,7 +98,7 @@
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="250dp"
-            android:background="222126">
+            android:background="#222126">
 
             <ImageView
                 android:id="@+id/imageViewCarMain"
@@ -535,8 +535,23 @@
         <!-- Bottom Spacing -->
         <View
             android:layout_width="match_parent"
-            android:layout_height="24dp" />
+            android:layout_height="24dp">
+        </View>
+        <FrameLayout
+            android:id="@+id/loadingView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone"
+            android:background="#80000000"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
 
+            <ProgressBar
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center" />
+        </FrameLayout>
     </LinearLayout>
-
 </ScrollView>

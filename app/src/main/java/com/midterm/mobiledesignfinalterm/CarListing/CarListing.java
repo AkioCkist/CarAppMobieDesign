@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.animation.OvershootInterpolator;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -370,29 +371,30 @@ public class CarListing extends AppCompatActivity {
 
         // Setup location options with custom adapter for black text
         String[] locations = {"Đà Nẵng", "Hồ Chí Minh", "Hà Nội"};
-        android.widget.ArrayAdapter<String> adapter = new android.widget.ArrayAdapter<String>(
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(
                 this,
-                android.R.layout.simple_spinner_item,
+                R.layout.item_spinner_location,
                 locations
         ) {
             @Override
             public View getView(int position, View convertView, ViewGroup parent) {
-                View view = super.getView(position, convertView, parent);
-                TextView textView = (TextView) view;
-                textView.setTextColor(android.graphics.Color.BLACK);
-                return view;
+                if (convertView == null) {
+                    convertView = getLayoutInflater().inflate(R.layout.item_spinner_location, parent, false);
+                }
+                TextView textView = convertView.findViewById(R.id.textViewSpinnerItem);
+                textView.setText(getItem(position));
+                return convertView;
             }
-
             @Override
             public View getDropDownView(int position, View convertView, ViewGroup parent) {
-                View view = super.getDropDownView(position, convertView, parent);
-                TextView textView = (TextView) view;
-                textView.setTextColor(android.graphics.Color.BLACK);
-                return view;
+                if (convertView == null) {
+                    convertView = getLayoutInflater().inflate(R.layout.item_spinner_location, parent, false);
+                }
+                TextView textView = convertView.findViewById(R.id.textViewSpinnerItem);
+                textView.setText(getItem(position));
+                return convertView;
             }
         };
-
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerPickupLocation.setAdapter(adapter);
         spinnerReturnLocation.setAdapter(adapter);
         // Set current selection

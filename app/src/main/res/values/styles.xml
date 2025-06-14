@@ -32,5 +32,11 @@
         <item name="colorOnSurface">@color/white</item>
         <item name="colorAccent">#8BC34A</item>
     </style>
+
+    <style name="CustomSpinnerStyle" parent="Widget.AppCompat.Spinner">
+        <item name="android:dropDownVerticalOffset">35dp</item>
+        <item name="android:popupBackground">@drawable/bg_spinner_white_rounded</item>
+        <item name="android:dropDownWidth">match_parent</item>
+    </style>
 </resources>
 
