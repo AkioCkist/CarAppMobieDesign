@@ -94,64 +94,118 @@
 
         <!-- Car Image Section -->
 
-        <!-- Car Details Card -->
-        <FrameLayout
+        <!-- Car Image Section -->
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="250dp"
-            android:background="#222126">
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@color/background_secondary"
+            android:padding="10dp">
 
-            <ImageView
-                android:id="@+id/imageViewCarMain"
+            <!-- Main Car Image -->
+            <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_margin="10dp"
-                android:adjustViewBounds="true"
-                android:clipToOutline="true"
-                android:scaleType="centerCrop"
-                android:src="@drawable/intro_bg_1"
-                android:background="@drawable/cardetail_rounded_corner"/>
-
-            <!-- Image indicators -->
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="bottom|center_horizontal"
-                android:layout_marginBottom="16dp"
-                android:orientation="horizontal">
+                android:layout_height="250dp"
+                android:layout_marginBottom="16dp">
 
                 <ImageView
-                    android:id="@+id/thumbnail1"
-                    android:layout_width="50dp"
-                    android:layout_height="35dp"
-                    android:layout_marginEnd="8dp"
-                    android:adjustViewBounds="true"
-                    android:clipToOutline="true"
-                    android:scaleType="centerCrop"
-                    android:src="@drawable/intro_bg_2"
-                    android:background="@drawable/cardetail_rounded_corner"/>
-
-                <ImageView
-                    android:id="@+id/thumbnail2"
-                    android:layout_width="50dp"
-                    android:layout_height="35dp"
-                    android:layout_marginEnd="8dp"
+                    android:id="@+id/imageViewCarMain"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
                     android:adjustViewBounds="true"
                     android:clipToOutline="true"
                     android:scaleType="centerCrop"
                     android:src="@drawable/intro_bg_1"
                     android:background="@drawable/cardetail_rounded_corner"/>
+            </FrameLayout>
 
-                <ImageView
-                    android:id="@+id/thumbnail3"
-                    android:layout_width="50dp"
-                    android:layout_height="35dp"
-                    android:adjustViewBounds="true"
-                    android:clipToOutline="true"
-                    android:scaleType="centerCrop"
-                    android:src="@drawable/intro_bg_3"
-                    android:background="@drawable/cardetail_rounded_corner"/>
+            <!-- Image Navigation Section -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="8dp">
+
+                <!-- Previous Button -->
+                <ImageButton
+                    android:id="@+id/buttonPrevious"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:src="@drawable/cardetail_ic_leftbutton"
+                    android:background="@drawable/circle_background"
+                    android:backgroundTint="@color/white"
+                    android:contentDescription="Previous Image"
+                    app:tint="@color/black"
+                    android:layout_marginEnd="12dp"
+                    android:padding="4dp">
+                </ImageButton>
+
+                <!-- Thumbnails Container -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="horizontal"
+                    android:gravity="center">
+
+                    <ImageView
+                        android:id="@+id/thumbnail1"
+                        android:layout_width="70dp"
+                        android:layout_height="50dp"
+                        android:layout_marginEnd="8dp"
+                        android:adjustViewBounds="true"
+                        android:clipToOutline="true"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/intro_bg_1"
+                        android:background="@drawable/cardetail_rounded_corner"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:foreground="?android:attr/selectableItemBackground"/>
+
+                    <ImageView
+                        android:id="@+id/thumbnail2"
+                        android:layout_width="70dp"
+                        android:layout_height="50dp"
+                        android:layout_marginEnd="8dp"
+                        android:adjustViewBounds="true"
+                        android:clipToOutline="true"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/intro_bg_2"
+                        android:background="@drawable/cardetail_rounded_corner"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:foreground="?android:attr/selectableItemBackground"/>
+
+                    <ImageView
+                        android:id="@+id/thumbnail3"
+                        android:layout_width="70dp"
+                        android:layout_height="50dp"
+                        android:adjustViewBounds="true"
+                        android:clipToOutline="true"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/intro_bg_3"
+                        android:background="@drawable/cardetail_rounded_corner"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:foreground="?android:attr/selectableItemBackground"/>
+                </LinearLayout>
+
+                <!-- Next Button -->
+                <ImageButton
+                    android:id="@+id/buttonNext"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:src="@drawable/cardetail_ic_rightbutton"
+                    android:background="@drawable/circle_background"
+                    android:backgroundTint="@color/white"
+                    android:contentDescription="Next Image"
+                    app:tint="@color/black"
+                    android:layout_marginStart="12dp"
+                    android:padding="4dp">
+                </ImageButton>
             </LinearLayout>
-        </FrameLayout>
+        </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
