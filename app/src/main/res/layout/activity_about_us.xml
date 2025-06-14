@@ -10,44 +10,62 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:layout_marginTop="16dp">
+        android:layout_marginTop="36dp">
+
+        <!-- Back Arrow -->
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingStart="24dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp">
+
+            <ImageView
+                android:id="@+id/back_arrow"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/arrow_left"
+                android:contentDescription="Go back"
+                app:tint="@android:color/white" />
+        </FrameLayout>
 
         <!-- Hero Brand Section with Animation -->
         <LinearLayout
             android:id="@+id/heroSection"
             android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
+            android:layout_height="206dp"
+            android:background="@color/background_primary"
             android:gravity="center"
-            android:padding="32dp"
-            android:background="@color/background_secondary">
+            android:orientation="vertical"
+            android:padding="22dp">
 
             <ImageView
                 android:id="@+id/logoImage"
                 android:layout_width="250dp"
                 android:layout_height="90dp"
                 android:layout_marginBottom="14dp"
-                android:src="@drawable/logo"
+                android:adjustViewBounds="true"
                 android:scaleType="fitCenter"
-                android:adjustViewBounds="true" />
+                android:src="@drawable/logo" />
+
             <TextView
                 android:id="@+id/tagline1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="4dp"
+                android:fontFamily="@font/notosans_medium"
                 android:text="More than rentals"
                 android:textColor="@color/text_secondary"
-                android:textSize="18sp"
-                android:fontFamily="@font/notosans_medium"
-                android:layout_marginBottom="4dp" />
+                android:textSize="18sp" />
 
             <TextView
                 android:id="@+id/tagline2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:fontFamily="@font/notosans_bold"
                 android:text="We deliver happiness"
                 android:textColor="@color/green_primary"
-                android:textSize="20sp"
-                android:fontFamily="@font/notosans_bold" />
+                android:textSize="20sp" />
 
         </LinearLayout>
 

@@ -34,12 +34,21 @@ import com.google.android.material.datepicker.DateValidatorPointForward;
 import com.google.android.material.timepicker.MaterialTimePicker;
 import com.google.android.material.timepicker.TimeFormat;
 import com.midterm.mobiledesignfinalterm.R;
+import com.midterm.mobiledesignfinalterm.UserDashboard.UserDashboard;
 import com.midterm.mobiledesignfinalterm.aboutUs.AboutUs;
 import com.midterm.mobiledesignfinalterm.authentication.Login;
 
 import android.widget.Toast;
 import android.Manifest;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -86,6 +95,8 @@ public class Homepage extends AppCompatActivity implements LocationListener {
     // User information from login
     private String userPhone;
     private String userName;
+    private String userId; // Added userId field
+    private String userRawData; // Added raw user data field
     private List<String> userRoles;
     private boolean isDropdownVisible = false;
     private LinearLayout layoutPickupLocation;
@@ -154,8 +165,124 @@ public class Homepage extends AppCompatActivity implements LocationListener {
         if (intent != null) {
             userPhone = intent.getStringExtra("user_phone");
             userName = intent.getStringExtra("user_name");
+            userId = intent.getStringExtra("user_id");
+            userRawData = intent.getStringExtra("user_data");
             userRoles = intent.getStringArrayListExtra("user_roles");
+
+            // After getting basic user info, fetch complete user info from API
+            if (userPhone != null && !userPhone.isEmpty()) {
+                fetchUserInfoFromApi(userPhone);
+            }
         }
+    }
+
+    /**
+     * Fetch complete user information from the API
+     * This will get the user's role and other details that might not be included in the login response
+     */
+    private void fetchUserInfoFromApi(String phoneNumber) {
+        // Show loading indicator if needed
+        // loadingIndicator.setVisibility(View.VISIBLE);
+
+        new Thread(() -> {
+            try {
+                // Create URL for the user_info API endpoint
+                URL url = new URL("http://10.0.2.2/myapi/user_info.php");
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("POST");
+                conn.setRequestProperty("Content-Type", "application/json; utf-8");
+                conn.setRequestProperty("Accept", "application/json");
+                conn.setDoOutput(true);
+
+                // We need to send the phone number to get user info
+                // In a real app, you might want to send a token instead
+                String jsonInputString = "{\"phone_number\":\"" + phoneNumber + "\", \"password\":\"\"}";
+
+                // Send data
+                try (OutputStream os = conn.getOutputStream()) {
+                    byte[] input = jsonInputString.getBytes("utf-8");
+                    os.write(input, 0, input.length);
+                }
+
+                // Read response
+                BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream(), "utf-8"));
+                StringBuilder response = new StringBuilder();
+                String responseLine;
+                while ((responseLine = br.readLine()) != null) {
+                    response.append(responseLine.trim());
+                }
+
+                // Debug: Print the full response
+                System.out.println("User Info API Response: " + response.toString());
+
+                // Parse JSON result
+                JSONObject result = new JSONObject(response.toString());
+
+                runOnUiThread(() -> {
+                    try {
+                        if (result.has("status") && result.getString("status").equals("success")) {
+                            // Extract user details
+                            if (userName == null || userName.isEmpty()) {
+                                userName = result.optString("full_name", "");
+                            }
+
+                            // Extract user ID if we don't have it yet
+                            if (userId == null || userId.isEmpty()) {
+                                userId = String.valueOf(result.optInt("id", 0));
+                            }
+
+                            // Update roles with the actual role from the API
+                            if (result.has("role_name")) {
+                                String roleName = result.getString("role_name");
+                                userRoles = new ArrayList<>();
+                                userRoles.add(roleName);
+                                System.out.println("Updated role from API: " + roleName);
+                            }
+
+                            // Store the complete user data
+                            userRawData = result.toString();
+
+                            // Update any UI components that display user info
+                            updateUserInfoUI();
+                        } else {
+                            // Handle error
+                            String errorMsg = result.optString("message", "Failed to get user info");
+                            System.out.println("User Info Error: " + errorMsg);
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                        System.out.println("JSON Parsing Error: " + e.getMessage());
+                    } finally {
+                        // Hide loading indicator if needed
+                        // loadingIndicator.setVisibility(View.GONE);
+                    }
+                });
+            } catch (Exception e) {
+                e.printStackTrace();
+                System.out.println("Network Error: " + e.getMessage());
+
+                runOnUiThread(() -> {
+                    // Hide loading indicator if needed
+                    // loadingIndicator.setVisibility(View.GONE);
+                });
+            }
+        }).start();
+    }
+
+    /**
+     * Update any UI components that display user info
+     */
+    private void updateUserInfoUI() {
+        // Update welcome message if it exists
+        if (textViewWelcome != null) {
+            if (userName != null && !userName.isEmpty()) {
+                textViewWelcome.setText("Welcome, " + userName + "!");
+            } else {
+                textViewWelcome.setText("Welcome!");
+            }
+        }
+
+        // You can update other UI components here as needed
     }
 
     private void initializeViews() {
@@ -470,6 +597,8 @@ public class Homepage extends AppCompatActivity implements LocationListener {
             Intent intent = new Intent(Homepage.this, com.midterm.mobiledesignfinalterm.CarListing.CarListing.class);
             intent.putExtra("user_phone", userPhone);
             intent.putExtra("user_name", userName);
+            intent.putExtra("user_id", userId); // Pass userId to CarListing
+            intent.putExtra("user_data", userRawData); // Pass raw user data to CarListing
             if (userRoles != null) {
                 intent.putStringArrayListExtra("user_roles", new ArrayList<>(userRoles));
             }
@@ -811,13 +940,14 @@ public class Homepage extends AppCompatActivity implements LocationListener {
     }
 
     private void handleMyProfile() {
-        Toast.makeText(this, "My Profile", Toast.LENGTH_SHORT).show();
         // Navigate to profile screen with user info
-        // Intent intent = new Intent(Homepage.this, ProfileActivity.class);
-        // intent.putExtra("user_phone", userPhone);
-        // intent.putExtra("user_name", userName);
-        // intent.putStringArrayListExtra("user_roles", (ArrayList<String>) userRoles);
-        // startActivity(intent);
+         Intent intent = new Intent(Homepage.this, UserDashboard.class);
+         intent.putExtra("user_phone", userPhone);
+         intent.putExtra("user_name", userName);
+         intent.putExtra("user_id", userId); // Pass userId to UserDashboard
+         intent.putExtra("user_data", userRawData); // Pass raw user data to UserDashboard
+         intent.putStringArrayListExtra("user_roles", (ArrayList<String>) userRoles);
+         startActivity(intent);
     }
 
     private void handleSettings() {

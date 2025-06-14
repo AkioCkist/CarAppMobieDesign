@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#2C2C2C"
+    android:background="@color/background_primary"
     android:padding="20dp">
 
     <!-- Header -->
@@ -18,7 +18,7 @@
             android:layout_height="24dp"
             android:layout_alignParentStart="true"
             android:layout_centerVertical="true"
-            android:src="@drawable/ic_arrow_back"
+            android:src="@drawable/arrow_left"
             android:tint="#FFFFFF" />
 
         <TextView
@@ -77,7 +77,7 @@
                 android:id="@+id/et_full_name"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
-                android:background="@drawable/edittext_background"
+                android:background="@color/background_secondary"
                 android:hint="Full Name"
                 android:textColor="#FFFFFF"
                 android:textColorHint="#AAAAAA"
@@ -90,7 +90,7 @@
                 android:id="@+id/et_email"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
-                android:background="@drawable/edittext_background"
+                android:background="@color/background_secondary"
                 android:hint="Email Address"
                 android:textColor="#FFFFFF"
                 android:textColorHint="#AAAAAA"
@@ -103,7 +103,7 @@
                 android:id="@+id/et_phone"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
-                android:background="@drawable/edittext_background"
+                android:background="@color/background_secondary"
                 android:hint="Phone Number"
                 android:textColor="#FFFFFF"
                 android:textColorHint="#AAAAAA"
@@ -116,7 +116,7 @@
                 android:id="@+id/et_aadhar_number"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
-                android:background="@drawable/edittext_background"
+                android:background="@color/background_secondary"
                 android:hint="Aadhar Card Number"
                 android:textColor="#FFFFFF"
                 android:textColorHint="#AAAAAA"
@@ -129,7 +129,7 @@
                 android:id="@+id/et_pan_number"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
-                android:background="@drawable/edittext_background"
+                android:background="@color/background_secondary"
                 android:hint="Pan Card Number"
                 android:textColor="#FFFFFF"
                 android:textColorHint="#AAAAAA"

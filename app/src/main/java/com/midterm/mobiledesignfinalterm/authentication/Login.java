@@ -30,6 +30,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 
 public class Login extends AppCompatActivity {
 
@@ -355,7 +356,17 @@ public class Login extends AppCompatActivity {
                             }
 
                             String userPhone = userObject.optString("phone_number", phoneNumber);
-                            String userId = userObject.optString("account_id", "");
+
+                            // Get the user ID from account_id field
+                            String userId = String.valueOf(userObject.optInt("account_id", 0));
+                            if (userId.equals("0")) {
+                                userId = userObject.optString("account_id", "");
+                            }
+
+                            // Create a user roles list - even though API might not provide roles,
+                            // we'll set a default "User" role
+                            ArrayList<String> userRoles = new ArrayList<>();
+                            userRoles.add("User");
 
                             // ✅ Debug: Print what we extracted
                             System.out.println("Extracted user data:");
@@ -369,8 +380,9 @@ public class Login extends AppCompatActivity {
                             intent.putExtra("user_name", userName);
                             intent.putExtra("user_phone", userPhone);
                             intent.putExtra("user_id", userId);
+                            intent.putStringArrayListExtra("user_roles", userRoles);
 
-                            // ✅ Optional: Pass the entire user object as JSON string for future use
+                            // ✅ Pass the entire user object as JSON string for future use
                             intent.putExtra("user_data", userObject.toString());
 
                             startActivity(intent);
@@ -425,3 +437,4 @@ public class Login extends AppCompatActivity {
         startActivity(intent);
     }
 }
+

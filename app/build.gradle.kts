@@ -48,6 +48,7 @@ dependencies {
 
     implementation ("org.mindrot:jbcrypt:0.4")
     implementation ("com.android.volley:volley:1.2.1")
+    implementation ("de.hdodenhof:circleimageview:3.1.0")
 
     // Retrofit for API calls
     implementation ("com.squareup.retrofit2:retrofit:2.9.0")

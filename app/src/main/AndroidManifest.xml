@@ -19,9 +19,11 @@
         android:theme="@style/Theme.MobileDesignFinalTerm"
         tools:targetApi="31">
         <activity
-            android:name=".aboutUs.AboutUs"
+            android:name=".UserDashboard.UserDashboard"
             android:exported="false" />
-        <!-- Car Detail Activity -->
+        <activity
+            android:name=".aboutUs.AboutUs"
+            android:exported="false" /> <!-- Car Detail Activity -->
         <activity
             android:name=".CarDetail.CarDetailActivity"
             android:exported="false"
@@ -111,4 +113,3 @@
     </application>
 
 </manifest>
-
