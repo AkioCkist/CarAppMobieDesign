@@ -49,6 +49,7 @@ dependencies {
     implementation ("org.mindrot:jbcrypt:0.4")
     implementation ("com.android.volley:volley:1.2.1")
     implementation ("de.hdodenhof:circleimageview:3.1.0")
+    implementation("com.itextpdf:itext7-core:7.2.5")
 
     // Retrofit for API calls
     implementation ("com.squareup.retrofit2:retrofit:2.9.0")
@@ -65,3 +66,5 @@ dependencies {
     implementation ("com.github.bumptech.glide:glide:4.16.0")
     annotationProcessor ("com.github.bumptech.glide:compiler:4.16.0")
 }
+
+
