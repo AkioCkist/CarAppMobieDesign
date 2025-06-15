@@ -18,8 +18,8 @@
             android:layout_height="24dp"
             android:layout_alignParentStart="true"
             android:layout_centerVertical="true"
-            android:src="@drawable/arrow_left"
-            android:tint="#FFFFFF" />
+
+            android:src="@drawable/ic_arrow_back" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -111,31 +111,32 @@
                 android:layout_marginBottom="15dp"
                 android:inputType="phone" />
 
-            <!-- Aadhar Card Number -->
+            <!-- Citizen ID Number (CCCD) -->
             <EditText
                 android:id="@+id/et_aadhar_number"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
-                android:background="@color/background_secondary"
-                android:hint="Aadhar Card Number"
+                android:background="@drawable/edittext_background"
+                android:hint="Citizen ID Number (CCCD)"
                 android:textColor="#FFFFFF"
                 android:textColorHint="#AAAAAA"
                 android:padding="15dp"
                 android:layout_marginBottom="15dp"
                 android:inputType="number" />
 
-            <!-- PAN Card Number -->
+            <!-- Tax Identification Number (MST) -->
             <EditText
                 android:id="@+id/et_pan_number"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
-                android:background="@color/background_secondary"
-                android:hint="Pan Card Number"
+
+                android:background="@drawable/edittext_background"
+                android:hint="Tax Identification Number (MST)"
                 android:textColor="#FFFFFF"
                 android:textColorHint="#AAAAAA"
                 android:padding="15dp"
                 android:layout_marginBottom="20dp"
-                android:inputType="textCapCharacters" />
+                android:inputType="number" />
 
             <!-- Terms and Conditions -->
             <LinearLayout

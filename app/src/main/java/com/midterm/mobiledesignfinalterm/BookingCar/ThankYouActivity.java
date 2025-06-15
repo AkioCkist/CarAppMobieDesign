@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.midterm.mobiledesignfinalterm.MainActivity;
 import com.midterm.mobiledesignfinalterm.R;
+import com.midterm.mobiledesignfinalterm.homepage.Homepage;
 public class ThankYouActivity extends AppCompatActivity {
 
     private TextView tvBookingId, tvPickupDetails, tvDropoffDetails, tvUserDetails, tvPaymentDetails, tvTotalAmount;
@@ -67,7 +68,7 @@ public class ThankYouActivity extends AppCompatActivity {
         });
 
         btnBackToHome.setOnClickListener(v -> {
-            Intent intent = new Intent(this, MainActivity.class);
+            Intent intent = new Intent(this, Homepage.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(intent);
             finish();
