@@ -155,11 +155,11 @@ public class CarBookingActivity extends AppCompatActivity {
                     if (isPickup) {
                         selectedPickupDate = date;
                         tvPickupDate.setText(date);
-                        tvPickupDate.setTextColor(getResources().getColor(android.R.color.black));
+                        tvPickupDate.setTextColor(getResources().getColor(android.R.color.white));
                     } else {
                         selectedDropoffDate = date;
                         tvDropoffDate.setText(date);
-                        tvDropoffDate.setTextColor(getResources().getColor(android.R.color.black));
+                        tvDropoffDate.setTextColor(getResources().getColor(android.R.color.white));
                     }
                 },
                 calendar.get(Calendar.YEAR),
@@ -190,6 +190,16 @@ public class CarBookingActivity extends AppCompatActivity {
             calendar.set(Calendar.HOUR_OF_DAY, timePicker.getHour());
             calendar.set(Calendar.MINUTE, timePicker.getMinute());
             updateTimeTextView(timeTextView, calendar);
+
+            // Update selectedPickupTime if the pickup time TextView is being updated
+            if (timeTextView == tvPickupTime) {
+                selectedPickupTime = String.format("%02d:%02d", timePicker.getHour(), timePicker.getMinute());
+            }
+
+            // Update selectedDropoffTime if the drop-off time TextView is being updated
+            if (timeTextView == tvDropoffTime) {
+                selectedDropoffTime = String.format("%02d:%02d", timePicker.getHour(), timePicker.getMinute());
+            }
 
             // If pickup time is selected and dropoff is on the same day, validate the times
             if (timeTextView == tvPickupTime &&
