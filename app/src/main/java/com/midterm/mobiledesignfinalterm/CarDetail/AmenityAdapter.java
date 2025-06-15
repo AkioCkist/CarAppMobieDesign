@@ -17,11 +17,15 @@ import java.util.List;
 public class AmenityAdapter extends RecyclerView.Adapter<AmenityAdapter.AmenityViewHolder> {
 
     private final Context context;
-    private final List<Amenity> amenityList;
+    private List<Amenity> amenityList;
 
     public AmenityAdapter(Context context, List<Amenity> amenityList) {
         this.context = context;
         this.amenityList = amenityList;
+    }
+    public void setAmenities(List<Amenity> amenities) {
+        this.amenityList = amenities;
+        notifyDataSetChanged();
     }
 
     @NonNull

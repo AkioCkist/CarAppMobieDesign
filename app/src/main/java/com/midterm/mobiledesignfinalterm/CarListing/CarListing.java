@@ -734,15 +734,7 @@ public class CarListing extends AppCompatActivity {
 
         // Create intent and pass car data to CarDetailActivity
         Intent intent = new Intent(CarListing.this, com.midterm.mobiledesignfinalterm.CarDetail.CarDetailActivity.class);
-        intent.putExtra("car_name", car.getName());
-        intent.putExtra("car_type", car.getVehicleType());
-        intent.putExtra("car_fuel", car.getFuelType());
-        intent.putExtra("car_transmission", car.getTransmission());
-        intent.putExtra("car_seats", car.getSeats());
-        intent.putExtra("car_consumption", car.getFormattedConsumption());
-        intent.putExtra("car_price", car.getPriceFormatted());
-//        intent.putExtra("car_original_price", car.getOriginalPrice());
-        intent.putExtra("car_image", car.getPrimaryImage());
+        intent.putExtra("car_id", car.getVehicleId());
 
         // Pass user information
         intent.putExtra("user_phone", userPhone);
@@ -750,9 +742,11 @@ public class CarListing extends AppCompatActivity {
 
         // Pass booking details
         intent.putExtra("pickup_time", pickupTime);
-        intent.putExtra("return_time", dropoffTime);
+        intent.putExtra("pickup_date", pickupDate);
+        intent.putExtra("dropoff_time", dropoffTime);
+        intent.putExtra("dropoff_date", dropoffDate);
         intent.putExtra("pickup_location", pickupLocation);
-        intent.putExtra("return_location", dropoffLocation);
+        intent.putExtra("dropoff_location", dropoffLocation);
 
         startActivity(intent);
     }

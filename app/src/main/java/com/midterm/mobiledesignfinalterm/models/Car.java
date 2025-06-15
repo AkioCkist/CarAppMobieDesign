@@ -14,7 +14,7 @@ public class Car {
     private String name;
     @SerializedName("rating")
     private float rating;
-    @SerializedName("total_trips")
+    @SerializedName("trips")
     private int total_trips;
     @SerializedName("location")
     private String location;
@@ -22,7 +22,7 @@ public class Car {
     private String transmission;
     @SerializedName("seats")
     private int seats;
-    @SerializedName("fuel_type")
+    @SerializedName("fuel")
     private String fuel_type;
     @SerializedName("base_price")
     private double base_price;
@@ -36,6 +36,7 @@ public class Car {
     private boolean is_favorite;
     @SerializedName("primary_image")
     private String primary_image;
+    @SerializedName("price_formatted")
     private String price_formatted;
     private boolean is_favorite_for_user;
     private String lessor_name;
