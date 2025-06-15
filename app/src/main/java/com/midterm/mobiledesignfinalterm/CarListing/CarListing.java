@@ -34,6 +34,7 @@ import com.midterm.mobiledesignfinalterm.models.Car;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class CarListing extends AppCompatActivity {
 
@@ -304,9 +305,10 @@ public class CarListing extends AppCompatActivity {
         // Clear the filtered list
         filteredCarList.clear();
 
-        // If pickup location is not specified, show all cars
-        if (pickupLocation == null || pickupLocation.isEmpty()) {
+        // If pickup location is not specified or empty, show all cars
+        if (pickupLocation == null || pickupLocation.isEmpty() || "All Locations".equals(pickupLocation) || "Current Location".equals(pickupLocation)) {
             filteredCarList.addAll(carList);
+            Log.d("CarListing", "Showing all cars because location is empty or 'All Locations'");
         } else {
             // Filter cars that match the pickup location
             for (Car car : carList) {
@@ -322,7 +324,7 @@ public class CarListing extends AppCompatActivity {
         carAdapter.notifyDataSetChanged();
         textViewCarCount.setText("Found " + filteredCarList.size() + " cars");
 
-        // Show a message if no cars found
+        // Show a message if no cars found with the selected location
         if (filteredCarList.isEmpty() && !carList.isEmpty()) {
             Toast.makeText(this, "No cars available in " + pickupLocation, Toast.LENGTH_SHORT).show();
         }
@@ -356,42 +358,127 @@ public class CarListing extends AppCompatActivity {
 
         // Use RetrofitClient to call API
         CarApiService apiService = RetrofitClient.getCarApiService();
-        apiService.getAllCars().enqueue(new retrofit2.Callback<ApiResponse<List<Car>>>() {
+
+        // Call the API to get all cars with status "available"
+        apiService.getAllCars(null, null, "available").enqueue(new retrofit2.Callback<Map<String, Object>>() {
             @Override
-            public void onResponse(retrofit2.Call<ApiResponse<List<Car>>> call, retrofit2.Response<ApiResponse<List<Car>>> response) {
+            public void onResponse(retrofit2.Call<Map<String, Object>> call, retrofit2.Response<Map<String, Object>> response) {
                 if (loadingView != null) {
                     loadingView.setVisibility(View.GONE);
                 }
 
-                if (response.isSuccessful() && response.body() != null && response.body().getData() != null) {
-                    // Success - get cars from response
-                    List<Car> fetchedCars = response.body().getData();
-                    carList.clear();
-                    carList.addAll(fetchedCars);
+                if (response.isSuccessful() && response.body() != null) {
+                    try {
+                        // Parse the response
+                        Map<String, Object> responseMap = response.body();
+                        List<Map<String, Object>> records = (List<Map<String, Object>>) responseMap.get("records");
 
-                    // Update filtered list and adapter
-                    filteredCarList.clear();
-                    filteredCarList.addAll(carList);
-                    carAdapter.notifyDataSetChanged();
+                        // Clear existing data
+                        carList.clear();
+                        filteredCarList.clear();
 
-                    // Update car count
-                    textViewCarCount.setText("Found " + filteredCarList.size() + " cars");
+                        // Process each car record
+                        for (Map<String, Object> carMap : records) {
+                            Car car = new Car();
+
+                            // Handle integer fields safely
+                            if (carMap.get("id") instanceof Number) {
+                                car.setVehicleId(((Number) carMap.get("id")).intValue());
+                            }
+
+                            car.setName((String) carMap.get("name"));
+
+                            // Handle float fields safely
+                            if (carMap.get("rating") instanceof Number) {
+                                car.setRating(((Number) carMap.get("rating")).floatValue());
+                            }
+
+                            // Handle integer fields safely
+                            if (carMap.get("trips") instanceof Number) {
+                                car.setTotalTrips(((Number) carMap.get("trips")).intValue());
+                            }
+
+                            car.setLocation((String) carMap.get("location"));
+                            car.setTransmission((String) carMap.get("transmission"));
+
+                            // Handle integer fields safely
+                            if (carMap.get("seats") instanceof Number) {
+                                car.setSeats(((Number) carMap.get("seats")).intValue());
+                            }
+
+                            car.setFuelType((String) carMap.get("fuel"));
+
+                            // Handle double fields safely
+                            if (carMap.get("base_price") instanceof Number) {
+                                car.setBasePrice(((Number) carMap.get("base_price")).doubleValue());
+                            }
+
+                            car.setPriceFormatted((String) carMap.get("price_formatted"));
+                            car.setVehicleType((String) carMap.get("vehicle_type"));
+                            car.setDescription((String) carMap.get("description"));
+                            car.setStatus((String) carMap.get("status"));
+                            car.setFavorite((Boolean) carMap.get("is_favorite"));
+                            car.setFavoriteForUser((Boolean) carMap.get("is_favorite_for_user"));
+                            car.setLessorName((String) carMap.get("lessor_name"));
+                            car.setPrimaryImage((String) carMap.get("primary_image"));
+                            car.setFuel_consumption((String) carMap.get("fuel_consumption"));
+                            car.setBrandCar((String) carMap.get("brand"));
+
+                            // Process amenities if available
+                            if (carMap.containsKey("amenities") && carMap.get("amenities") instanceof List) {
+                                List<Map<String, Object>> amenitiesList = (List<Map<String, Object>>) carMap.get("amenities");
+                                List<com.midterm.mobiledesignfinalterm.CarDetail.Amenity> carAmenities = new ArrayList<>();
+
+                                for (Map<String, Object> amenityMap : amenitiesList) {
+                                    int id = ((Number) amenityMap.get("id")).intValue();
+                                    String name = (String) amenityMap.get("name");
+                                    String icon = (String) amenityMap.get("icon");
+                                    String description = (String) amenityMap.get("description");
+
+                                    carAmenities.add(new com.midterm.mobiledesignfinalterm.CarDetail.Amenity(id, name, icon, description));
+                                }
+                                car.setAmenities(carAmenities);
+                            }
+
+                            carList.add(car);
+                        }
+
+                        // Update filtered list
+                        filteredCarList.addAll(carList);
+
+                        // Update UI
+                        runOnUiThread(() -> {
+                            carAdapter.notifyDataSetChanged();
+                            textViewCarCount.setText("Found " + filteredCarList.size() + " cars");
+
+                            // Apply location filter if needed
+                            if (pickupLocation != null && !pickupLocation.isEmpty()) {
+                                handleFilterByLocation();
+                            }
+                        });
+
+                    } catch (Exception e) {
+                        Log.e("CarListing", "Error parsing response: " + e.getMessage(), e);
+                        Toast.makeText(CarListing.this, "Error parsing data", Toast.LENGTH_SHORT).show();
+                    }
                 } else {
-                    // Error handling
-                    Toast.makeText(CarListing.this, "Failed to load cars", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(CarListing.this, "Failed to fetch car data", Toast.LENGTH_SHORT).show();
+                    Log.e("CarListing", "API response error: " + response.code());
                 }
             }
 
             @Override
-            public void onFailure(retrofit2.Call<ApiResponse<List<Car>>> call, Throwable t) {
+            public void onFailure(retrofit2.Call<Map<String, Object>> call, Throwable t) {
                 if (loadingView != null) {
                     loadingView.setVisibility(View.GONE);
                 }
                 Toast.makeText(CarListing.this, "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-                t.printStackTrace();
+                Log.e("CarListing", "API call failed", t);
             }
         });
     }
+
+
 
     // Click handlers
     private void handleDateTimeLocationSetting() {
@@ -424,7 +511,8 @@ public class CarListing extends AppCompatActivity {
         btnCancel.setTextColor(android.graphics.Color.BLACK);
 
         // Setup location options with custom adapter for black text
-        String[] locations = {"Đà Nẵng", "TP.HCM", "Hà Nội", "Huế", "Bắc Ninh"};
+        // Add "All Locations" as the first option
+        String[] locations = {"All Locations", "Đà Nẵng", "TP.HCM", "Hà Nội", "Huế", "Bắc Ninh"};
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(
                 this,
                 R.layout.item_spinner_location,
@@ -452,24 +540,24 @@ public class CarListing extends AppCompatActivity {
         String previousPickupLocation = pickupLocation;
 
         // Set current selection if available
-        if (pickupLocation != null && !pickupLocation.isEmpty()) {
+        if (pickupLocation != null && !pickupLocation.isEmpty() && !"All Locations".equals(pickupLocation)) {
             int pickupIndex = findLocationIndex(locations, pickupLocation);
             if (pickupIndex != -1) {
                 spinnerPickupLocation.setSelection(pickupIndex);
             }
+        } else {
+            // Select "All Locations" by default
+            spinnerPickupLocation.setSelection(0);
         }
 
-        if (dropoffLocation != null && !dropoffLocation.isEmpty()) {
+        if (dropoffLocation != null && !dropoffLocation.isEmpty() && !"All Locations".equals(dropoffLocation)) {
             int dropoffIndex = findLocationIndex(locations, dropoffLocation);
             if (dropoffIndex != -1) {
                 spinnerReturnLocation.setSelection(dropoffIndex);
             }
-        } else if (pickupLocation != null) {
-            // Default dropoff to pickup if not set
-            int pickupIndex = findLocationIndex(locations, pickupLocation);
-            if (pickupIndex != -1) {
-                spinnerReturnLocation.setSelection(pickupIndex);
-            }
+        } else {
+            // Default dropoff to pickup if not set or set to all locations
+            spinnerReturnLocation.setSelection(spinnerPickupLocation.getSelectedItemPosition());
         }
 
         // Set current time

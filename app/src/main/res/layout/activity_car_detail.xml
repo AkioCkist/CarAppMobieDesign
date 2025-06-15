@@ -605,7 +605,17 @@
             <ProgressBar
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center" />
+                android:layout_gravity="center">
+            </ProgressBar>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="60dp"
+                android:text="Loading car details..."
+                android:textColor="@color/white"
+                android:fontFamily="@font/notosans_medium">
+            </TextView>
         </FrameLayout>
     </LinearLayout>
 </ScrollView>

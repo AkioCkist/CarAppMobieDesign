@@ -65,7 +65,7 @@ public class Amenity {
                 return R.drawable.cardetail_ic_etc;
             case "sunroof":
                 return R.drawable.cardetail_ic_carroof;
-            case "sportmode":
+            case "sportMode":
                 return R.drawable.cardetail_ic_sportmode;
             case "tablet":
                 return R.drawable.cardetail_ic_screencar;
@@ -73,7 +73,7 @@ public class Amenity {
                 return R.drawable.cardetail_ic_camera360;
             case "map":
                 return R.drawable.cardetail_ic_map;
-            case "rotateccw":
+            case "rotateCcw":
                 return R.drawable.cardetail_ic_rearviewcamera;
             case "circle":
                 return R.drawable.cardetail_ic_cartire;
