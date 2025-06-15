@@ -2,7 +2,9 @@ package com.midterm.mobiledesignfinalterm.admin;
 
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.method.HideReturnsTransformationMethod;
 import android.text.method.PasswordTransformationMethod;
@@ -15,9 +17,6 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.view.WindowCompat;
-import androidx.core.view.WindowInsetsControllerCompat;
-
 import com.midterm.mobiledesignfinalterm.R;
 
 import org.json.JSONException;
@@ -39,16 +38,25 @@ public class AdminLoginActivity extends AppCompatActivity {
 
     private boolean isPasswordVisible = false;
 
+    // SharedPreferences constants
+    private static final String ADMIN_PREFS_NAME = "AdminPrefs";
+    private static final String KEY_IS_ADMIN_LOGGED_IN = "isAdminLoggedIn";
+    private static final String KEY_ADMIN_ID = "adminId";
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_admin_login);
 
-        // Make status bar transparent and content edge-to-edge
-        WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
-        WindowInsetsControllerCompat windowInsetsController =
-                WindowCompat.getInsetsController(getWindow(), getWindow().getDecorView());
-        windowInsetsController.setAppearanceLightStatusBars(false);
+        // Check if admin is already logged in
+        SharedPreferences sharedPreferences = getSharedPreferences(ADMIN_PREFS_NAME, Context.MODE_PRIVATE);
+        if (sharedPreferences.getBoolean(KEY_IS_ADMIN_LOGGED_IN, false)) {
+            startActivity(new Intent(AdminLoginActivity.this, AdminDashboardActivity.class));
+            finish(); // Close this activity so the user can't navigate back to it
+            return; // Skip the rest of onCreate
+        }
+
+        setContentView(R.layout.activity_admin_login);
 
         initializeViews();
         setupClickListeners();
@@ -222,6 +230,13 @@ public class AdminLoginActivity extends AppCompatActivity {
                             JSONObject adminObject = result.getJSONObject("admin");
                             String adminName = adminObject.optString("name", "Administrator");
                             String role = adminObject.optString("role", "Admin");
+
+                            // Save admin session
+                            SharedPreferences sharedPreferences = getSharedPreferences(ADMIN_PREFS_NAME, Context.MODE_PRIVATE);
+                            SharedPreferences.Editor editor = sharedPreferences.edit();
+                            editor.putBoolean(KEY_IS_ADMIN_LOGGED_IN, true);
+                            editor.putString(KEY_ADMIN_ID, adminId); // Optionally save admin ID or other details
+                            editor.apply();
 
                             Intent intent = new Intent(AdminLoginActivity.this, AdminDashboardActivity.class);
                             intent.putExtra("admin_id", adminId);

@@ -1,6 +1,8 @@
 package com.midterm.mobiledesignfinalterm.admin;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
@@ -47,6 +49,11 @@ public class AdminDashboardActivity extends AppCompatActivity {
     private CardView cardReports;
     private ImageView imageViewLogout;
 
+    // SharedPreferences constants (ensure these are consistent with AdminLoginActivity)
+    private static final String ADMIN_PREFS_NAME = "AdminPrefs";
+    private static final String KEY_IS_ADMIN_LOGGED_IN = "isAdminLoggedIn";
+    private static final String KEY_ADMIN_ID = "adminId";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -76,6 +83,14 @@ public class AdminDashboardActivity extends AppCompatActivity {
             adminRole = intent.getStringExtra("admin_role");
             adminData = intent.getStringExtra("admin_data");
         }
+        // Fallback to SharedPreferences if intent data is missing (e.g., app reopened)
+        if (adminId == null) {
+            SharedPreferences sharedPreferences = getSharedPreferences(ADMIN_PREFS_NAME, Context.MODE_PRIVATE);
+            adminId = sharedPreferences.getString(KEY_ADMIN_ID, null);
+            // Potentially load name/role from prefs too if they are stored and not passed by intent always
+            if (adminName == null) adminName = sharedPreferences.getString("adminName", "Administrator"); // Example
+            if (adminRole == null) adminRole = sharedPreferences.getString("adminRole", "System Admin"); // Example
+        }
     }
 
     private void initializeViews() {
@@ -104,16 +119,21 @@ public class AdminDashboardActivity extends AppCompatActivity {
     }
 
     private void loadAdminData() {
+        SharedPreferences sharedPreferences = getSharedPreferences(ADMIN_PREFS_NAME, Context.MODE_PRIVATE);
+
         if (adminName != null && !adminName.isEmpty()) {
             textViewAdminName.setText(adminName);
         } else {
-            textViewAdminName.setText("Administrator");
+            // Try to get from SharedPreferences if not passed via intent or already set
+            String savedAdminName = sharedPreferences.getString(KEY_ADMIN_ID, "Administrator");
+            textViewAdminName.setText(savedAdminName);
         }
         
         if (adminRole != null && !adminRole.isEmpty()) {
             textViewAdminRole.setText(adminRole);
         } else {
-            textViewAdminRole.setText("System Admin");
+            // Default or load from prefs if needed
+            textViewAdminRole.setText("System Admin"); 
         }
     }
 
@@ -247,17 +267,28 @@ public class AdminDashboardActivity extends AppCompatActivity {
     }
 
     private void handleLogout() {
-        // Clear admin session and navigate back to login
-        Intent intent = new Intent(AdminDashboardActivity.this, Login.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        // Clear admin session
+        SharedPreferences sharedPreferences = getSharedPreferences(ADMIN_PREFS_NAME, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean(KEY_IS_ADMIN_LOGGED_IN, false);
+        editor.remove(KEY_ADMIN_ID); // Clear admin ID
+        // Clear other admin specific data if stored
+        // editor.remove("adminName"); 
+        // editor.remove("adminRole");
+        editor.apply();
+
+        // Navigate back to the main login screen
+        Intent intent = new Intent(AdminDashboardActivity.this, Login.class); 
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
-        finish();
+        finish(); // Close dashboard activity
+        Toast.makeText(AdminDashboardActivity.this, "Logged out successfully", Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public void onBackPressed() {
-        // Override back press to prevent going back to login without proper logout
-        // Show a confirmation dialog or handle logout
+        // Override back press to perform logout
         handleLogout();
+        // super.onBackPressed(); // Optionally call super if you want default back behavior after logout, but usually not needed with finish()
     }
 }
