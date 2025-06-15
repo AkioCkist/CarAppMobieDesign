@@ -40,8 +40,6 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
-<<<<<<< Updated upstream
-=======
 
     implementation ("com.google.android.material:material:1.9.0")
     implementation ("androidx.transition:transition:1.4.1")
@@ -52,8 +50,4 @@ dependencies {
     implementation ("com.android.volley:volley:1.2.1")
     implementation ("de.hdodenhof:circleimageview:3.1.0")
     implementation ("androidx.cardview:cardview:1.0.0")
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
 }
