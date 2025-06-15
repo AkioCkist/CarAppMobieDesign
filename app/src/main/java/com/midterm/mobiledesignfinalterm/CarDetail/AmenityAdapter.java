@@ -1,6 +1,7 @@
 package com.midterm.mobiledesignfinalterm.CarDetail;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,8 +39,53 @@ public class AmenityAdapter extends RecyclerView.Adapter<AmenityAdapter.AmenityV
     @Override
     public void onBindViewHolder(@NonNull AmenityViewHolder holder, int position) {
         Amenity amenity = amenityList.get(position);
-        holder.tvAmenityName.setText(amenity.getName());
-        holder.imgAmenityIcon.setImageResource(amenity.getIconResId());
+        holder.tvAmenityName.setText(amenity.getDescription());
+        // Add logging
+        Log.d("AmenityAdapter", "Setting icon for: " + amenity.getName() +
+                ", icon name: " + amenity.getIcon() +
+                ", resolved resource ID: " + amenity.getIconResId());
+        int resourceId = mapIconToResourceId(amenity.getIcon());
+        holder.imgAmenityIcon.setImageResource(resourceId);
+    }
+    private int mapIconToResourceId(String iconName) {
+        if (iconName == null) return R.drawable.cardetail_ic_default;
+
+        // Convert icon name to lowercase for case-insensitive matching
+        String icon = iconName.toLowerCase();
+        switch (icon) {
+            case "bluetooth":
+                return R.drawable.cardetail_ic_bluetooth;
+            case "camera":
+                return R.drawable.cardetail_ic_adventurecamera;
+            case "airbag":
+                return R.drawable.cardetail_ic_airbag;
+            case "etc":
+                return R.drawable.cardetail_ic_etc;
+            case "sunroof":
+                return R.drawable.cardetail_ic_carroof;
+            case "sportMode":
+                return R.drawable.cardetail_ic_sportmode;
+            case "tablet":
+                return R.drawable.cardetail_ic_screencar;
+            case "camera360":
+                return R.drawable.cardetail_ic_camera360;
+            case "map":
+                return R.drawable.cardetail_ic_map;
+            case "rotateCcw":
+                return R.drawable.cardetail_ic_rearviewcamera;
+            case "circle":
+                return R.drawable.cardetail_ic_cartire;
+            case "package":
+                return R.drawable.cardetail_ic_cartrunk;
+            case "shield":
+                return R.drawable.cardetail_ic_collisionsensor;
+            case "radar":
+                return R.drawable.cardetail_ic_reversesenser;
+            case "childseat":
+                return R.drawable.cardetail_ic_childseat;
+            default:
+                return R.drawable.cardetail_ic_default;
+        }
     }
 
     @Override

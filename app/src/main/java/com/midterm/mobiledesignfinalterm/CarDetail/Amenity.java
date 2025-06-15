@@ -13,17 +13,15 @@ public class Amenity {
     private String icon;
     private String description;
 
-    public void setIconResId(int iconResId) {
-        this.iconResId = iconResId;
-    }
-
     private int iconResId;
-
+    public Amenity() {}
     public Amenity(int id, String name, String icon, String description) {
         this.id = id;
         this.name = name;
         this.icon = icon;
         this.description = description;
+    }
+    public void initializeIconResource(Context context) {
         this.iconResId = mapIconToResourceId(icon);
     }
 

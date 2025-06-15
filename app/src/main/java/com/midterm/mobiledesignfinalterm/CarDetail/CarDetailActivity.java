@@ -308,6 +308,10 @@ public class CarDetailActivity extends AppCompatActivity {
 
         // Update amenities
         if (car.getAmenities() != null) {
+            // Initialize icon resources for each amenity
+            for (Amenity amenity : car.getAmenities()) {
+                amenity.initializeIconResource(this);
+            }
             amenityAdapter.setAmenities(car.getAmenities());
         }
     }
