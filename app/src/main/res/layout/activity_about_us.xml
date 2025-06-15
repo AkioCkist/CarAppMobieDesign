@@ -130,7 +130,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="Whale Xe is a car sharing platform. Our mission is not only to connect car owners and customers quickly - safely - conveniently but also to inspire the community to explore new things through journeys on our platform."
-                        android:textColor="@color/text_secondary"
+                        android:textColor="@color/white"
                         android:textSize="14sp"
                         android:fontFamily="@font/notosans_regular"
                         android:lineSpacingExtra="4dp" />
@@ -202,7 +202,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="We believe every journey matters. Therefore, the Whale Xe team and partners with extensive experience in car rental, technology, insurance, and tourism will bring you new, exciting, and safe experiences on your journey."
-                        android:textColor="@color/text_secondary"
+                        android:textColor="@color/white"
                         android:textSize="14sp"
                         android:fontFamily="@font/notosans_regular"
                         android:lineSpacingExtra="4dp" />
@@ -299,7 +299,7 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:text="Inspiring trips"
-                                    android:textColor="@color/text_secondary"
+                                    android:textColor="@color/white"
                                     android:textSize="11sp"
                                     android:fontFamily="@font/notosans_regular"
                                     android:textAlignment="center" />
@@ -346,7 +346,7 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:text="Happy customers"
-                                    android:textColor="@color/text_secondary"
+                                    android:textColor="@color/white"
                                     android:textSize="11sp"
                                     android:fontFamily="@font/notosans_regular"
                                     android:textAlignment="center" />
@@ -393,7 +393,7 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:text="Car partners"
-                                    android:textColor="@color/text_secondary"
+                                    android:textColor="@color/white"
                                     android:textSize="11sp"
                                     android:fontFamily="@font/notosans_regular"
                                     android:textAlignment="center" />
@@ -439,7 +439,7 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:text="Car models"
-                                    android:textColor="@color/text_secondary"
+                                    android:textColor="@color/white"
                                     android:textSize="11sp"
                                     android:fontFamily="@font/notosans_regular"
                                     android:textAlignment="center" />
@@ -485,7 +485,7 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:text="Cities served"
-                                    android:textColor="@color/text_secondary"
+                                    android:textColor="@color/white"
                                     android:textSize="11sp"
                                     android:fontFamily="@font/notosans_regular"
                                     android:textAlignment="center" />
@@ -531,7 +531,7 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:text="Average rating"
-                                    android:textColor="@color/text_secondary"
+                                    android:textColor="@color/white"
                                     android:textSize="11sp"
                                     android:fontFamily="@font/notosans_regular"
                                     android:textAlignment="center" />
@@ -586,16 +586,16 @@
 
                     </LinearLayout>
 
+                    <!-- Contact Items with Better Spacing -->
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Any question or remarks? Just write us a message!"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="14sp"
+                        android:layout_marginBottom="20dp"
                         android:fontFamily="@font/notosans_regular"
-                        android:layout_marginBottom="20dp" />
+                        android:text="Any question or remarks? Just write us a message!"
+                        android:textColor="@color/white"
+                        android:textSize="14sp" />
 
-                    <!-- Contact Items with Better Spacing -->
                     <LinearLayout
                         android:id="@+id/phoneSection"
                         android:layout_width="match_parent"
