@@ -54,12 +54,9 @@ public class CarDetailActivity extends AppCompatActivity {
     // API service
     private CarApiService carApiService;
 
-    // Dummy images for thumbnails (we'll replace these with API data if available)
-    private final String[] dummyImages = {
-            "https://example.com/car1.jpg",
-            "https://example.com/car2.jpg",
-            "https://example.com/car3.jpg"
-    };
+    private int currentImageIndex = 0;
+    private final int MAX_IMAGES = 3;
+    private ImageView[] thumbnailViews;
 
     // Booking details
     private String pickupTime;
@@ -179,22 +176,10 @@ public class CarDetailActivity extends AppCompatActivity {
              Intent intent = new Intent(this, CarBookingActivity.class);
              startActivity(intent);
         });
-
-        // Thumbnail click listeners will be set up after loading images
-
+        setupImageGallery();
         // Image navigation buttons
         ImageButton buttonPrevious = findViewById(R.id.buttonPrevious);
         ImageButton buttonNext = findViewById(R.id.buttonNext);
-
-        buttonPrevious.setOnClickListener(v -> {
-            // Handle previous image navigation
-            Toast.makeText(this, "Previous image", Toast.LENGTH_SHORT).show();
-        });
-
-        buttonNext.setOnClickListener(v -> {
-            // Handle next image navigation
-            Toast.makeText(this, "Next image", Toast.LENGTH_SHORT).show();
-        });
     }
 
     private void showLoading(boolean show) {
@@ -304,6 +289,21 @@ public class CarDetailActivity extends AppCompatActivity {
                     .placeholder(R.drawable.intro_bg_1)
                     .error(R.drawable.intro_bg_1)
                     .into(mainCarImageView);
+
+            // If there are additional images, load them into thumbnails
+            if (car.getImages() != null && car.getImages().size() > 0) {
+                for (int i = 0; i < Math.min(car.getImages().size(), thumbnailViews.length); i++) {
+                    Glide.with(CarDetailActivity.this)
+                            .load(car.getImages().get(i))
+                            .placeholder(R.drawable.intro_bg_1)
+                            .error(R.drawable.intro_bg_1)
+                            .into(thumbnailViews[i]);
+                }
+            }
+
+            // Reset selection
+            currentImageIndex = 0;
+            updateThumbnailSelection();
         }
 
         // Update amenities
@@ -372,43 +372,71 @@ public class CarDetailActivity extends AppCompatActivity {
     }
 
     private void setupImageGallery() {
+        // Initialize the thumbnail array
+        thumbnailViews = new ImageView[]{thumbnail1, thumbnail2, thumbnail3};
+
         // Set click listeners for thumbnail images
-        thumbnail1.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                changeMainImage(R.drawable.intro_bg_1);
-                updateThumbnailSelection(thumbnail1);
+        for (int i = 0; i < thumbnailViews.length; i++) {
+            final int index = i;
+            thumbnailViews[i].setOnClickListener(v -> {
+                currentImageIndex = index;
+                updateMainImage();
+                updateThumbnailSelection();
+            });
+        }
+
+        // Set up navigation buttons
+        ImageButton buttonPrevious = findViewById(R.id.buttonPrevious);
+        ImageButton buttonNext = findViewById(R.id.buttonNext);
+
+        buttonPrevious.setOnClickListener(v -> {
+            if (currentImageIndex > 0) {
+                currentImageIndex--;
+                updateMainImage();
+                updateThumbnailSelection();
             }
         });
 
-        thumbnail2.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                changeMainImage(R.drawable.intro_bg_2);
-                updateThumbnailSelection(thumbnail2);
+        buttonNext.setOnClickListener(v -> {
+            if (currentImageIndex < MAX_IMAGES - 1) {
+                currentImageIndex++;
+                updateMainImage();
+                updateThumbnailSelection();
             }
         });
 
-        thumbnail3.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                changeMainImage(R.drawable.intro_bg_3);
-                updateThumbnailSelection(thumbnail3);
-            }
-        });
-
-        // Set initial selection
-        updateThumbnailSelection(thumbnail1);
+        // Set initial image and selection
+        updateMainImage();
+        updateThumbnailSelection();
     }
+    private void updateMainImage() {
+        // Array of image resources or URLs to use
+        int[] imageResources = {
+                R.drawable.intro_bg_1,
+                R.drawable.intro_bg_2,
+                R.drawable.intro_bg_3
+        };
 
-    private void changeMainImage(int imageResourceId) {
-        // Add fade animation when changing image
+        // Change main image with animation
         mainCarImageView.setAlpha(0.3f);
-        mainCarImageView.setImageResource(imageResourceId);
+        mainCarImageView.setImageResource(imageResources[currentImageIndex]);
         mainCarImageView.animate()
                 .alpha(1.0f)
                 .setDuration(200)
                 .start();
+    }
+    private void updateThumbnailSelection() {
+        // Reset all thumbnails to normal state
+        for (ImageView thumbnail : thumbnailViews) {
+            thumbnail.setAlpha(0.7f);
+            thumbnail.setScaleX(1.0f);
+            thumbnail.setScaleY(1.0f);
+        }
+
+        // Highlight current selected thumbnail
+        thumbnailViews[currentImageIndex].setAlpha(1.0f);
+        thumbnailViews[currentImageIndex].setScaleX(1.1f);
+        thumbnailViews[currentImageIndex].setScaleY(1.1f);
     }
 
     private void updateThumbnailSelection(ImageView selectedThumbnail) {
