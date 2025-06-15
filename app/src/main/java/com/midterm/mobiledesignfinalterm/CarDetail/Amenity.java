@@ -1,6 +1,11 @@
 package com.midterm.mobiledesignfinalterm.CarDetail;
 
+import android.graphics.drawable.Drawable;
+
+import androidx.core.content.ContextCompat;
+
 import com.midterm.mobiledesignfinalterm.R;
+import android.content.Context;
 
 public class Amenity {
     private int id;
@@ -8,11 +13,18 @@ public class Amenity {
     private String icon;
     private String description;
 
+    public void setIconResId(int iconResId) {
+        this.iconResId = iconResId;
+    }
+
+    private int iconResId;
+
     public Amenity(int id, String name, String icon, String description) {
         this.id = id;
         this.name = name;
         this.icon = icon;
         this.description = description;
+        this.iconResId = mapIconToResourceId(icon);
     }
 
     public int getId() {
@@ -49,12 +61,15 @@ public class Amenity {
 
     public int getIconResId() {
         // Get drawable resource id from icon name
-        return getResourceId(icon);
+        return iconResId;
     }
 
-    private int getResourceId(String iconName) {
-        // Map icon names from database to drawable resources
-        switch (iconName.toLowerCase()) {
+    private int mapIconToResourceId(String iconName) {
+        if (iconName == null) return R.drawable.cardetail_ic_default;
+
+        // Convert icon name to lowercase for case-insensitive matching
+        String icon = iconName.toLowerCase();
+        switch (icon) {
             case "bluetooth":
                 return R.drawable.cardetail_ic_bluetooth;
             case "camera":

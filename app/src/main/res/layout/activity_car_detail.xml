@@ -236,12 +236,13 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:layout_marginRight="10dp">
-                    <ImageView
+                    <RatingBar
+                        android:id="@+id/rating_Bar"
                         android:layout_width="20dp"
                         android:layout_height="20dp"
                         android:layout_marginRight="5dp"
                         android:src="@drawable/cardetail_ic_star">
-                    </ImageView>
+                    </RatingBar>
                     <TextView
                         android:id="@+id/tv_rating"
                         android:layout_width="wrap_content"
