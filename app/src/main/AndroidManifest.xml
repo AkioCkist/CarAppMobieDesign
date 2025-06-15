@@ -87,9 +87,10 @@
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustResize" /> <!-- Introduce Activity - Entry point of the app -->
         <activity
-            android:name=".Introduce.IntroduceActivity"
+            android:name=".authentication.Login"
             android:exported="true"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -99,17 +100,23 @@
         <activity
             android:name=".MainActivity"
             android:exported="false"
-            android:screenOrientation="portrait" /> <!-- Login Activity - Authentication screen -->
-        <activity
-            android:name=".authentication.Login"
-            android:exported="false"
-            android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustResize" /> <!-- Register Activity - Registration screen -->
+            android:screenOrientation="portrait" /> <!-- Register Activity - Registration screen -->
         <activity
             android:name=".authentication.Register"
             android:exported="false"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustResize" />
+        
+        <!-- Admin Activities -->
+        <activity
+            android:name=".admin.AdminLoginActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".admin.AdminDashboardActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
     </application>
 
 </manifest>
