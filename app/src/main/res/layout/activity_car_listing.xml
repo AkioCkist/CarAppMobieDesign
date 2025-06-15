@@ -5,7 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F8F9FA"
+    android:background="#222126"
     tools:context=".CarListing.CarListing">
 
     <!-- Top Section with Navigation and Profile -->
@@ -28,7 +28,8 @@
             android:src="@drawable/ic_menu_navigation"
             android:background="?android:attr/selectableItemBackgroundBorderless"
             android:contentDescription="Navigation Menu"
-            android:padding="8dp"/>
+            android:padding="8dp"
+            app:tint="@color/white" />
 
         <!-- Spacer to push profile to the right -->
         <View
@@ -191,7 +192,8 @@
             android:hint="Search something here"
             android:paddingStart="16dp"
             android:paddingEnd="16dp"
-            android:textColorHint="#999999"
+            android:backgroundTint="#222126"
+            android:textColorHint="#FFFFFF"
             android:textSize="14sp" />
 
         <LinearLayout
@@ -212,7 +214,7 @@
                 android:drawablePadding="8dp"
                 tools:text="Thành phố Đà Nẵng --- Hà Nội\n21:00 21/6 --- 19:00 23/6"
                 android:text="Set Time and Location"
-                android:textColor="#333333"
+                android:textColor="@color/white"
                 android:textSize="14sp"
                 android:gravity="center_vertical|start"
                 android:paddingStart="16dp"
@@ -227,8 +229,10 @@
                 android:layout_height="56dp"
                 android:background="@drawable/carlisting_button_filter"
                 android:src="@drawable/ic_filter"
+                android:tint="@color/black"
                 android:contentDescription="filter"
-                android:layout_marginStart="8dp" />
+                android:layout_marginStart="8dp"
+                tools:ignore="UseAppTint" />
         </LinearLayout>
     </LinearLayout>
 
@@ -259,7 +263,7 @@
                 android:layout_height="wrap_content"
                 android:text="Available Cars"
                 android:textSize="18sp"
-                android:textColor="#333333"
+                android:textColor="@color/white"
                 android:textStyle="bold" />
 
             <TextView
@@ -268,7 +272,7 @@
                 android:layout_height="wrap_content"
                 android:text="Found 12 cars"
                 android:textSize="14sp"
-                android:textColor="#666666" />
+                android:textColor="@color/white" />
 
         </LinearLayout>
 

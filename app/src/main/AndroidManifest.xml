@@ -18,118 +18,98 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MobileDesignFinalTerm"
         tools:targetApi="31">
-
-        <!-- Car Detail Activity -->
+        <activity
+            android:name=".UserDashboard.UserDashboard"
+            android:exported="false" />
+        <activity
+            android:name=".aboutUs.AboutUs"
+            android:exported="false" /> <!-- Car Detail Activity -->
         <activity
             android:name=".CarDetail.CarDetailActivity"
             android:exported="false"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustResize" />
-
-        <!-- Car Booking Activity -->
+            android:windowSoftInputMode="adjustResize" /> <!-- Car Booking Activity -->
         <activity
             android:name=".BookingCar.CarBookingActivity"
             android:exported="false"
+            android:parentActivityName=".CarDetail.CarDetailActivity"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustResize"
-            android:parentActivityName=".CarDetail.CarDetailActivity">
+            android:windowSoftInputMode="adjustResize">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".CarDetail.CarDetailActivity" />
-        </activity>
-
-        <!-- User Info Activity -->
+        </activity> <!-- User Info Activity -->
         <activity
             android:name=".BookingCar.UserInfoActivity"
             android:exported="false"
+            android:parentActivityName=".BookingCar.CarBookingActivity"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustResize"
-            android:parentActivityName=".BookingCar.CarBookingActivity">
+            android:windowSoftInputMode="adjustResize">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".BookingCar.CarBookingActivity" />
-        </activity>
-
-        <!-- Checkout Activity -->
+        </activity> <!-- Checkout Activity -->
         <activity
             android:name=".BookingCar.CheckoutActivity"
             android:exported="false"
+            android:parentActivityName=".BookingCar.UserInfoActivity"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustResize"
-            android:parentActivityName=".BookingCar.UserInfoActivity">
+            android:windowSoftInputMode="adjustResize">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".BookingCar.UserInfoActivity" />
-        </activity>
-
-        <!-- Thank You Activity -->
+        </activity> <!-- Thank You Activity -->
         <activity
             android:name=".BookingCar.ThankYouActivity"
             android:exported="false"
-            android:screenOrientation="portrait"
-            android:parentActivityName=".BookingCar.CheckoutActivity">
+            android:parentActivityName=".BookingCar.CheckoutActivity"
+            android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".BookingCar.CheckoutActivity" />
-        </activity>
-
-
-
-        <!-- Car Listing Activity -->
+        </activity> <!-- Car Listing Activity -->
         <activity
             android:name=".CarListing.CarListing"
             android:exported="false"
-            android:screenOrientation="portrait" />
-
-        <!-- Authentication Activities -->
+            android:screenOrientation="portrait" /> <!-- Authentication Activities -->
         <activity
             android:name=".authentication.CreateNewPassword"
             android:exported="false"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustResize" />
-
         <activity
             android:name=".homepage.Homepage"
             android:exported="false"
             android:screenOrientation="portrait" />
-
         <activity
             android:name=".authentication.ForgotPassword"
             android:exported="false"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustResize" />
-
-        <!-- Introduce Activity - Entry point of the app -->
+            android:windowSoftInputMode="adjustResize" /> <!-- Introduce Activity - Entry point of the app -->
         <activity
             android:name=".Introduce.IntroduceActivity"
             android:exported="true"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
-
-        <!-- Main Activity -->
+        </activity> <!-- Main Activity -->
         <activity
             android:name=".MainActivity"
             android:exported="false"
-            android:screenOrientation="portrait" />
-
-        <!-- Login Activity - Authentication screen -->
+            android:screenOrientation="portrait" /> <!-- Login Activity - Authentication screen -->
         <activity
             android:name=".authentication.Login"
             android:exported="false"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustResize" />
-
-        <!-- Register Activity - Registration screen -->
+            android:windowSoftInputMode="adjustResize" /> <!-- Register Activity - Registration screen -->
         <activity
             android:name=".authentication.Register"
             android:exported="false"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustResize" />
-
     </application>
 
 </manifest>

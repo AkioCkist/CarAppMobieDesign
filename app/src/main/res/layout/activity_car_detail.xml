@@ -5,14 +5,14 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background_primary"
+    android:background="#222126"
     tools:context=".CarDetail.CarDetailActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:background="@color/white">
+        android:background="@color/card_background">
 
         <!-- Top Navigation Bar -->
         <LinearLayout
@@ -22,7 +22,7 @@
             android:orientation="horizontal"
             android:padding="16dp"
             android:gravity="center_vertical"
-            android:background="@color/white">
+            android:background="@color/card_background">
 
             <!-- Navigation Button -->
             <ImageButton
@@ -32,6 +32,7 @@
                 android:src="@drawable/ic_menu_navigation"
                 android:background="?android:attr/selectableItemBackgroundBorderless"
                 android:contentDescription="Navigation Menu"
+                android:tint="#18F45D"
                 android:padding="8dp"/>
 
             <!-- Spacer -->
@@ -92,20 +93,22 @@
         </LinearLayout>
 
         <!-- Car Image Section -->
+
+        <!-- Car Details Card -->
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="250dp"
-            android:background="@color/white">
+            android:background="@color/dark_gray">
 
             <ImageView
                 android:id="@+id/imageViewCarMain"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:src="@drawable/intro_bg_1"
-                android:scaleType="centerCrop"
                 android:layout_margin="16dp"
                 android:adjustViewBounds="true"
-                android:clipToOutline="true" />
+                android:clipToOutline="true"
+                android:scaleType="centerCrop"
+                android:src="@drawable/intro_bg_1" />
 
             <!-- Image indicators -->
             <LinearLayout
@@ -119,34 +122,33 @@
                     android:id="@+id/thumbnail1"
                     android:layout_width="50dp"
                     android:layout_height="35dp"
-                    android:src="@drawable/intro_bg_2"
-                    android:scaleType="centerCrop"
                     android:layout_marginEnd="8dp"
                     android:adjustViewBounds="true"
-                    android:clipToOutline="true" />
+                    android:clipToOutline="true"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/intro_bg_2" />
 
                 <ImageView
                     android:id="@+id/thumbnail2"
                     android:layout_width="50dp"
                     android:layout_height="35dp"
-                    android:src="@drawable/intro_bg_1"
-                    android:scaleType="centerCrop"
                     android:layout_marginEnd="8dp"
                     android:adjustViewBounds="true"
-                    android:clipToOutline="true" />
+                    android:clipToOutline="true"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/intro_bg_1" />
 
                 <ImageView
                     android:id="@+id/thumbnail3"
                     android:layout_width="50dp"
                     android:layout_height="35dp"
-                    android:src="@drawable/intro_bg_3"
-                    android:scaleType="centerCrop"
                     android:adjustViewBounds="true"
-                    android:clipToOutline="true" />
+                    android:clipToOutline="true"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/intro_bg_3" />
             </LinearLayout>
         </FrameLayout>
 
-        <!-- Car Details Card -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -161,7 +163,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Nissan GT-R"
-                android:textColor="@color/white"
+                android:textColor="#18F45D"
                 android:textSize="20sp"
                 android:fontFamily="@font/notosans_bold"
                 android:layout_marginBottom="8dp" />

@@ -31,4 +31,32 @@
         <item name="android:windowContentTransitions">false</item>
 
     </style>
+
+    <style name="AppTheme" parent="Theme.AppCompat.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryDark">#1A191D</item> <!-- Adjust based on your dark theme -->
+        <item name="colorAccent">@color/primary</item>
+        <item name="android:windowBackground">@color/background_dark</item> <!-- Define this color -->
+        <item name="android:textColorPrimary">@color/white</item>
+        <item name="android:textColorSecondary">@color/text_secondary</item>
+        <item name="android:fontFamily">@font/notosans_regular</item>
+    </style>
+
+    <style name="AlertDialogTheme" parent="Theme.AppCompat.Dialog.Alert">
+        <item name="android:background">@color/dialog_background</item> <!-- Define this color -->
+        <item name="android:textColorPrimary">@color/white</item>
+        <item name="android:textColorAlertDialogListItem">@color/white</item>
+        <item name="colorAccent">@color/primary</item> <!-- For buttons and highlights -->
+        <item name="buttonBarNegativeButtonStyle">@style/NegativeButtonStyle</item>
+        <item name="buttonBarPositiveButtonStyle">@style/PositiveButtonStyle</item>
+    </style>
+
+    <style name="NegativeButtonStyle" parent="Widget.AppCompat.Button.ButtonBar.AlertDialog">
+        <item name="android:textColor">#FF4444</item>
+    </style>
+
+    <style name="PositiveButtonStyle" parent="Widget.AppCompat.Button.ButtonBar.AlertDialog">
+        <item name="android:textColor">@color/primary</item>
+    </style>
 </resources>
