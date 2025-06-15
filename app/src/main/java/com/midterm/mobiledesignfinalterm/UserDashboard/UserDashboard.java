@@ -456,7 +456,30 @@ public class UserDashboard extends AppCompatActivity {
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
-            return inflater.inflate(R.layout.fragment_favorites, container, false);
+            View view = inflater.inflate(R.layout.fragment_favorites, container, false);
+
+            // Find the Browse Cars button and set click listener
+            com.google.android.material.button.MaterialButton btnBrowseCars = view.findViewById(R.id.btn_browse_cars);
+            btnBrowseCars.setOnClickListener(v -> {
+                // Get the parent activity
+                UserDashboard activity = (UserDashboard) getActivity();
+                if (activity == null) return;
+
+                // Create intent to navigate to CarListing activity
+                Intent intent = new Intent(activity, com.midterm.mobiledesignfinalterm.CarListing.CarListing.class);
+
+                // Pass user information to CarListing activity
+                intent.putExtra("user_phone", activity.getUserPhone());
+                intent.putExtra("user_name", activity.getUserName());
+
+                // Start the CarListing activity
+                startActivity(intent);
+
+                // Add a nice animation for the transition
+                activity.overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+            });
+
+            return view;
         }
     }
 }

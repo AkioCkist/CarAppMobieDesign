@@ -12,6 +12,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:gravity="center"
+        android:layout_marginTop="20dp"
         android:layout_marginBottom="30dp">
 
         <ImageView
@@ -49,98 +50,100 @@
             android:orientation="vertical">
 
             <!-- Ticket Details -->
+
+            <!-- Additional Info -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
+                android:layout_marginBottom="10dp"
                 android:background="@color/background_secondary"
-                android:padding="20dp"
-                android:layout_marginBottom="20dp">
+                android:orientation="vertical"
+                android:padding="20dp">
 
                 <!-- Booking ID -->
                 <TextView
                     android:id="@+id/tv_booking_id"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginBottom="20dp"
                     android:text="Booking ID: BK123456"
                     android:textColor="#9AFF00"
                     android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:layout_marginBottom="20dp" />
+                    android:textStyle="bold" />
 
                 <!-- Divider -->
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
-                    android:background="#555555"
-                    android:layout_marginBottom="15dp" />
+                    android:layout_marginBottom="15dp"
+                    android:background="#555555" />
 
                 <!-- Trip Details -->
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
                     android:text="Trip Details"
                     android:textColor="#FFFFFF"
                     android:textSize="14sp"
-                    android:textStyle="bold"
-                    android:layout_marginBottom="8dp" />
+                    android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/tv_pickup_details"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
                     android:textColor="#CCCCCC"
-                    android:textSize="12sp"
-                    android:layout_marginBottom="8dp" />
+                    android:textSize="12sp" />
 
                 <TextView
                     android:id="@+id/tv_dropoff_details"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginBottom="15dp"
                     android:textColor="#CCCCCC"
-                    android:textSize="12sp"
-                    android:layout_marginBottom="15dp" />
+                    android:textSize="12sp" />
 
                 <!-- Divider -->
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
-                    android:background="#555555"
-                    android:layout_marginBottom="15dp" />
+                    android:layout_marginBottom="15dp"
+                    android:background="#555555" />
 
                 <!-- Passenger Details -->
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
                     android:text="Passenger Details"
                     android:textColor="#FFFFFF"
                     android:textSize="14sp"
-                    android:textStyle="bold"
-                    android:layout_marginBottom="8dp" />
+                    android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/tv_user_details"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginBottom="15dp"
                     android:textColor="#CCCCCC"
-                    android:textSize="12sp"
-                    android:layout_marginBottom="15dp" />
+                    android:textSize="12sp" />
 
                 <!-- Divider -->
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
-                    android:background="#555555"
-                    android:layout_marginBottom="15dp" />
+                    android:layout_marginBottom="15dp"
+                    android:background="#555555" />
 
                 <!-- Payment Details -->
                 <TextView
                     android:id="@+id/tv_payment_details"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginBottom="15dp"
                     android:textColor="#CCCCCC"
-                    android:textSize="12sp"
-                    android:layout_marginBottom="15dp" />
+                    android:textSize="12sp" />
 
                 <!-- Total Amount -->
                 <LinearLayout
@@ -168,7 +171,6 @@
                 </LinearLayout>
             </LinearLayout>
 
-            <!-- Additional Info -->
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

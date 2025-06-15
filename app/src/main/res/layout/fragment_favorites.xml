@@ -6,7 +6,7 @@
     android:orientation="vertical"
     android:padding="16dp"
     android:background="#1C1C1E"
-    android:layoutAnimation="@anim/anim_layout_fall_down"> <!-- Add this line -->
+    android:layoutAnimation="@anim/anim_layout_fall_down">
 
     <TextView
         android:layout_width="match_parent"
@@ -52,6 +52,7 @@
     </androidx.cardview.widget.CardView>
 
     <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_browse_cars"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Browse Cars"
@@ -59,3 +60,4 @@
         android:backgroundTint="@color/green_primary"/>
 
 </LinearLayout>
+
