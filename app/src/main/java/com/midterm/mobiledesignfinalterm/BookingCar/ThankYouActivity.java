@@ -27,11 +27,13 @@ import com.itextpdf.layout.properties.VerticalAlignment;
 import com.midterm.mobiledesignfinalterm.R;
 import com.midterm.mobiledesignfinalterm.homepage.Homepage;
 
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+
 
 public class ThankYouActivity extends AppCompatActivity {
 
@@ -91,9 +93,42 @@ public class ThankYouActivity extends AppCompatActivity {
         btnSaveImage.setOnClickListener(v -> saveTicketAsImage());
 
         btnBackToHome.setOnClickListener(v -> {
+            // Create intent to navigate back to Homepage
             Intent intent = new Intent(this, Homepage.class);
+
+            // Get the correct user information from intent
+            // The phone number is stored as "phone" in ThankYouActivity but as "user_phone" in Homepage
+            String userName = getIntent().getStringExtra("user_name");
+            String userPhone = getIntent().getStringExtra("phone");
+            // If user_phone is not found, try alternate keys
+            if (userPhone == null) {
+                userPhone = getIntent().getStringExtra("user_phone");
+            }
+            String userId = getIntent().getStringExtra("user_id");
+            String userData = getIntent().getStringExtra("user_data");
+
+            // Log the data we're passing to help debug
+            System.out.println("ThankYouActivity - Returning to Homepage with:");
+            System.out.println("userName: " + userName);
+            System.out.println("userPhone: " + userPhone);
+            System.out.println("userId: " + userId);
+
+            // Ensure we always send the data with the correct keys
+            if (userName != null) intent.putExtra("user_name", userName);
+            if (userPhone != null) intent.putExtra("user_phone", userPhone);
+            if (userId != null) intent.putExtra("user_id", userId);
+            if (userData != null) intent.putExtra("user_data", userData);
+
+            // Clear all activities on top of Homepage
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+
+            // Start the Homepage activity
             startActivity(intent);
+
+            // Add slide animation for the transition
+            overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
+
+            // Close this activity
             finish();
         });
     }

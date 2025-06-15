@@ -32,8 +32,8 @@
                 android:src="@drawable/ic_menu_navigation"
                 android:background="?android:attr/selectableItemBackgroundBorderless"
                 android:contentDescription="Navigation Menu"
-                android:tint="#18F45D"
-                android:padding="8dp"/>
+                android:padding="8dp"
+                app:tint="#18F45D" />
 
             <!-- Spacer -->
             <View
