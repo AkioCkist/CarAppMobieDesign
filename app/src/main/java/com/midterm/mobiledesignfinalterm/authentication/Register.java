@@ -9,6 +9,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
@@ -39,6 +40,7 @@ public class Register extends AppCompatActivity {
     private CheckBox checkBoxTerms;
     private Button buttonRegister;
     private TextView textViewLogin;
+    private ImageView btnBack;
 
     private static final String PHONE_NUMBER_PATTERN = "^[0-9]{10,15}$";
     // Use 10.0.2.2 for Android Emulator to access localhost of the host machine
@@ -92,12 +94,20 @@ public class Register extends AppCompatActivity {
         checkBoxTerms = findViewById(R.id.checkBoxTerms);
         buttonRegister = findViewById(R.id.buttonRegister);
         textViewLogin = findViewById(R.id.textViewLogin);
+        btnBack = findViewById(R.id.btn_back);
     }
 
     private void setupClickListeners() {
         buttonRegister.setOnClickListener(v -> animateButtonClick(v, this::handleRegister));
 
         textViewLogin.setOnClickListener(v -> handleLogin());
+
+        btnBack.setOnClickListener(v -> {
+            animateButtonClick(v, () -> {
+                // Handle back button click - finish this activity to go back to previous screen
+                finish();
+            });
+        });
     }
 
     private void handleRegister() {
@@ -237,3 +247,4 @@ public class Register extends AppCompatActivity {
         checkBoxTerms.setChecked(!checkBoxTerms.isChecked());
     }
 }
+

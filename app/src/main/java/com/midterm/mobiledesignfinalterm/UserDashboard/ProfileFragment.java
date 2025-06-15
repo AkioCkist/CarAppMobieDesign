@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -19,8 +20,8 @@ public class ProfileFragment extends Fragment {
     private EditText editPhone;
     private EditText editPassword;
     private EditText editConfirmPassword;
-    private Button btnCancel;
     private Button btnSave;
+    private LinearLayout editProfileForm;
 
     public ProfileFragment() {
         // Required empty public constructor
@@ -43,10 +44,20 @@ public class ProfileFragment extends Fragment {
         editPassword = view.findViewById(R.id.edit_password_fragment);
         editConfirmPassword = view.findViewById(R.id.edit_confirm_password_fragment);
         btnSave = view.findViewById(R.id.btn_save_fragment);
+        editProfileForm = view.findViewById(R.id.edit_profile_form_fragment);
+
+        // Get current user data from parent activity
+        UserDashboard activity = (UserDashboard) getActivity();
+        if (activity != null) {
+            editUsername.setText(activity.getUserName());
+            editPhone.setText(activity.getUserPhone());
+
+            // Show profile form with animation
+            activity.showEditProfileForm(editProfileForm);
+        }
 
         // Set up click listeners
         btnSave.setOnClickListener(v -> saveProfile());
-        btnCancel.setOnClickListener(v -> cancelEdit());
     }
 
     private void saveProfile() {
@@ -56,38 +67,65 @@ public class ProfileFragment extends Fragment {
         String password = editPassword.getText().toString();
         String confirmPassword = editConfirmPassword.getText().toString();
 
-        if (username.isEmpty()) {
-            editUsername.setError("Username cannot be empty");
-            return;
-        }
-
-        if (phone.isEmpty()) {
-            editPhone.setError("Phone number cannot be empty");
-            return;
-        }
-
-        // Check if password fields are filled and match
-        if (!password.isEmpty()) {
-            if (!password.equals(confirmPassword)) {
-                editConfirmPassword.setError("Passwords do not match");
+        UserDashboard activity = (UserDashboard) getActivity();
+        if (activity != null) {
+            // Use activity's method to validate and save profile
+            activity.saveProfileChanges(
+                username, phone, password, confirmPassword,
+                editProfileForm, editUsername, editPhone, editConfirmPassword
+            );
+        } else {
+            // Fallback if activity is not available
+            if (username.isEmpty()) {
+                editUsername.setError("Username cannot be empty");
                 return;
             }
-        }
 
-        // TODO: Save profile information to database or shared preferences
-        // For now, just show a success message
-        Toast.makeText(getContext(), "Profile updated successfully", Toast.LENGTH_SHORT).show();
+            if (phone.isEmpty()) {
+                editPhone.setError("Phone number cannot be empty");
+                return;
+            }
+
+            // Check if password fields are filled and match
+            if (!password.isEmpty()) {
+                if (!password.equals(confirmPassword)) {
+                    editConfirmPassword.setError("Passwords do not match");
+                    return;
+                }
+            }
+
+            // Show a success message as fallback
+            Toast.makeText(getContext(), "Profile updated successfully", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void cancelEdit() {
-        // Clear all fields or revert to original values
-        editUsername.setText("");
-        editPhone.setText("");
-        editPassword.setText("");
-        editConfirmPassword.setText("");
+        UserDashboard activity = (UserDashboard) getActivity();
+        if (activity != null) {
+            // Get original user data to restore fields
+            editUsername.setText(activity.getUserName());
+            editPhone.setText(activity.getUserPhone());
+            editPassword.setText("");
+            editConfirmPassword.setText("");
 
-        // Optionally navigate back or dismiss dialog
-        // For example:
-        // getParentFragmentManager().popBackStack();
+            // Navigate back if needed
+            getParentFragmentManager().popBackStack();
+        } else {
+            // Clear all fields as fallback
+            editUsername.setText("");
+            editPhone.setText("");
+            editPassword.setText("");
+            editConfirmPassword.setText("");
+        }
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        UserDashboard activity = (UserDashboard) getActivity();
+        if (activity != null && editProfileForm != null && editProfileForm.getVisibility() == View.VISIBLE) {
+            // Hide form with animation when fragment is destroyed/navigated away from
+            activity.hideEditProfileForm(editProfileForm);
+        }
     }
 }

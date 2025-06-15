@@ -8,6 +8,18 @@
     android:padding="24dp"
     android:gravity="center_vertical">
 
+    <!-- Back button at the top left -->
+    <ImageView
+        android:id="@+id/btn_back"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:src="@drawable/ic_arrow_back"
+        android:tint="@color/white"
+        android:layout_marginBottom="16dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:background="?attr/selectableItemBackgroundBorderless"/>
+
     <View
         android:layout_width="match_parent"
         android:layout_height="48dp" />
@@ -152,3 +164,4 @@
             android:padding="8dp" />
     </LinearLayout>
 </LinearLayout>
+

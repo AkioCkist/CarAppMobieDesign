@@ -14,7 +14,7 @@ import com.midterm.mobiledesignfinalterm.R;
 
 public class UserInfoActivity extends AppCompatActivity {
 
-    private EditText etFullName, etEmail, etPhone, etAadharNumber, etPanNumber;
+    private EditText etFullName, etEmail, etPhone, etCitizenId, etTaxId;
     private CheckBox cbTermsAccepted;
     private Button btnNextStep;
     private ImageView ivBack;
@@ -45,8 +45,8 @@ public class UserInfoActivity extends AppCompatActivity {
         etFullName = findViewById(R.id.et_full_name);
         etEmail = findViewById(R.id.et_email);
         etPhone = findViewById(R.id.et_phone);
-        etAadharNumber = findViewById(R.id.et_aadhar_number);
-        etPanNumber = findViewById(R.id.et_pan_number);
+        etCitizenId = findViewById(R.id.et_aadhar_number); // now CCCD
+        etTaxId = findViewById(R.id.et_pan_number); // now MST
         cbTermsAccepted = findViewById(R.id.cb_terms_accepted);
         btnNextStep = findViewById(R.id.btn_next_step);
         ivBack = findViewById(R.id.iv_back);
@@ -73,8 +73,8 @@ public class UserInfoActivity extends AppCompatActivity {
                 intent.putExtra("full_name", etFullName.getText().toString().trim());
                 intent.putExtra("email", etEmail.getText().toString().trim());
                 intent.putExtra("phone", etPhone.getText().toString().trim());
-                intent.putExtra("aadhar_number", etAadharNumber.getText().toString().trim());
-                intent.putExtra("pan_number", etPanNumber.getText().toString().trim());
+                intent.putExtra("citizen_id", etCitizenId.getText().toString().trim());
+                intent.putExtra("tax_id", etTaxId.getText().toString().trim());
 
                 startActivity(intent);
 
@@ -125,24 +125,29 @@ public class UserInfoActivity extends AppCompatActivity {
             return false;
         }
 
-        // Aadhar validation
-        String aadhar = etAadharNumber.getText().toString().trim();
-        if (TextUtils.isEmpty(aadhar)) {
-            etAadharNumber.setError("Please enter your Aadhar number");
-            etAadharNumber.requestFocus();
+        // Citizen ID (CCCD) validation
+        String citizenId = etCitizenId.getText().toString().trim();
+        if (TextUtils.isEmpty(citizenId)) {
+            etCitizenId.setError("Please enter your Citizen ID number");
+            etCitizenId.requestFocus();
             return false;
         }
-        if (aadhar.length() != 12 || !aadhar.matches("\\d+")) {
-            etAadharNumber.setError("Aadhar number must be 12 digits");
-            etAadharNumber.requestFocus();
+        if (citizenId.length() != 12 || !citizenId.matches("\\d+")) {
+            etCitizenId.setError("Citizen ID must be 12 digits");
+            etCitizenId.requestFocus();
             return false;
         }
 
-        // PAN validation
-        String pan = etPanNumber.getText().toString().trim().toUpperCase();
-        if (TextUtils.isEmpty(pan)) {
-            etPanNumber.setError("Please enter your PAN number");
-            etPanNumber.requestFocus();
+        // Tax ID (MST) validation
+        String taxId = etTaxId.getText().toString().trim();
+        if (TextUtils.isEmpty(taxId)) {
+            etTaxId.setError("Please enter your Tax ID number");
+            etTaxId.requestFocus();
+            return false;
+        }
+        if (!(taxId.matches("\\d{10}") || taxId.matches("\\d{13}"))) {
+            etTaxId.setError("Tax ID must be 10 or 13 digits");
+            etTaxId.requestFocus();
             return false;
         }
 

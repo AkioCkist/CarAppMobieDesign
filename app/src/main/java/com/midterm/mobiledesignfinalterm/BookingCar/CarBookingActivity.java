@@ -1,7 +1,6 @@
 package com.midterm.mobiledesignfinalterm.BookingCar;
 
 import android.app.DatePickerDialog;
-import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -11,6 +10,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
+import com.google.android.material.timepicker.MaterialTimePicker;
+import com.google.android.material.timepicker.TimeFormat;
 import java.util.Calendar;
 import com.midterm.mobiledesignfinalterm.R;
 
@@ -27,6 +28,10 @@ public class CarBookingActivity extends AppCompatActivity {
     private String selectedDropoffTime = "";
     private String carName = "";
     private BookingData bookingData;
+
+    // Calendars to hold pickup and dropoff times for validation
+    private Calendar pickupCalendar = Calendar.getInstance();
+    private Calendar dropoffCalendar = Calendar.getInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,10 +62,27 @@ public class CarBookingActivity extends AppCompatActivity {
         // Get car data from intent
         if (getIntent().hasExtra("car_name")) {
             carName = getIntent().getStringExtra("car_name");
-            if (tvCarName != null) {
-                tvCarName.setText("Booking: " + carName);
-            }
-            Toast.makeText(this, "Booking " + carName, Toast.LENGTH_SHORT).show();
+        }
+
+        // Get pickup and drop-off data from intent
+        if (getIntent().hasExtra("pickup_date")) {
+            selectedPickupDate = getIntent().getStringExtra("pickup_date");
+            tvPickupDate.setText(selectedPickupDate);
+        }
+
+        if (getIntent().hasExtra("pickup_time")) {
+            selectedPickupTime = getIntent().getStringExtra("pickup_time");
+            tvPickupTime.setText(selectedPickupTime);
+        }
+
+        if (getIntent().hasExtra("dropoff_date")) {
+            selectedDropoffDate = getIntent().getStringExtra("dropoff_date");
+            tvDropoffDate.setText(selectedDropoffDate);
+        }
+
+        if (getIntent().hasExtra("dropoff_time")) {
+            selectedDropoffTime = getIntent().getStringExtra("dropoff_time");
+            tvDropoffTime.setText(selectedDropoffTime);
         }
     }
 
@@ -78,8 +100,8 @@ public class CarBookingActivity extends AppCompatActivity {
 
         tvPickupDate.setOnClickListener(v -> showDatePicker(true));
         tvDropoffDate.setOnClickListener(v -> showDatePicker(false));
-        tvPickupTime.setOnClickListener(v -> showTimePicker(true));
-        tvDropoffTime.setOnClickListener(v -> showTimePicker(false));
+        tvPickupTime.setOnClickListener(v -> showTimePicker(tvPickupTime, pickupCalendar));
+        tvDropoffTime.setOnClickListener(v -> showTimePicker(tvDropoffTime, dropoffCalendar));
 
         btnNextStep.setOnClickListener(v -> {
             if (validateInputs()) {
@@ -125,19 +147,19 @@ public class CarBookingActivity extends AppCompatActivity {
     private void showDatePicker(boolean isPickup) {
         Calendar calendar = Calendar.getInstance();
 
-        // Set minimum date to today
+        // Use custom dialog theme for better background and text color
         DatePickerDialog datePickerDialog = new DatePickerDialog(
-                this,
+                new android.view.ContextThemeWrapper(this, R.style.CustomMaterialCalendar),
                 (view, year, month, dayOfMonth) -> {
                     String date = String.format("%02d/%02d/%d", dayOfMonth, month + 1, year);
                     if (isPickup) {
                         selectedPickupDate = date;
                         tvPickupDate.setText(date);
-                        tvPickupDate.setTextColor(getResources().getColor(android.R.color.black));
+                        tvPickupDate.setTextColor(getResources().getColor(android.R.color.white));
                     } else {
                         selectedDropoffDate = date;
                         tvDropoffDate.setText(date);
-                        tvDropoffDate.setTextColor(getResources().getColor(android.R.color.black));
+                        tvDropoffDate.setTextColor(getResources().getColor(android.R.color.white));
                     }
                 },
                 calendar.get(Calendar.YEAR),
@@ -145,32 +167,67 @@ public class CarBookingActivity extends AppCompatActivity {
                 calendar.get(Calendar.DAY_OF_MONTH)
         );
 
-        // Set minimum date to today
         datePickerDialog.getDatePicker().setMinDate(calendar.getTimeInMillis());
         datePickerDialog.show();
     }
 
-    private void showTimePicker(boolean isPickup) {
-        Calendar calendar = Calendar.getInstance();
-        TimePickerDialog timePickerDialog = new TimePickerDialog(
-                this,
-                (view, hourOfDay, minute) -> {
-                    String time = String.format("%02d:%02d", hourOfDay, minute);
-                    if (isPickup) {
-                        selectedPickupTime = time;
-                        tvPickupTime.setText(time);
-                        tvPickupTime.setTextColor(getResources().getColor(android.R.color.black));
-                    } else {
-                        selectedDropoffTime = time;
-                        tvDropoffTime.setText(time);
-                        tvDropoffTime.setTextColor(getResources().getColor(android.R.color.black));
-                    }
-                },
-                calendar.get(Calendar.HOUR_OF_DAY),
-                calendar.get(Calendar.MINUTE),
-                true
-        );
-        timePickerDialog.show();
+    private void showTimePicker(final TextView timeTextView, final Calendar calendar) {
+        int hour = calendar.get(Calendar.HOUR_OF_DAY);
+        int minute = calendar.get(Calendar.MINUTE);
+
+        // Create the Material TimePicker
+        MaterialTimePicker.Builder builder = new MaterialTimePicker.Builder()
+                .setTimeFormat(TimeFormat.CLOCK_24H)
+                .setHour(hour)
+                .setMinute(minute)
+                .setTitleText("Select Time")
+                .setTheme(R.style.CustomMaterialTimePicker); // Apply custom dark theme
+
+        final MaterialTimePicker timePicker = builder.build();
+
+        // Set up listeners for the time picker
+        timePicker.addOnPositiveButtonClickListener(view -> {
+            calendar.set(Calendar.HOUR_OF_DAY, timePicker.getHour());
+            calendar.set(Calendar.MINUTE, timePicker.getMinute());
+            updateTimeTextView(timeTextView, calendar);
+
+            // Update selectedPickupTime if the pickup time TextView is being updated
+            if (timeTextView == tvPickupTime) {
+                selectedPickupTime = String.format("%02d:%02d", timePicker.getHour(), timePicker.getMinute());
+            }
+
+            // Update selectedDropoffTime if the drop-off time TextView is being updated
+            if (timeTextView == tvDropoffTime) {
+                selectedDropoffTime = String.format("%02d:%02d", timePicker.getHour(), timePicker.getMinute());
+            }
+
+            // If pickup time is selected and dropoff is on the same day, validate the times
+            if (timeTextView == tvPickupTime &&
+                isSameDay(pickupCalendar, dropoffCalendar) &&
+                pickupCalendar.after(dropoffCalendar)) {
+
+                // Set dropoff time to be 1 hour after pickup if on the same day
+                dropoffCalendar.setTimeInMillis(pickupCalendar.getTimeInMillis());
+                dropoffCalendar.add(Calendar.HOUR_OF_DAY, 1);
+                updateTimeTextView(tvDropoffTime, dropoffCalendar);
+                Toast.makeText(CarBookingActivity.this,
+                    "Return time adjusted to be after pickup time",
+                    Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        // Show the time picker
+        timePicker.show(getSupportFragmentManager(), "TIME_PICKER");
+    }
+
+    private void updateTimeTextView(TextView timeTextView, Calendar calendar) {
+        String time = String.format("%02d:%02d", calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE));
+        timeTextView.setText(time);
+    }
+
+    private boolean isSameDay(Calendar calendar1, Calendar calendar2) {
+        return calendar1.get(Calendar.YEAR) == calendar2.get(Calendar.YEAR) &&
+               calendar1.get(Calendar.DAY_OF_YEAR) == calendar2.get(Calendar.DAY_OF_YEAR);
     }
 
     private boolean validateInputs() {
