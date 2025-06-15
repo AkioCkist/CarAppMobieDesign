@@ -11,6 +11,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
 import java.util.Calendar;
 import com.midterm.mobiledesignfinalterm.R;
 
@@ -125,9 +127,9 @@ public class CarBookingActivity extends AppCompatActivity {
     private void showDatePicker(boolean isPickup) {
         Calendar calendar = Calendar.getInstance();
 
-        // Set minimum date to today
+        // Use custom dialog theme for better background and text color
         DatePickerDialog datePickerDialog = new DatePickerDialog(
-                this,
+                new android.view.ContextThemeWrapper(this, R.style.Theme_Dialog_Dark),
                 (view, year, month, dayOfMonth) -> {
                     String date = String.format("%02d/%02d/%d", dayOfMonth, month + 1, year);
                     if (isPickup) {
@@ -145,15 +147,15 @@ public class CarBookingActivity extends AppCompatActivity {
                 calendar.get(Calendar.DAY_OF_MONTH)
         );
 
-        // Set minimum date to today
         datePickerDialog.getDatePicker().setMinDate(calendar.getTimeInMillis());
         datePickerDialog.show();
     }
 
     private void showTimePicker(boolean isPickup) {
         Calendar calendar = Calendar.getInstance();
+        // Use custom dialog theme for better background and text color
         TimePickerDialog timePickerDialog = new TimePickerDialog(
-                this,
+                new android.view.ContextThemeWrapper(this, R.style.Theme_Dialog_Dark),
                 (view, hourOfDay, minute) -> {
                     String time = String.format("%02d:%02d", hourOfDay, minute);
                     if (isPickup) {
