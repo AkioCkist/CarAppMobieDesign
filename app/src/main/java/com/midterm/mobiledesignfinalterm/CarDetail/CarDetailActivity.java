@@ -86,8 +86,6 @@ public class CarDetailActivity extends AppCompatActivity {
         // Get data from intent
         getDataFromIntent();
 
-        // Set initial data from intent
-        setInitialData();
 
         // Set up amenities recyclerview
         setupAmenitiesRecyclerView();
@@ -222,40 +220,9 @@ public class CarDetailActivity extends AppCompatActivity {
             dropoffLocation = intent.getStringExtra("dropoff_location");
         }
     }
-    private void setInitialData() {
-        // Set user information in top bar
-        TextView textViewUserName = findViewById(R.id.textViewUserName);
-        TextView textViewUserPhone = findViewById(R.id.textViewUserPhone);
-        if (userName != null) textViewUserName.setText(userName);
-        if (userPhone != null) textViewUserPhone.setText(userPhone);
-
-        // Set basic car info
-        if (carName != null) tvCarName.setText(carName);
-        if (carFuel != null) tvFuelType.setText(carFuel);
-        if (carTransmission != null) tvTransmission.setText(carTransmission);
-        if (carSeats != null) tvSeatCount.setText(carSeats);
-        if (carConsumption != null) tvConsumption.setText(carConsumption);
-        if (carPrice != null) tvPrice.setText(carPrice);
-
-        tvLocation.setText(pickupLocation != null ? pickupLocation : "Hà Nội, Việt Nam");
-
-        // Load main image
-        if (carImage != null && !carImage.isEmpty()) {
-            Glide.with(this)
-                    .load(carImage)
-                    .placeholder(R.drawable.intro_bg_1)
-                    .error(R.drawable.intro_bg_1)
-                    .into(mainCarImageView);
-        }
-
-        // Initialize with dummy images for thumbnails
-        Glide.with(this).load(R.drawable.intro_bg_1).into(thumbnail1);
-        Glide.with(this).load(R.drawable.intro_bg_2).into(thumbnail2);
-        Glide.with(this).load(R.drawable.intro_bg_3).into(thumbnail3);
-    }
     private void setupAmenitiesRecyclerView() {
         amenityAdapter = new AmenityAdapter(this, new ArrayList<>());
-        recyclerViewAmenities.setLayoutManager(new LinearLayoutManager(this));
+        recyclerViewAmenities.setLayoutManager(new GridLayoutManager(this, 2));
         recyclerViewAmenities.setAdapter(amenityAdapter);
     }
     private void fetchCarDetails() {
@@ -342,124 +309,6 @@ public class CarDetailActivity extends AppCompatActivity {
         // Update amenities
         if (car.getAmenities() != null) {
             amenityAdapter.setAmenities(car.getAmenities());
-        }
-    }
-    private void updateCarDetails(Map<String, Object> carMap) {
-        // Update car name
-        if (carMap.containsKey("name")) {
-            tvCarName.setText((String) carMap.get("name"));
-        }
-
-        // Update rating
-        if (carMap.containsKey("rating")) {
-            double rating = ((Number) carMap.get("rating")).doubleValue();
-            tvRating.setText(String.format("%.1f", rating));
-        }
-
-        // Update trips
-        if (carMap.containsKey("trips")) {
-            int trips = ((Number) carMap.get("trips")).intValue();
-            tvTrips.setText(trips + " Chuyến");
-        }
-
-        // Update location
-        if (carMap.containsKey("location")) {
-            tvLocation.setText((String) carMap.get("location"));
-        }
-
-        // Update transmission
-        if (carMap.containsKey("transmission")) {
-            tvTransmission.setText((String) carMap.get("transmission"));
-        }
-
-        // Update fuel type
-        if (carMap.containsKey("fuel")) {
-            tvFuelType.setText((String) carMap.get("fuel"));
-        }
-
-        // Update seats
-        if (carMap.containsKey("seats")) {
-            int seats = ((Number) carMap.get("seats")).intValue();
-            tvSeatCount.setText(seats + " Person");
-        }
-
-        // Consumption is set to default
-        tvConsumption.setText("7L/100km");
-
-        // Update description
-        if (carMap.containsKey("description")) {
-            tvDescription.setText((String) carMap.get("description"));
-        }
-
-        // Update prices
-        if (carMap.containsKey("base_price_formatted")) {
-            tvPrice.setText((String) carMap.get("base_price_formatted") + "/day");
-        } else if (carMap.containsKey("price_formatted")) {
-            tvPrice.setText((String) carMap.get("price_formatted") + "/day");
-        }
-
-        if (carMap.containsKey("insurance_price_formatted")) {
-            tvInsurancePrice.setText((String) carMap.get("insurance_price_formatted"));
-        }
-
-        if (carMap.containsKey("total_price_formatted")) {
-            tvTotalPrice.setText((String) carMap.get("total_price_formatted"));
-        }
-
-        // Update amenities
-        if (carMap.containsKey("amenities") && carMap.get("amenities") instanceof List) {
-            List<Map<String, Object>> amenitiesList = (List<Map<String, Object>>) carMap.get("amenities");
-            List<Amenity> amenities = new ArrayList<>();
-
-            for (Map<String, Object> amenityMap : amenitiesList) {
-                int id = ((Number) amenityMap.get("id")).intValue();
-                String name = (String) amenityMap.get("name");
-                String icon = (String) amenityMap.get("icon");
-                String description = (String) amenityMap.get("description");
-
-                amenities.add(new Amenity(id, name, icon, description));
-            }
-
-            amenityAdapter.setAmenities(amenities);
-        }
-
-        // Update images
-        if (carMap.containsKey("images") && carMap.get("images") instanceof List) {
-            List<Map<String, Object>> imagesList = (List<Map<String, Object>>) carMap.get("images");
-
-            if (imagesList.size() > 0) {
-                String mainImageUrl = (String) imagesList.get(0).get("url");
-                Glide.with(this)
-                        .load(mainImageUrl)
-                        .placeholder(R.drawable.intro_bg_1)
-                        .error(R.drawable.intro_bg_1)
-                        .into(mainCarImageView);
-
-                // Load thumbnails if available
-                if (imagesList.size() > 0) {
-                    Glide.with(this)
-                            .load((String) imagesList.get(0).get("url"))
-                            .placeholder(R.drawable.intro_bg_1)
-                            .into(thumbnail1);
-                }
-
-                if (imagesList.size() > 1) {
-                    Glide.with(this)
-                            .load((String) imagesList.get(1).get("url"))
-                            .placeholder(R.drawable.intro_bg_2)
-                            .into(thumbnail2);
-                }
-
-                if (imagesList.size() > 2) {
-                    Glide.with(this)
-                            .load((String) imagesList.get(2).get("url"))
-                            .placeholder(R.drawable.intro_bg_3)
-                            .into(thumbnail3);
-                }
-
-                // Set click listeners for thumbnails
-                setupThumbnailListeners(imagesList);
-            }
         }
     }
     private void setupThumbnailListeners(List<Map<String, Object>> images) {

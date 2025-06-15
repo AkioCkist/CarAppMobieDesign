@@ -36,7 +36,7 @@ public class Car {
     private boolean is_favorite;
     @SerializedName("primary_image")
     private String primary_image;
-    @SerializedName("price_formatted")
+    @SerializedName("base_price_formatted")
     private String price_formatted;
     private boolean is_favorite_for_user;
     private String lessor_name;
