@@ -512,7 +512,7 @@ public class CarListing extends AppCompatActivity {
 
         // Setup location options with custom adapter for black text
         // Add "All Locations" as the first option
-        String[] locations = {"All Locations", "Đà Nẵng", "TP.HCM", "Hà Nội", "Huế", "Bắc Ninh"};
+        String[] locations = {"All Locations", "Đà Nẵng", "TP.HCM", "Hà Nội"};
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(
                 this,
                 R.layout.item_spinner_location,

@@ -273,26 +273,27 @@
                         android:textSize="14sp"
                         android:fontFamily="@font/notosans_regular" />
                 </LinearLayout>
-                <LinearLayout
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="22dp"
+                android:orientation="horizontal"
+                android:layout_marginBottom="8dp">
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_marginRight="5dp"
+                    android:src="@drawable/cardetail_ic_location">
+                </ImageView>
+                <TextView
+                    android:id="@+id/tv_location"
                     android:layout_width="wrap_content"
-                    android:layout_height="22dp"
-                    android:orientation="horizontal"
-                    android:layout_marginBottom="8dp">
-                    <ImageView
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
-                        android:layout_marginRight="5dp"
-                        android:src="@drawable/cardetail_ic_location">
-                    </ImageView>
-                    <TextView
-                        android:id="@+id/tv_location"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:text="Hà Nội, Việt Nam"
-                        android:textColor="@color/white"
-                        android:textSize="14sp"
-                        android:fontFamily="@font/notosans_regular" />
-                </LinearLayout>
+                    android:layout_height="match_parent"
+                    android:text="Hà Nội, Việt Nam"
+                    android:textColor="@color/white"
+                    android:textSize="14sp"
+                    android:fontFamily="@font/notosans_regular">
+                </TextView>
             </LinearLayout>
             <View
                 android:layout_width="match_parent"
