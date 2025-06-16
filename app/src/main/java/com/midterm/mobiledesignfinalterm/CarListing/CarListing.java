@@ -195,6 +195,45 @@ public class CarListing extends AppCompatActivity {
             }
         });
 
+        // Search functionality with debounce handler
+        android.os.Handler searchHandler = new android.os.Handler(android.os.Looper.getMainLooper());
+        Runnable searchRunnable = new Runnable() {
+            @Override
+            public void run() {
+                String query = editTextSearch.getText().toString().trim();
+                if (!query.isEmpty()) {
+                    performSearch(query);
+                } else {
+                    // Reset to original list if search is cleared
+                    filteredCarList.clear();
+                    filteredCarList.addAll(carList);
+                    carAdapter.notifyDataSetChanged();
+                    textViewCarCount.setText("Found " + filteredCarList.size() + " cars");
+                }
+            }
+        };
+
+        // Add TextWatcher to handle text changes with debounce
+        editTextSearch.addTextChangedListener(new android.text.TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                // Not used
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                // Not used
+            }
+
+            @Override
+            public void afterTextChanged(android.text.Editable s) {
+                // Remove any pending searches
+                searchHandler.removeCallbacks(searchRunnable);
+                // Schedule a new search after 500ms (0.5 seconds)
+                searchHandler.postDelayed(searchRunnable, 500);
+            }
+        });
+
         // Search functionality
         editTextSearch.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
@@ -943,5 +982,147 @@ public class CarListing extends AppCompatActivity {
         this.dropoffLocation = returnLocation;
         updateDateTimeLocationButton();
     }
-}
 
+    private void performSearch(String query) {
+        // Show loading indicator
+        View loadingView = findViewById(R.id.loadingView);
+        if (loadingView != null) {
+            loadingView.setVisibility(View.VISIBLE);
+        }
+
+        // Use RetrofitClient to call the search API
+        CarApiService apiService = RetrofitClient.getCarApiService();
+
+        // Kiểm tra location - nếu là "Current Location" hoặc "All Locations" thì không gửi tham số location
+        String locationParam = null;
+        if (pickupLocation != null && !pickupLocation.isEmpty() &&
+            !pickupLocation.equals("Current Location") && !pickupLocation.equals("All Locations")) {
+            locationParam = pickupLocation;
+        }
+
+        // Ghi log để debug
+        Log.d("CarListing", "Searching with query: '" + query +
+              "', location: '" + (locationParam != null ? locationParam : "null") + "'");
+
+        // Call the searchCars API with appropriate parameters
+        apiService.searchCars(query, null, locationParam, "available").enqueue(new retrofit2.Callback<Map<String, Object>>() {
+            @Override
+            public void onResponse(retrofit2.Call<Map<String, Object>> call, retrofit2.Response<Map<String, Object>> response) {
+                if (loadingView != null) {
+                    loadingView.setVisibility(View.GONE);
+                }
+
+                if (response.isSuccessful() && response.body() != null) {
+                    try {
+                        // Parse the response
+                        Map<String, Object> responseMap = response.body();
+                        List<Map<String, Object>> records = (List<Map<String, Object>>) responseMap.get("records");
+
+                        // Clear existing filtered data
+                        filteredCarList.clear();
+
+                        if (records != null && !records.isEmpty()) {
+                            // Process each car record from search results
+                            for (Map<String, Object> carMap : records) {
+                                Car car = new Car();
+
+                                // Handle integer fields safely
+                                if (carMap.get("id") instanceof Number) {
+                                    car.setVehicleId(((Number) carMap.get("id")).intValue());
+                                }
+
+                                car.setName((String) carMap.get("name"));
+
+                                // Handle float fields safely
+                                if (carMap.get("rating") instanceof Number) {
+                                    car.setRating(((Number) carMap.get("rating")).floatValue());
+                                }
+
+                                // Handle integer fields safely
+                                if (carMap.get("trips") instanceof Number) {
+                                    car.setTotalTrips(((Number) carMap.get("trips")).intValue());
+                                }
+
+                                car.setLocation((String) carMap.get("location"));
+                                car.setTransmission((String) carMap.get("transmission"));
+
+                                // Handle integer fields safely
+                                if (carMap.get("seats") instanceof Number) {
+                                    car.setSeats(((Number) carMap.get("seats")).intValue());
+                                }
+
+                                car.setFuelType((String) carMap.get("fuel"));
+
+                                // Handle double fields safely
+                                if (carMap.get("base_price") instanceof Number) {
+                                    car.setBasePrice(((Number) carMap.get("base_price")).doubleValue());
+                                }
+
+                                car.setPriceFormatted((String) carMap.get("price_formatted"));
+                                car.setVehicleType((String) carMap.get("vehicle_type"));
+                                car.setDescription((String) carMap.get("description"));
+                                car.setStatus((String) carMap.get("status"));
+                                car.setFavorite((Boolean) carMap.get("is_favorite"));
+                                car.setFavoriteForUser((Boolean) carMap.get("is_favorite_for_user"));
+                                car.setLessorName((String) carMap.get("lessor_name"));
+                                car.setPrimaryImage((String) carMap.get("primary_image"));
+                                car.setFuel_consumption((String) carMap.get("fuel_consumption"));
+                                car.setBrandCar((String) carMap.get("brand"));
+
+                                // Process amenities if available
+                                if (carMap.containsKey("amenities") && carMap.get("amenities") instanceof List) {
+                                    List<Map<String, Object>> amenitiesList = (List<Map<String, Object>>) carMap.get("amenities");
+                                    List<com.midterm.mobiledesignfinalterm.CarDetail.Amenity> carAmenities = new ArrayList<>();
+
+                                    for (Map<String, Object> amenityMap : amenitiesList) {
+                                        int id = 0;
+                                        if (amenityMap.get("id") instanceof Number) {
+                                            id = ((Number) amenityMap.get("id")).intValue();
+                                        }
+                                        String name = (String) amenityMap.get("name");
+                                        String icon = (String) amenityMap.get("icon");
+                                        String description = (String) amenityMap.get("description");
+
+                                        carAmenities.add(new com.midterm.mobiledesignfinalterm.CarDetail.Amenity(id, name, icon, description));
+                                    }
+                                    car.setAmenities(carAmenities);
+                                }
+
+                                filteredCarList.add(car);
+                            }
+
+                            // Update UI
+                            runOnUiThread(() -> {
+                                carAdapter.notifyDataSetChanged();
+                                textViewCarCount.setText("Found " + filteredCarList.size() + " cars");
+                            });
+                        } else {
+                            // No results found
+                            runOnUiThread(() -> {
+                                carAdapter.notifyDataSetChanged();
+                                textViewCarCount.setText("Found 0 cars");
+                                Toast.makeText(CarListing.this, "No cars found for '" + query + "'", Toast.LENGTH_SHORT).show();
+                            });
+                        }
+
+                    } catch (Exception e) {
+                        Log.e("CarListing", "Error parsing search response: " + e.getMessage(), e);
+                        Toast.makeText(CarListing.this, "Error parsing search data", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Toast.makeText(CarListing.this, "Failed to search for cars", Toast.LENGTH_SHORT).show();
+                    Log.e("CarListing", "API search response error: " + response.code());
+                }
+            }
+
+            @Override
+            public void onFailure(retrofit2.Call<Map<String, Object>> call, Throwable t) {
+                if (loadingView != null) {
+                    loadingView.setVisibility(View.GONE);
+                }
+                Toast.makeText(CarListing.this, "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                Log.e("CarListing", "API search call failed", t);
+            }
+        });
+    }
+}
