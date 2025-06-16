@@ -170,12 +170,19 @@ public class CarDetailActivity extends AppCompatActivity {
         });
     }
     private void setupListeners() {
+        // Handle back arrow click
+        ImageView backArrow = findViewById(R.id.iv_back);
+        backArrow.setOnClickListener(v -> {
+            finish(); // Return to previous screen
+        });
+
         // Handle rent now button click
         buttonRentNow.setOnClickListener(v -> {
             Toast.makeText(this, "Rental request submitted", Toast.LENGTH_SHORT).show();
              Intent intent = new Intent(this, CarBookingActivity.class);
              startActivity(intent);
         });
+
         setupImageGallery();
         // Image navigation buttons
         ImageButton buttonPrevious = findViewById(R.id.buttonPrevious);

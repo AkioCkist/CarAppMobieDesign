@@ -24,72 +24,31 @@
             android:gravity="center_vertical"
             android:background="@color/card_background">
 
-            <!-- Navigation Button -->
-            <ImageButton
-                android:id="@+id/buttonNavigation"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:src="@drawable/ic_menu_navigation"
-                android:background="?android:attr/selectableItemBackgroundBorderless"
-                android:contentDescription="Navigation Menu"
-                app:tint="#18F45D"
-                android:padding="8dp"/>
+            <!-- Back Arrow Button -->
+            <ImageView
+                android:id="@+id/iv_back"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"
+                android:src="@drawable/arrow_left" />
 
-            <!-- Spacer -->
-            <View
+            <!-- Title Space -->
+            <TextView
                 android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:layout_weight="1" />
-
-            <!-- Profile Section -->
-            <LinearLayout
-                android:id="@+id/profileSection"
-                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:background="?android:attr/selectableItemBackground"
-                android:clickable="true"
-                android:focusable="true"
-                android:padding="8dp">
+                android:layout_weight="1"
+                android:text="Car Details"
+                android:textColor="@android:color/white"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:gravity="center" />
 
-                <ImageView
-                    android:id="@+id/imageViewProfile"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:src="@drawable/default_avatar"
-                    android:background="@drawable/circle_background"
-                    android:scaleType="centerCrop"
-                    android:layout_marginEnd="12dp" />
+            <!-- Empty space where profile was -->
+            <View
+                android:layout_width="40dp"
+                android:layout_height="40dp" />
 
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:id="@+id/textViewUserName"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="User Name"
-                        android:textColor="@color/black"
-                        android:textSize="14sp"
-                        android:fontFamily="@font/notosans_semibold"
-                        android:maxLines="1"
-                        android:ellipsize="end" />
-
-                    <TextView
-                        android:id="@+id/textViewUserPhone"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Phone Number"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="12sp"
-                        android:fontFamily="@font/notosans_regular"
-                        android:maxLines="1"
-                        android:ellipsize="end" />
-                </LinearLayout>
-            </LinearLayout>
         </LinearLayout>
 
         <!-- Car Image Section -->

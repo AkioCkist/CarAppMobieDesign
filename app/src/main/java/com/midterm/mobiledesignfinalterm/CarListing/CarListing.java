@@ -47,7 +47,6 @@ public class CarListing extends AppCompatActivity {
     private ImageButton buttonFilter;
     private RecyclerView recyclerViewCars;
     private ImageView imageViewProfile;
-    private LinearLayout profileSection;
     private LinearLayout dropdownMenu;
     private Button btnMyProfile;
     private Button btnMyBooking;
@@ -126,16 +125,15 @@ public class CarListing extends AppCompatActivity {
     }
 
     private void initializeViews() {
-        // Removed textViewLocation and textViewDateTime as they don't exist in XML
-        textViewUserName = findViewById(R.id.textViewUserName);
-        textViewUserPhone = findViewById(R.id.textViewUserPhone);
+        // Removed profile-related views as they are no longer in the layout
         textViewCarCount = findViewById(R.id.textViewCarCount);
         editTextSearch = findViewById(R.id.editTextSearch);
         buttonDateTime = findViewById(R.id.buttonDateTime);
         buttonFilter = findViewById(R.id.btn_Filter);
         recyclerViewCars = findViewById(R.id.recyclerViewCars);
-        imageViewProfile = findViewById(R.id.imageViewProfile);
-        profileSection = findViewById(R.id.profileSection);
+
+        // Profile and dropdown related views might no longer be needed but we'll keep references
+        // for now and handle null checks
         dropdownMenu = findViewById(R.id.dropdownMenu);
         btnMyProfile = findViewById(R.id.btn_MyProfile);
         btnMyBooking = findViewById(R.id.btn_MyBooking);
@@ -187,6 +185,16 @@ public class CarListing extends AppCompatActivity {
     }
 
     private void setupClickListeners() {
+        // Back arrow functionality
+        ImageView backArrow = findViewById(R.id.back_arrow);
+        backArrow.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Navigate back to previous screen
+                finish();
+            }
+        });
+
         // Search functionality
         editTextSearch.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
@@ -218,15 +226,6 @@ public class CarListing extends AppCompatActivity {
             public void onClick(View v) {
                 animateButtonClick(v);
                 handleFilterOptions();
-            }
-        });
-
-        // Profile section
-        profileSection.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                animateProfileClick(v);
-                toggleDropdownMenu();
             }
         });
 
@@ -289,13 +288,15 @@ public class CarListing extends AppCompatActivity {
     }
 
     private void displayUserInfo() {
-        if (userPhone != null) {
-            String displayName = userName != null ? userName : "User";
-            textViewUserName.setText(displayName);
-            textViewUserPhone.setText(userPhone);
-        } else {
-            textViewUserName.setText("User");
-            textViewUserPhone.setText("Phone not available");
+        // We've removed the profile section from the UI, so we no longer
+        // need to set the text for textViewUserName and textViewUserPhone
+
+        // Just store the user information for other uses
+        String displayName = userName != null ? userName : "User";
+
+        // Still display welcome toast if needed
+        if (userName != null && !userName.isEmpty()) {
+            Toast.makeText(this, "Welcome, " + userName + "!", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -835,7 +836,7 @@ public class CarListing extends AppCompatActivity {
 
     // Animation Methods
     private void animateInitialEntrance() {
-        View[] views = {editTextSearch, buttonDateTime, buttonFilter, recyclerViewCars, profileSection};
+        View[] views = {editTextSearch, buttonDateTime, buttonFilter, recyclerViewCars};
 
         for (int i = 0; i < views.length; i++) {
             View view = views[i];
@@ -864,18 +865,6 @@ public class CarListing extends AppCompatActivity {
         AnimatorSet animatorSet = new AnimatorSet();
         animatorSet.playTogether(scaleX, scaleY, elevation);
         animatorSet.setDuration(400);
-        animatorSet.start();
-    }
-
-    private void animateProfileClick(View view) {
-        ObjectAnimator scaleX = ObjectAnimator.ofFloat(view, "scaleX", 1f, 1.1f, 1f);
-        ObjectAnimator scaleY = ObjectAnimator.ofFloat(view, "scaleY", 1f, 1.1f, 1f);
-        ObjectAnimator elevation = ObjectAnimator.ofFloat(view, "elevation", 0f, 8f, 0f);
-
-        AnimatorSet animatorSet = new AnimatorSet();
-        animatorSet.playTogether(scaleX, scaleY, elevation);
-        animatorSet.setDuration(300);
-        animatorSet.setInterpolator(new OvershootInterpolator(1.2f));
         animatorSet.start();
     }
 
