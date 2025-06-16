@@ -73,10 +73,13 @@
             <!-- Car Image -->
             <ImageView
                 android:id="@+id/iv_primaryImageCar"
-                android:layout_width="220dp"
-                android:layout_height="80dp"
+                android:layout_width="250dp"
+                android:layout_height="100dp"
                 android:src="@drawable/tesla_model_x"
-                android:scaleType="centerCrop" />
+                android:background="@drawable/carlisting_rounded_image"
+                android:scaleType="centerCrop"
+                android:clipToOutline="true"
+                android:outlineProvider="background" />
 
             <!-- Car Specifications -->
             <LinearLayout
@@ -195,7 +198,7 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:layout_marginTop="16dp">
+            android:layout_marginTop="10dp">
 
             <!-- Price Section -->
             <LinearLayout

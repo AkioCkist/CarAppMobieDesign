@@ -28,6 +28,7 @@ import com.midterm.mobiledesignfinalterm.BookingCar.CarBookingActivity;
 import com.midterm.mobiledesignfinalterm.api.CarApiService;
 import com.midterm.mobiledesignfinalterm.api.RetrofitClient;
 import com.midterm.mobiledesignfinalterm.models.Car;
+import com.midterm.mobiledesignfinalterm.models.CarImage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,7 +56,7 @@ public class CarDetailActivity extends AppCompatActivity {
     private CarApiService carApiService;
 
     private int currentImageIndex = 0;
-    private final int MAX_IMAGES = 3;
+    private int MAX_IMAGES = 3;
     private ImageView[] thumbnailViews;
 
     // Booking details
@@ -66,6 +67,9 @@ public class CarDetailActivity extends AppCompatActivity {
     private String pickupLocation;
     private String dropoffLocation;
     private String userName, userPhone;
+
+    // List to hold image URLs
+    private List<String> imageUrls = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -289,29 +293,49 @@ public class CarDetailActivity extends AppCompatActivity {
         double totalPrice = basePrice + insurancePrice;
         tvTotalPrice.setText(String.format("%,.0f VND", totalPrice));
 
-        // Load main image
-        if (car.getPrimaryImage() != null && !car.getPrimaryImage().isEmpty()) {
-            Glide.with(CarDetailActivity.this)
-                    .load(car.getPrimaryImage())
-                    .placeholder(R.drawable.intro_bg_1)
-                    .error(R.drawable.intro_bg_1)
-                    .into(mainCarImageView);
+        // Clear existing image URLs
+        imageUrls.clear();
 
-            // If there are additional images, load them into thumbnails
-            if (car.getImages() != null && car.getImages().size() > 0) {
-                for (int i = 0; i < Math.min(car.getImages().size(), thumbnailViews.length); i++) {
-                    Glide.with(CarDetailActivity.this)
-                            .load(car.getImages().get(i))
-                            .placeholder(R.drawable.intro_bg_1)
-                            .error(R.drawable.intro_bg_1)
-                            .into(thumbnailViews[i]);
+        // Add primary image to our imageUrls list
+        if (car.getPrimaryImage() != null && !car.getPrimaryImage().isEmpty()) {
+            imageUrls.add(car.getPrimaryImage());
+            Log.d("CarDetailActivity", "Primary image added: " + car.getPrimaryImage());
+        }
+
+        // Process images array if it exists
+        if (car.getImages() != null && !car.getImages().isEmpty()) {
+            Log.d("CarDetailActivity", "Images found: " + car.getImages().size());
+
+            // Add images from the images array - avoid duplicating the primary image
+            for (CarImage image : car.getImages()) {
+                if (image != null && image.getUrl() != null && !image.getUrl().isEmpty()) {
+                    // Skip if this URL is already in our list
+                    if (!imageUrls.contains(image.getUrl())) {
+                        imageUrls.add(image.getUrl());
+                        Log.d("CarDetailActivity", "Added image URL: " + image.getUrl());
+                    }
                 }
             }
-
-            // Reset selection
-            currentImageIndex = 0;
-            updateThumbnailSelection();
         }
+
+        // If we have no images, add a default placeholder
+        if (imageUrls.isEmpty()) {
+            Log.d("CarDetailActivity", "No images found, using placeholder");
+            // Add default image if no images are available
+            imageUrls.add(""); // Empty string will trigger the placeholder in Glide
+        }
+
+        Log.d("CarDetailActivity", "Total image URLs: " + imageUrls.size());
+
+        // Update MAX_IMAGES based on available images
+        int maxImages = Math.min(imageUrls.size(), thumbnailViews.length);
+
+        // Load images into views
+        loadImagesIntoViews();
+
+        // Reset selection
+        currentImageIndex = 0;
+        updateThumbnailSelection();
 
         // Update amenities
         if (car.getAmenities() != null) {
@@ -320,6 +344,38 @@ public class CarDetailActivity extends AppCompatActivity {
                 amenity.initializeIconResource(this);
             }
             amenityAdapter.setAmenities(car.getAmenities());
+        }
+    }
+
+    private void loadImagesIntoViews() {
+        // Load main image (first image or default)
+        if (!imageUrls.isEmpty()) {
+            Log.d("CarDetailActivity", "Loading main image: " + imageUrls.get(0));
+            Glide.with(this)
+                .load(imageUrls.get(0))
+                .placeholder(R.drawable.intro_bg_1)
+                .error(R.drawable.intro_bg_1)
+                .into(mainCarImageView);
+        }
+
+        // Load thumbnails
+        for (int i = 0; i < MAX_IMAGES; i++) {
+            if (i < imageUrls.size()) {
+                Log.d("CarDetailActivity", "Loading thumbnail " + i + ": " + imageUrls.get(i));
+                final int index = i;
+                Glide.with(this)
+                    .load(imageUrls.get(i))
+                    .placeholder(R.drawable.intro_bg_1)
+                    .error(R.drawable.intro_bg_1)
+                    .into(thumbnailViews[i]);
+
+                // Update click listener to use the URL
+                thumbnailViews[i].setOnClickListener(v -> {
+                    currentImageIndex = index;
+                    updateMainImage();
+                    updateThumbnailSelection();
+                });
+            }
         }
     }
     private void setupThumbnailListeners(List<Map<String, Object>> images) {
@@ -344,40 +400,6 @@ public class CarDetailActivity extends AppCompatActivity {
             });
         }
     }
-    private void applyRoundedCorners() {
-        // Create rounded corners for all image views programmatically
-        float cornerRadius = TypedValue.applyDimension(
-                TypedValue.COMPLEX_UNIT_DIP,
-                16f, // 16dp corner radius - adjust as needed
-                getResources().getDisplayMetrics());
-
-        // Apply to main image
-        GradientDrawable mainImageShape = new GradientDrawable();
-        mainImageShape.setCornerRadius(cornerRadius);
-        mainImageShape.setColor(getResources().getColor(android.R.color.white));
-        mainCarImageView.setBackground(mainImageShape);
-        mainCarImageView.setClipToOutline(true);
-
-        // Apply to thumbnails
-        GradientDrawable thumbnail1Shape = new GradientDrawable();
-        thumbnail1Shape.setCornerRadius(cornerRadius / 2);
-        thumbnail1Shape.setColor(getResources().getColor(android.R.color.white));
-        thumbnail1.setBackground(thumbnail1Shape);
-        thumbnail1.setClipToOutline(true);
-
-        GradientDrawable thumbnail2Shape = new GradientDrawable();
-        thumbnail2Shape.setCornerRadius(cornerRadius / 2);
-        thumbnail2Shape.setColor(getResources().getColor(android.R.color.white));
-        thumbnail2.setBackground(thumbnail2Shape);
-        thumbnail2.setClipToOutline(true);
-
-        GradientDrawable thumbnail3Shape = new GradientDrawable();
-        thumbnail3Shape.setCornerRadius(cornerRadius / 2);
-        thumbnail3Shape.setColor(getResources().getColor(android.R.color.white));
-        thumbnail3.setBackground(thumbnail3Shape);
-        thumbnail3.setClipToOutline(true);
-    }
-
     private void setupImageGallery() {
         // Initialize the thumbnail array
         thumbnailViews = new ImageView[]{thumbnail1, thumbnail2, thumbnail3};
@@ -417,20 +439,35 @@ public class CarDetailActivity extends AppCompatActivity {
         updateThumbnailSelection();
     }
     private void updateMainImage() {
-        // Array of image resources or URLs to use
-        int[] imageResources = {
-                R.drawable.intro_bg_1,
-                R.drawable.intro_bg_2,
-                R.drawable.intro_bg_3
-        };
+        // Check if we have valid image URLs
+        if (imageUrls.isEmpty() || currentImageIndex >= imageUrls.size()) {
+            // Use fallback image if no URLs available
+            mainCarImageView.setAlpha(0.3f);
+            mainCarImageView.setImageResource(R.drawable.intro_bg_1);
+            mainCarImageView.animate()
+                    .alpha(1.0f)
+                    .setDuration(200)
+                    .start();
+            return;
+        }
 
         // Change main image with animation
         mainCarImageView.setAlpha(0.3f);
-        mainCarImageView.setImageResource(imageResources[currentImageIndex]);
+
+        // Load image from URL using Glide
+        Glide.with(this)
+            .load(imageUrls.get(currentImageIndex))
+            .placeholder(R.drawable.intro_bg_1)
+            .error(R.drawable.intro_bg_1)
+            .into(mainCarImageView);
+
         mainCarImageView.animate()
-                .alpha(1.0f)
-                .setDuration(200)
-                .start();
+            .alpha(1.0f)
+            .setDuration(200)
+            .start();
+
+        // Log which image is being displayed
+        Log.d("CarDetailActivity", "Showing main image: " + imageUrls.get(currentImageIndex));
     }
     private void updateThumbnailSelection() {
         // Reset all thumbnails to normal state
