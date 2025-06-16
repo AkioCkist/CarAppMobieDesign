@@ -22,6 +22,8 @@ public class CarListingAdapter extends RecyclerView.Adapter<CarListingAdapter.Ca
 
     private List<Car> carList;
     private OnCarItemClickListener listener;
+    private int lastAnimatedPosition = -1;
+    private boolean animationsEnabled = true;
 
     public interface OnCarItemClickListener {
         void onRentalClick(Car car);
@@ -46,9 +48,14 @@ public class CarListingAdapter extends RecyclerView.Adapter<CarListingAdapter.Ca
         Car car = carList.get(position);
         holder.bind(car, position);
 
-        // Add entrance animation for each item
-        animateItemEntrance(holder.itemView, position);
-
+        // Only animate new items in view (not already animated or during fast scroll)
+        if (animationsEnabled && position > lastAnimatedPosition) {
+            animateItemEntrance(holder.itemView, position);
+            lastAnimatedPosition = position;
+        } else {
+            // Reset view properties for recycled views without animation
+            clearAnimationState(holder.itemView);
+        }
     }
 
     @Override
@@ -56,20 +63,27 @@ public class CarListingAdapter extends RecyclerView.Adapter<CarListingAdapter.Ca
         return carList.size();
     }
 
+    private void clearAnimationState(View view) {
+        view.setAlpha(1.0f);
+        view.setTranslationY(0f);
+        view.setScaleX(1.0f);
+        view.setScaleY(1.0f);
+    }
+
     private void animateItemEntrance(View view, int position) {
-        view.setAlpha(0f);
-        view.setTranslationY(100f);
-        view.setScaleX(0.8f);
-        view.setScaleY(0.8f);
+        // Calculate shorter delay based on position but with a maximum cap
+        long delay = Math.min(position * 50, 200);
+
+        // Simplify the animation for better performance
+        view.setAlpha(0.8f);
+        view.setTranslationY(50f);
 
         view.animate()
                 .alpha(1f)
                 .translationY(0f)
-                .scaleX(1f)
-                .scaleY(1f)
-                .setDuration(500)
-                .setStartDelay(position * 100)
-                .setInterpolator(new OvershootInterpolator(1.1f))
+                .setDuration(300)  // Shorter duration
+                .setStartDelay(delay)
+                .setInterpolator(new OvershootInterpolator(0.8f))  // Less overshoot
                 .start();
     }
 
@@ -207,9 +221,20 @@ public class CarListingAdapter extends RecyclerView.Adapter<CarListingAdapter.Ca
         }
     }
 
+    // Methods to control animations based on scroll state
+    public void setAnimationsEnabled(boolean enabled) {
+        this.animationsEnabled = enabled;
+    }
+
+    // Call this when a new batch of data is loaded or when scrolling stops
+    public void resetAnimationState() {
+        lastAnimatedPosition = -1;
+    }
+
     // Method to update the list (for search/filter functionality)
     public void updateList(List<Car> newList) {
         this.carList = newList;
+        resetAnimationState(); // Reset animation state when data changes
         notifyDataSetChanged();
     }
 
@@ -223,6 +248,7 @@ public class CarListingAdapter extends RecyclerView.Adapter<CarListingAdapter.Ca
     // Method to clear all items
     public void clearItems() {
         carList.clear();
+        resetAnimationState(); // Reset animation state when clearing items
         notifyDataSetChanged();
     }
 }
