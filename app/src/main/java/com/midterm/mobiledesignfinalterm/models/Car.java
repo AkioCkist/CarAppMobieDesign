@@ -33,12 +33,12 @@ public class Car {
     @SerializedName("status")
     private String status;
     @SerializedName("is_favorite")
-    private boolean is_favorite;
+    private Boolean is_favorite = false; // Initialize with default value
     @SerializedName("primary_image")
     private String primary_image;
     @SerializedName("base_price_formatted")
     private String price_formatted;
-    private boolean is_favorite_for_user;
+    private Boolean is_favorite_for_user = false; // Initialize with default value
     private String lessor_name;
     private double insurance_price;
     private String insurance_price_formatted;
@@ -177,11 +177,11 @@ public class Car {
     }
 
     public boolean isFavorite() {
-        return is_favorite;
+        return is_favorite != null ? is_favorite : false;
     }
 
-    public void setFavorite(boolean is_favorite) {
-        this.is_favorite = is_favorite;
+    public void setFavorite(Boolean is_favorite) {
+        this.is_favorite = is_favorite != null ? is_favorite : false;
     }
 
     public String getPrimaryImage() {
@@ -201,11 +201,11 @@ public class Car {
     }
 
     public boolean isFavoriteForUser() {
-        return is_favorite_for_user;
+        return is_favorite_for_user != null ? is_favorite_for_user : false;
     }
 
-    public void setFavoriteForUser(boolean is_favorite_for_user) {
-        this.is_favorite_for_user = is_favorite_for_user;
+    public void setFavoriteForUser(Boolean is_favorite_for_user) {
+        this.is_favorite_for_user = is_favorite_for_user != null ? is_favorite_for_user : false;
     }
 
     public List<CarImage> getImages() {

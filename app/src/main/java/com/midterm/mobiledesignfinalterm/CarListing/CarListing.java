@@ -430,7 +430,11 @@ public class CarListing extends AppCompatActivity {
                                 List<com.midterm.mobiledesignfinalterm.CarDetail.Amenity> carAmenities = new ArrayList<>();
 
                                 for (Map<String, Object> amenityMap : amenitiesList) {
-                                    int id = ((Number) amenityMap.get("id")).intValue();
+                                    // Add null check before calling intValue()
+                                    int id = 0; // Default value
+                                    if (amenityMap.get("id") instanceof Number) {
+                                        id = ((Number) amenityMap.get("id")).intValue();
+                                    }
                                     String name = (String) amenityMap.get("name");
                                     String icon = (String) amenityMap.get("icon");
                                     String description = (String) amenityMap.get("description");
