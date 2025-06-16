@@ -1,9 +1,13 @@
 package com.midterm.mobiledesignfinalterm.CarDetail;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.graphics.drawable.GradientDrawable;
 import android.util.TypedValue;
@@ -14,15 +18,54 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.midterm.mobiledesignfinalterm.R;
 import com.midterm.mobiledesignfinalterm.BookingCar.CarBookingActivity;
+import com.midterm.mobiledesignfinalterm.api.CarApiService;
+import com.midterm.mobiledesignfinalterm.api.RetrofitClient;
+import com.midterm.mobiledesignfinalterm.models.Car;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class CarDetailActivity extends AppCompatActivity {
+    // UI Elements
     private ImageView mainCarImageView;
-    private ImageView thumbnailImage1, thumbnailImage2, thumbnailImage3;
+    private ImageView thumbnail1, thumbnail2, thumbnail3;
+    private TextView tvCarName, tvRating, tvTrips, tvLocation;
+    private TextView tvTransmission, tvFuelType, tvSeatCount, tvConsumption;
+    private TextView tvDescription, tvPrice, tvInsurancePrice, tvTotalPrice;
     private Button buttonRentNow;
-    private String carName = ""; // Store car name
+    private FrameLayout loadingView;
+    private RecyclerView recyclerViewAmenities;
+    private AmenityAdapter amenityAdapter;
+    private int carId;
+    private List<Amenity> amenityList;
+
+    // Car details
+    private String carName, carType, carFuel, carTransmission, carSeats, carConsumption;
+    private String carPrice, carImage;
+
+    // API service
+    private CarApiService carApiService;
+
+    private int currentImageIndex = 0;
+    private final int MAX_IMAGES = 3;
+    private ImageView[] thumbnailViews;
+
+    // Booking details
+    private String pickupTime;
+    private String pickupDate;
+    private String dropoffDate;
+    private String dropoffTime;
+    private String pickupLocation;
+    private String dropoffLocation;
+    private String userName, userPhone;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,15 +77,21 @@ public class CarDetailActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-
+        carApiService = RetrofitClient.getClient().create(CarApiService.class);
         initializeViews();
-        setupImageGallery();
 
-        // Apply rounded corners programmatically
-        applyRoundedCorners();
+        // Get data from intent
+        getDataFromIntent();
 
-        // Get car data from intent if available
-        getCarDataFromIntent();
+
+        // Set up amenities recyclerview
+        setupAmenitiesRecyclerView();
+
+        // Fetch detailed car data from API
+        fetchCarDetails();
+
+        // Setup listeners
+        setupListeners();
     }
 
     private void getCarDataFromIntent() {
@@ -56,12 +105,33 @@ public class CarDetailActivity extends AppCompatActivity {
     }
 
     private void initializeViews() {
-        mainCarImageView = findViewById(R.id.imageViewCarMain);
-        thumbnailImage1 = findViewById(R.id.thumbnail1);
-        thumbnailImage2 = findViewById(R.id.thumbnail2);
-        thumbnailImage3 = findViewById(R.id.thumbnail3);
+        mainCarImageView = findViewById(R.id.iv_primaryCarImage);
+        thumbnail1 = findViewById(R.id.thumbnail1);
+        thumbnail2 = findViewById(R.id.thumbnail2);
+        thumbnail3 = findViewById(R.id.thumbnail3);
         buttonRentNow = findViewById(R.id.buttonRentNow);
+        // Car info text views
+        tvCarName = findViewById(R.id.tv_CarName);
+        tvRating = findViewById(R.id.tv_rating);
+        tvTrips = findViewById(R.id.tv_trips);
+        tvLocation = findViewById(R.id.tv_location);
+        tvTransmission = findViewById(R.id.tv_transmission);
+        tvFuelType = findViewById(R.id.tv_fuelType);
+        tvSeatCount = findViewById(R.id.tv_seatCount);
+        tvConsumption = findViewById(R.id.tv_consumption);
+        tvDescription = findViewById(R.id.tv_description);
 
+        // Price text views
+        tvPrice = findViewById(R.id.tv_price);
+        tvInsurancePrice = findViewById(R.id.tv_insurance_price);
+        tvTotalPrice = findViewById(R.id.tv_total_price);
+        loadingView = findViewById(R.id.loadingView);
+        recyclerViewAmenities = findViewById(R.id.recyclerViewAmenities);
+        // Amenities recyclerview
+        amenityList = new ArrayList<>();
+        amenityAdapter = new AmenityAdapter(this, amenityList);
+        recyclerViewAmenities.setAdapter(amenityAdapter);
+        recyclerViewAmenities.setLayoutManager(new GridLayoutManager(this, 2));
         // Set up the Rent Now button click listener
         buttonRentNow.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -99,7 +169,174 @@ public class CarDetailActivity extends AppCompatActivity {
             }
         });
     }
+    private void setupListeners() {
+        // Handle rent now button click
+        buttonRentNow.setOnClickListener(v -> {
+            Toast.makeText(this, "Rental request submitted", Toast.LENGTH_SHORT).show();
+             Intent intent = new Intent(this, CarBookingActivity.class);
+             startActivity(intent);
+        });
+        setupImageGallery();
+        // Image navigation buttons
+        ImageButton buttonPrevious = findViewById(R.id.buttonPrevious);
+        ImageButton buttonNext = findViewById(R.id.buttonNext);
+    }
 
+    private void showLoading(boolean show) {
+        if (loadingView != null) {
+            loadingView.setVisibility(show ? View.VISIBLE : View.GONE);
+        }
+    }
+    private void getDataFromIntent() {
+        Intent intent = getIntent();
+        if (intent != null) {
+            carId = intent.getIntExtra("car_id", -1);
+
+            // User info
+            userName = intent.getStringExtra("user_name");
+            userPhone = intent.getStringExtra("user_phone");
+
+            // Booking details
+            pickupTime = intent.getStringExtra("pickup_time");
+            pickupDate = intent.getStringExtra("pickup_date");
+            dropoffTime = intent.getStringExtra("dropoff_time");
+            dropoffDate = intent.getStringExtra("dropoff_date");
+            pickupLocation = intent.getStringExtra("pickup_location");
+            dropoffLocation = intent.getStringExtra("dropoff_location");
+        }
+    }
+    private void setupAmenitiesRecyclerView() {
+        amenityAdapter = new AmenityAdapter(this, new ArrayList<>());
+        recyclerViewAmenities.setLayoutManager(new GridLayoutManager(this, 2));
+        recyclerViewAmenities.setAdapter(amenityAdapter);
+    }
+    private void fetchCarDetails() {
+        showLoading(true);
+
+        if (carId <= 0) {
+            Toast.makeText(this, "Invalid car ID", Toast.LENGTH_SHORT).show();
+            showLoading(false);
+            return;
+        }
+
+        carApiService.getCarDetails(carId).enqueue(new retrofit2.Callback<Car>() {
+            @Override
+            public void onResponse(retrofit2.Call<Car> call, retrofit2.Response<Car> response) {
+                showLoading(false);
+                if (response.isSuccessful() && response.body() != null) {
+                    Car car = response.body();
+                    updateCarDetailsFromCarObject(car);
+                } else {
+                    Toast.makeText(CarDetailActivity.this,
+                            "Failed to get car details", Toast.LENGTH_SHORT).show();
+                    Log.e("CarDetailActivity", "API response error: " + response.code());
+                }
+            }
+
+            @Override
+            public void onFailure(retrofit2.Call<Car> call, Throwable t) {
+                showLoading(false);
+                Toast.makeText(CarDetailActivity.this,
+                        "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                Log.e("CarDetailActivity", "API call failed", t);
+            }
+        });
+    }
+    private void updateCarDetailsFromCarObject(Car car) {
+        // Update car name
+        tvCarName.setText(car.getName());
+
+        // Update rating
+        tvRating.setText(String.format("%.1f", car.getRating()));
+
+        // Update trips
+        tvTrips.setText(car.getTotalTrips() + " Chuyến");
+
+        // Update location
+        tvLocation.setText(car.getLocation());
+
+        // Update transmission
+        tvTransmission.setText(car.getTransmission());
+
+        // Update fuel type
+        tvFuelType.setText(car.getFuelType());
+
+        // Update seats
+        tvSeatCount.setText(car.getSeats() + " Person");
+
+        // Update consumption
+        tvConsumption.setText(car.getFuel_consumption());
+
+        // Update description
+        tvDescription.setText(car.getDescription());
+
+        // Update price
+        tvPrice.setText(car.getPriceFormatted());
+
+        // Calculate insurance price (assuming 10% of base price)
+        double basePrice = car.getBasePrice();
+        double insurancePrice = basePrice * 0.1;
+        tvInsurancePrice.setText(String.format("%,.0f VND", insurancePrice));
+
+        // Calculate total price
+        double totalPrice = basePrice + insurancePrice;
+        tvTotalPrice.setText(String.format("%,.0f VND", totalPrice));
+
+        // Load main image
+        if (car.getPrimaryImage() != null && !car.getPrimaryImage().isEmpty()) {
+            Glide.with(CarDetailActivity.this)
+                    .load(car.getPrimaryImage())
+                    .placeholder(R.drawable.intro_bg_1)
+                    .error(R.drawable.intro_bg_1)
+                    .into(mainCarImageView);
+
+            // If there are additional images, load them into thumbnails
+            if (car.getImages() != null && car.getImages().size() > 0) {
+                for (int i = 0; i < Math.min(car.getImages().size(), thumbnailViews.length); i++) {
+                    Glide.with(CarDetailActivity.this)
+                            .load(car.getImages().get(i))
+                            .placeholder(R.drawable.intro_bg_1)
+                            .error(R.drawable.intro_bg_1)
+                            .into(thumbnailViews[i]);
+                }
+            }
+
+            // Reset selection
+            currentImageIndex = 0;
+            updateThumbnailSelection();
+        }
+
+        // Update amenities
+        if (car.getAmenities() != null) {
+            // Initialize icon resources for each amenity
+            for (Amenity amenity : car.getAmenities()) {
+                amenity.initializeIconResource(this);
+            }
+            amenityAdapter.setAmenities(car.getAmenities());
+        }
+    }
+    private void setupThumbnailListeners(List<Map<String, Object>> images) {
+        if (images.size() > 0) {
+            thumbnail1.setOnClickListener(v -> {
+                String url = (String) images.get(0).get("url");
+                Glide.with(CarDetailActivity.this).load(url).into(mainCarImageView);
+            });
+        }
+
+        if (images.size() > 1) {
+            thumbnail2.setOnClickListener(v -> {
+                String url = (String) images.get(1).get("url");
+                Glide.with(CarDetailActivity.this).load(url).into(mainCarImageView);
+            });
+        }
+
+        if (images.size() > 2) {
+            thumbnail3.setOnClickListener(v -> {
+                String url = (String) images.get(2).get("url");
+                Glide.with(CarDetailActivity.this).load(url).into(mainCarImageView);
+            });
+        }
+    }
     private void applyRoundedCorners() {
         // Create rounded corners for all image views programmatically
         float cornerRadius = TypedValue.applyDimension(
@@ -118,67 +355,95 @@ public class CarDetailActivity extends AppCompatActivity {
         GradientDrawable thumbnail1Shape = new GradientDrawable();
         thumbnail1Shape.setCornerRadius(cornerRadius / 2);
         thumbnail1Shape.setColor(getResources().getColor(android.R.color.white));
-        thumbnailImage1.setBackground(thumbnail1Shape);
-        thumbnailImage1.setClipToOutline(true);
+        thumbnail1.setBackground(thumbnail1Shape);
+        thumbnail1.setClipToOutline(true);
 
         GradientDrawable thumbnail2Shape = new GradientDrawable();
         thumbnail2Shape.setCornerRadius(cornerRadius / 2);
         thumbnail2Shape.setColor(getResources().getColor(android.R.color.white));
-        thumbnailImage2.setBackground(thumbnail2Shape);
-        thumbnailImage2.setClipToOutline(true);
+        thumbnail2.setBackground(thumbnail2Shape);
+        thumbnail2.setClipToOutline(true);
 
         GradientDrawable thumbnail3Shape = new GradientDrawable();
         thumbnail3Shape.setCornerRadius(cornerRadius / 2);
         thumbnail3Shape.setColor(getResources().getColor(android.R.color.white));
-        thumbnailImage3.setBackground(thumbnail3Shape);
-        thumbnailImage3.setClipToOutline(true);
+        thumbnail3.setBackground(thumbnail3Shape);
+        thumbnail3.setClipToOutline(true);
     }
 
     private void setupImageGallery() {
+        // Initialize the thumbnail array
+        thumbnailViews = new ImageView[]{thumbnail1, thumbnail2, thumbnail3};
+
         // Set click listeners for thumbnail images
-        thumbnailImage1.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                changeMainImage(R.drawable.intro_bg_1);
-                updateThumbnailSelection(thumbnailImage1);
+        for (int i = 0; i < thumbnailViews.length; i++) {
+            final int index = i;
+            thumbnailViews[i].setOnClickListener(v -> {
+                currentImageIndex = index;
+                updateMainImage();
+                updateThumbnailSelection();
+            });
+        }
+
+        // Set up navigation buttons
+        ImageButton buttonPrevious = findViewById(R.id.buttonPrevious);
+        ImageButton buttonNext = findViewById(R.id.buttonNext);
+
+        buttonPrevious.setOnClickListener(v -> {
+            if (currentImageIndex > 0) {
+                currentImageIndex--;
+                updateMainImage();
+                updateThumbnailSelection();
             }
         });
 
-        thumbnailImage2.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                changeMainImage(R.drawable.intro_bg_2);
-                updateThumbnailSelection(thumbnailImage2);
+        buttonNext.setOnClickListener(v -> {
+            if (currentImageIndex < MAX_IMAGES - 1) {
+                currentImageIndex++;
+                updateMainImage();
+                updateThumbnailSelection();
             }
         });
 
-        thumbnailImage3.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                changeMainImage(R.drawable.intro_bg_3);
-                updateThumbnailSelection(thumbnailImage3);
-            }
-        });
-
-        // Set initial selection
-        updateThumbnailSelection(thumbnailImage1);
+        // Set initial image and selection
+        updateMainImage();
+        updateThumbnailSelection();
     }
+    private void updateMainImage() {
+        // Array of image resources or URLs to use
+        int[] imageResources = {
+                R.drawable.intro_bg_1,
+                R.drawable.intro_bg_2,
+                R.drawable.intro_bg_3
+        };
 
-    private void changeMainImage(int imageResourceId) {
-        // Add fade animation when changing image
+        // Change main image with animation
         mainCarImageView.setAlpha(0.3f);
-        mainCarImageView.setImageResource(imageResourceId);
+        mainCarImageView.setImageResource(imageResources[currentImageIndex]);
         mainCarImageView.animate()
                 .alpha(1.0f)
                 .setDuration(200)
                 .start();
     }
+    private void updateThumbnailSelection() {
+        // Reset all thumbnails to normal state
+        for (ImageView thumbnail : thumbnailViews) {
+            thumbnail.setAlpha(0.7f);
+            thumbnail.setScaleX(1.0f);
+            thumbnail.setScaleY(1.0f);
+        }
+
+        // Highlight current selected thumbnail
+        thumbnailViews[currentImageIndex].setAlpha(1.0f);
+        thumbnailViews[currentImageIndex].setScaleX(1.1f);
+        thumbnailViews[currentImageIndex].setScaleY(1.1f);
+    }
 
     private void updateThumbnailSelection(ImageView selectedThumbnail) {
         // Reset all thumbnails to normal state
-        resetThumbnailSelection(thumbnailImage1);
-        resetThumbnailSelection(thumbnailImage2);
-        resetThumbnailSelection(thumbnailImage3);
+        resetThumbnailSelection(thumbnail1);
+        resetThumbnailSelection(thumbnail2);
+        resetThumbnailSelection(thumbnail3);
 
         // Highlight selected thumbnail
         selectedThumbnail.setAlpha(1.0f);

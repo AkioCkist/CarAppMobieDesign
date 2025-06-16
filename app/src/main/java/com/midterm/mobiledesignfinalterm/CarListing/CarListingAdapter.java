@@ -9,25 +9,26 @@ import android.view.animation.OvershootInterpolator;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-
+import com.bumptech.glide.Glide;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.midterm.mobiledesignfinalterm.R;
+import com.midterm.mobiledesignfinalterm.models.Car;
 
 import java.util.List;
 
 public class CarListingAdapter extends RecyclerView.Adapter<CarListingAdapter.CarViewHolder> {
 
-    private List<CarListing.CarItem> carList;
+    private List<Car> carList;
     private OnCarItemClickListener listener;
 
     public interface OnCarItemClickListener {
-        void onRentalClick(CarListing.CarItem car);
-        void onFavoriteClick(CarListing.CarItem car, int position);
+        void onRentalClick(Car car);
+        void onFavoriteClick(Car car, int position);
     }
 
-    public CarListingAdapter(List<CarListing.CarItem> carList, OnCarItemClickListener listener) {
+    public CarListingAdapter(List<Car> carList, OnCarItemClickListener listener) {
         this.carList = carList;
         this.listener = listener;
     }
@@ -42,11 +43,12 @@ public class CarListingAdapter extends RecyclerView.Adapter<CarListingAdapter.Ca
 
     @Override
     public void onBindViewHolder(@NonNull CarViewHolder holder, int position) {
-        CarListing.CarItem car = carList.get(position);
+        Car car = carList.get(position);
         holder.bind(car, position);
 
         // Add entrance animation for each item
         animateItemEntrance(holder.itemView, position);
+
     }
 
     @Override
@@ -88,33 +90,43 @@ public class CarListingAdapter extends RecyclerView.Adapter<CarListingAdapter.Ca
         public CarViewHolder(@NonNull View itemView) {
             super(itemView);
 
-            textViewCarName = itemView.findViewById(R.id.textViewCarName);
-            textViewCarType = itemView.findViewById(R.id.textViewCarType);
-            textViewFuelType = itemView.findViewById(R.id.textViewFuelType);
-            textViewTransmission = itemView.findViewById(R.id.textViewTransmission);
-            textViewSeats = itemView.findViewById(R.id.textViewSeats);
-            textViewConsumption = itemView.findViewById(R.id.textViewConsumption);
-            textViewPrice = itemView.findViewById(R.id.textViewPrice);
-            textViewOriginalPrice = itemView.findViewById(R.id.textViewOriginalPrice);
-            imageViewCar = itemView.findViewById(R.id.imageViewCar);
+            textViewCarName = itemView.findViewById(R.id.tv_cardCarName);
+            textViewCarType = itemView.findViewById(R.id.tv_cardCarType);
+            textViewFuelType = itemView.findViewById(R.id.tv_CardFuelType);
+            textViewTransmission = itemView.findViewById(R.id.tv_CardTransmission);
+            textViewSeats = itemView.findViewById(R.id.tv_Seats);
+            textViewConsumption = itemView.findViewById(R.id.tv_cardConsumption);
+            textViewPrice = itemView.findViewById(R.id.tv_BasePrice);
+            //textViewOriginalPrice = itemView.findViewById(R.id.textViewOriginalPrice);
+            imageViewCar = itemView.findViewById(R.id.iv_primaryImageCar);
             imageViewFavorite = itemView.findViewById(R.id.imageViewFavorite);
-            buttonRentalNow = itemView.findViewById(R.id.buttonRentalNow);
+            buttonRentalNow = itemView.findViewById(R.id.btn_rentalNow);
         }
 
-        public void bind(CarListing.CarItem car, int position) {
+        public void bind(Car car, int position) {
             // Set car data
             textViewCarName.setText(car.getName());
-            textViewCarType.setText(car.getType());
+            textViewCarType.setText(car.getVehicleType());
             textViewFuelType.setText(car.getFuelType());
             textViewTransmission.setText(car.getTransmission());
-            textViewSeats.setText(car.getSeats());
-            textViewConsumption.setText(car.getConsumption());
-            textViewPrice.setText(car.getPrice());
-            textViewOriginalPrice.setText(car.getOriginalPrice());
-            imageViewCar.setImageResource(car.getImageResource());
+            textViewSeats.setText(car.getFormattedSeats());
+            textViewConsumption.setText(car.getFormattedConsumption());
+            textViewPrice.setText(car.getPriceFormatted() != null ? car.getPriceFormatted() : car.getBasePrice() + "VND");
 
+            // Load image from URL if available, otherwise use resource
+            if (car.getPrimaryImage() != null && !car.getPrimaryImage().isEmpty()) {
+                Glide.with(itemView.getContext())
+                        .load(car.getPrimaryImage())
+                        .placeholder(R.drawable.loading_spinner)
+                        .error(R.drawable.car_placeholder)
+                        .into(imageViewCar);
+            } else {
+                imageViewCar.setImageResource(R.drawable.car_placeholder);
+            }
             // Set favorite state
             updateFavoriteIcon(car.isFavorite());
+
+
 
             // Set click listeners
             imageViewFavorite.setOnClickListener(new View.OnClickListener() {
@@ -196,13 +208,13 @@ public class CarListingAdapter extends RecyclerView.Adapter<CarListingAdapter.Ca
     }
 
     // Method to update the list (for search/filter functionality)
-    public void updateList(List<CarListing.CarItem> newList) {
+    public void updateList(List<Car> newList) {
         this.carList = newList;
         notifyDataSetChanged();
     }
 
     // Method to add new items (for pagination)
-    public void addItems(List<CarListing.CarItem> newItems) {
+    public void addItems(List<Car> newItems) {
         int startPosition = carList.size();
         carList.addAll(newItems);
         notifyItemRangeInserted(startPosition, newItems.size());

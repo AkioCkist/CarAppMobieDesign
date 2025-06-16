@@ -4,8 +4,10 @@ import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.animation.OvershootInterpolator;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -13,7 +15,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-
+import android.view.ViewGroup;
+import android.widget.TextView;
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
@@ -23,10 +26,15 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.midterm.mobiledesignfinalterm.R;
+import com.midterm.mobiledesignfinalterm.api.CarApiService;
+import com.midterm.mobiledesignfinalterm.api.RetrofitClient;
 import com.midterm.mobiledesignfinalterm.authentication.Login;
+import com.midterm.mobiledesignfinalterm.models.ApiResponse;
+import com.midterm.mobiledesignfinalterm.models.Car;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class CarListing extends AppCompatActivity {
 
@@ -54,14 +62,16 @@ public class CarListing extends AppCompatActivity {
 
     // Car data
     private CarListingAdapter carAdapter;
-    private List<CarItem> carList;
-    private List<CarItem> filteredCarList;
+    private List<Car> carList;
+    private List<Car> filteredCarList;
 
     // Thông tin thời gian và địa điểm
-    private String pickupTime = "21:00 21/6/2025";
-    private String returnTime = "19:00 23/6/2025";
-    private String pickupLocation = "123 Main St, Đà Nẵng";
-    private String returnLocation = "123 Main St, Đà Nẵng";
+    private String pickupTime;
+    private String pickupDate;
+    private String dropoffDate;
+    private String dropoffTime;
+    private String pickupLocation;
+    private String dropoffLocation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,7 +87,6 @@ public class CarListing extends AppCompatActivity {
 
         // Get user information from intent
         getUserInfoFromIntent();
-
         // Initialize views and setup
         initializeViews();
         setupClickListeners();
@@ -85,15 +94,16 @@ public class CarListing extends AppCompatActivity {
         displayUserInfo();
         updateDateTimeLocationButton();
         loadCarData();
-
         // Initial animations
         animateInitialEntrance();
-
         // Initialize dropdown as hidden
         dropdownMenu.setVisibility(View.GONE);
         dropdownMenu.setAlpha(0f);
         dropdownMenu.setTranslationY(-20f);
-
+        if (pickupLocation != null && !pickupLocation.isEmpty()) {
+            // Apply initial location filtering if a location was passed in the intent
+            handleFilterByLocation();
+        }
         // Show welcome message
         if (userName != null && !userName.isEmpty()) {
             Toast.makeText(this, "Welcome to Car Listing, " + userName + "!", Toast.LENGTH_SHORT).show();
@@ -106,6 +116,12 @@ public class CarListing extends AppCompatActivity {
             userPhone = intent.getStringExtra("user_phone");
             userName = intent.getStringExtra("user_name");
             userRoles = intent.getStringArrayListExtra("user_roles");
+            pickupLocation = intent.getStringExtra("pickup_location");
+            dropoffLocation = intent.getStringExtra("dropoff_location");
+            pickupDate = intent.getStringExtra("pickup_date");
+            pickupTime = intent.getStringExtra("pickup_time");
+            dropoffDate = intent.getStringExtra("dropoff_date");
+            dropoffTime = intent.getStringExtra("dropoff_time");
         }
     }
 
@@ -128,10 +144,46 @@ public class CarListing extends AppCompatActivity {
     }
 
     private void updateDateTimeLocationButton() {
-        // Format: Đà Nẵng --- Đà Nẵng\n12:00 21/07/2025 --- 12:00 31/07/2025
-        String buttonText = pickupLocation + " --- " + returnLocation + "\n"
-                + pickupTime + " --- " + returnTime;
-        buttonDateTime.setText(buttonText);
+        String formattedText = formatDateTimeLocationText(
+                pickupLocation, dropoffLocation,
+                pickupTime, pickupDate,
+                dropoffTime, dropoffDate);
+        buttonDateTime.setText(formattedText);
+    }
+
+    private String formatDateTimeLocationText(
+            String pickupLocation, String dropoffLocation,
+            String pickupTime, String pickupDate,
+            String dropoffTime, String dropoffDate) {
+
+        StringBuilder sb = new StringBuilder();
+
+        // First line: Pickup Location --- Dropoff Location
+        if (pickupLocation != null && dropoffLocation != null) {
+            sb.append(pickupLocation)
+                    .append(" --- ")
+                    .append(dropoffLocation);
+        } else {
+            sb.append("Location not specified");
+        }
+
+        // Add newline
+        sb.append("\n");
+
+        // Second line: Pickup Time, Pickup Date --- Dropoff Time, Dropoff Date
+        if (pickupTime != null && pickupDate != null && dropoffTime != null && dropoffDate != null) {
+            sb.append(pickupTime)
+                    .append(", ")
+                    .append(pickupDate)
+                    .append(" --- ")
+                    .append(dropoffTime)
+                    .append(", ")
+                    .append(dropoffDate);
+        } else {
+            sb.append("Time and date not specified");
+        }
+
+        return sb.toString();
     }
 
     private void setupClickListeners() {
@@ -154,8 +206,9 @@ public class CarListing extends AppCompatActivity {
         buttonDateTime.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Log.d("CarListing", "DEBUG: Filtering by location: '" + pickupLocation + "'");
                 animateButtonClick(v);
-                handleDateTimeLocationSetting();
+                showDateTimeLocationDialog();
             }
         });
 
@@ -222,12 +275,12 @@ public class CarListing extends AppCompatActivity {
 
         carAdapter = new CarListingAdapter(filteredCarList, new CarListingAdapter.OnCarItemClickListener() {
             @Override
-            public void onRentalClick(CarItem car) {
+            public void onRentalClick(Car car) {
                 handleRentalNow(car);
             }
 
             @Override
-            public void onFavoriteClick(CarItem car, int position) {
+            public void onFavoriteClick(Car car, int position) {
                 handleFavoriteToggle(car, position);
             }
         });
@@ -246,31 +299,186 @@ public class CarListing extends AppCompatActivity {
         }
     }
 
-    private void loadCarData() {
-        // Simulate API call - replace with actual API integration
-        carList.clear();
+    private void handleFilterByLocation() {
+        Log.d("CarListing", "DEBUG: Filtering by location: '" + pickupLocation + "'");
 
-        // Sample car data - replace with API response
-        carList.add(new CarItem("All New Rush", "SUV", "Xăng", "Số sàn", "6 People",
-                "5L/100km", "$72.00", "$80.00", R.drawable.tesla_model_x, false));
-
-        carList.add(new CarItem("CR - V", "SUV", "Xăng", "Số sàn", "6 People",
-                "5L/100km", "$80.00", "$90.00", R.drawable.tesla_model_3, true));
-
-        carList.add(new CarItem("Tesla Model S", "Sedan", "Electric", "Auto", "5 People",
-                "0L/100km", "$95.00", "$110.00", R.drawable.tesla_model_x, false));
-
-        carList.add(new CarItem("BMW X5", "SUV", "Xăng", "Auto", "7 People",
-                "8L/100km", "$120.00", "$140.00", R.drawable.tesla_model_3, false));
-
-        // Update filtered list and adapter
+        // Clear the filtered list
         filteredCarList.clear();
-        filteredCarList.addAll(carList);
-        carAdapter.notifyDataSetChanged();
 
-        // Update car count
+        // If pickup location is not specified or empty, show all cars
+        if (pickupLocation == null || pickupLocation.isEmpty() || "All Locations".equals(pickupLocation) || "Current Location".equals(pickupLocation)) {
+            filteredCarList.addAll(carList);
+            Log.d("CarListing", "Showing all cars because location is empty or 'All Locations'");
+        } else {
+            // Filter cars that match the pickup location
+            for (Car car : carList) {
+                String carLocation = car.getLocation();
+                if (carLocation != null && matchesCity(carLocation, pickupLocation)) {
+                    filteredCarList.add(car);
+                    Log.d("CarListing", "Added car with location: " + carLocation);
+                }
+            }
+        }
+
+        // Update the UI
+        carAdapter.notifyDataSetChanged();
         textViewCarCount.setText("Found " + filteredCarList.size() + " cars");
+
+        // Show a message if no cars found with the selected location
+        if (filteredCarList.isEmpty() && !carList.isEmpty()) {
+            Toast.makeText(this, "No cars available in " + pickupLocation, Toast.LENGTH_SHORT).show();
+        }
     }
+
+    // Helper method to match city names
+    private boolean matchesCity(String carLocation, String selectedCity) {
+        // Handle "Hồ Chí Minh" vs "TP.HCM" special case
+        if ((selectedCity.equals("TP.HCM") || selectedCity.equals("Hồ Chí Minh")) &&
+                (carLocation.contains("TP.HCM") || carLocation.contains("Hồ Chí Minh"))) {
+            return true;
+        }
+
+        // Extract city name from car location (format is typically "City - Address")
+        String[] parts = carLocation.split(" - ", 2);
+        if (parts.length > 0) {
+            String cityPart = parts[0].trim();
+            return cityPart.equals(selectedCity) ||
+                    cityPart.contains(selectedCity) ||
+                    selectedCity.contains(cityPart);
+        }
+
+        return carLocation.contains(selectedCity) || selectedCity.contains(carLocation);
+    }
+    private void loadCarData() {
+        // Show loading indicator
+        View loadingView = findViewById(R.id.loadingView);
+        if (loadingView != null) {
+            loadingView.setVisibility(View.VISIBLE);
+        }
+
+        // Use RetrofitClient to call API
+        CarApiService apiService = RetrofitClient.getCarApiService();
+
+        // Call the API to get all cars with status "available"
+        apiService.getAllCars(null, null, "available").enqueue(new retrofit2.Callback<Map<String, Object>>() {
+            @Override
+            public void onResponse(retrofit2.Call<Map<String, Object>> call, retrofit2.Response<Map<String, Object>> response) {
+                if (loadingView != null) {
+                    loadingView.setVisibility(View.GONE);
+                }
+
+                if (response.isSuccessful() && response.body() != null) {
+                    try {
+                        // Parse the response
+                        Map<String, Object> responseMap = response.body();
+                        List<Map<String, Object>> records = (List<Map<String, Object>>) responseMap.get("records");
+
+                        // Clear existing data
+                        carList.clear();
+                        filteredCarList.clear();
+
+                        // Process each car record
+                        for (Map<String, Object> carMap : records) {
+                            Car car = new Car();
+
+                            // Handle integer fields safely
+                            if (carMap.get("id") instanceof Number) {
+                                car.setVehicleId(((Number) carMap.get("id")).intValue());
+                            }
+
+                            car.setName((String) carMap.get("name"));
+
+                            // Handle float fields safely
+                            if (carMap.get("rating") instanceof Number) {
+                                car.setRating(((Number) carMap.get("rating")).floatValue());
+                            }
+
+                            // Handle integer fields safely
+                            if (carMap.get("trips") instanceof Number) {
+                                car.setTotalTrips(((Number) carMap.get("trips")).intValue());
+                            }
+
+                            car.setLocation((String) carMap.get("location"));
+                            car.setTransmission((String) carMap.get("transmission"));
+
+                            // Handle integer fields safely
+                            if (carMap.get("seats") instanceof Number) {
+                                car.setSeats(((Number) carMap.get("seats")).intValue());
+                            }
+
+                            car.setFuelType((String) carMap.get("fuel"));
+
+                            // Handle double fields safely
+                            if (carMap.get("base_price") instanceof Number) {
+                                car.setBasePrice(((Number) carMap.get("base_price")).doubleValue());
+                            }
+
+                            car.setPriceFormatted((String) carMap.get("price_formatted"));
+                            car.setVehicleType((String) carMap.get("vehicle_type"));
+                            car.setDescription((String) carMap.get("description"));
+                            car.setStatus((String) carMap.get("status"));
+                            car.setFavorite((Boolean) carMap.get("is_favorite"));
+                            car.setFavoriteForUser((Boolean) carMap.get("is_favorite_for_user"));
+                            car.setLessorName((String) carMap.get("lessor_name"));
+                            car.setPrimaryImage((String) carMap.get("primary_image"));
+                            car.setFuel_consumption((String) carMap.get("fuel_consumption"));
+                            car.setBrandCar((String) carMap.get("brand"));
+
+                            // Process amenities if available
+                            if (carMap.containsKey("amenities") && carMap.get("amenities") instanceof List) {
+                                List<Map<String, Object>> amenitiesList = (List<Map<String, Object>>) carMap.get("amenities");
+                                List<com.midterm.mobiledesignfinalterm.CarDetail.Amenity> carAmenities = new ArrayList<>();
+
+                                for (Map<String, Object> amenityMap : amenitiesList) {
+                                    int id = ((Number) amenityMap.get("id")).intValue();
+                                    String name = (String) amenityMap.get("name");
+                                    String icon = (String) amenityMap.get("icon");
+                                    String description = (String) amenityMap.get("description");
+
+                                    carAmenities.add(new com.midterm.mobiledesignfinalterm.CarDetail.Amenity(id, name, icon, description));
+                                }
+                                car.setAmenities(carAmenities);
+                            }
+
+                            carList.add(car);
+                        }
+
+                        // Update filtered list
+                        filteredCarList.addAll(carList);
+
+                        // Update UI
+                        runOnUiThread(() -> {
+                            carAdapter.notifyDataSetChanged();
+                            textViewCarCount.setText("Found " + filteredCarList.size() + " cars");
+
+                            // Apply location filter if needed
+                            if (pickupLocation != null && !pickupLocation.isEmpty()) {
+                                handleFilterByLocation();
+                            }
+                        });
+
+                    } catch (Exception e) {
+                        Log.e("CarListing", "Error parsing response: " + e.getMessage(), e);
+                        Toast.makeText(CarListing.this, "Error parsing data", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Toast.makeText(CarListing.this, "Failed to fetch car data", Toast.LENGTH_SHORT).show();
+                    Log.e("CarListing", "API response error: " + response.code());
+                }
+            }
+
+            @Override
+            public void onFailure(retrofit2.Call<Map<String, Object>> call, Throwable t) {
+                if (loadingView != null) {
+                    loadingView.setVisibility(View.GONE);
+                }
+                Toast.makeText(CarListing.this, "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                Log.e("CarListing", "API call failed", t);
+            }
+        });
+    }
+
+
 
     // Click handlers
     private void handleDateTimeLocationSetting() {
@@ -287,41 +495,133 @@ public class CarListing extends AppCompatActivity {
         // Location spinners
         android.widget.Spinner spinnerPickupLocation = dialogView.findViewById(R.id.spinnerPickupLocation);
         android.widget.Spinner spinnerReturnLocation = dialogView.findViewById(R.id.spinnerReturnLocation);
+
         // Time buttons
         Button btnPickupTime = dialogView.findViewById(R.id.btnPickupTime);
         Button btnReturnTime = dialogView.findViewById(R.id.btnReturnTime);
+
         // Confirm button
         Button btnConfirm = dialogView.findViewById(R.id.btnConfirm);
         Button btnCancel = dialogView.findViewById(R.id.btnCancel);
 
-        // Setup location options
-        String[] locations = {"Đà Nẵng", "Hồ Chí Minh", "Hà Nội"};
-        android.widget.ArrayAdapter<String> adapter = new android.widget.ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, locations);
+        // Change text color for buttons
+        btnPickupTime.setTextColor(android.graphics.Color.BLACK);
+        btnReturnTime.setTextColor(android.graphics.Color.BLACK);
+        btnConfirm.setTextColor(android.graphics.Color.BLACK);
+        btnCancel.setTextColor(android.graphics.Color.BLACK);
+
+        // Setup location options with custom adapter for black text
+        // Add "All Locations" as the first option
+        String[] locations = {"All Locations", "Đà Nẵng", "TP.HCM", "Hà Nội"};
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(
+                this,
+                R.layout.item_spinner_location,
+                locations
+        ) {
+            @Override
+            public View getView(int position, View convertView, ViewGroup parent) {
+                TextView textView = (TextView) super.getView(position, convertView, parent);
+                textView.setTextColor(android.graphics.Color.BLACK);
+                return textView;
+            }
+
+            @Override
+            public View getDropDownView(int position, View convertView, ViewGroup parent) {
+                TextView textView = (TextView) super.getDropDownView(position, convertView, parent);
+                textView.setTextColor(android.graphics.Color.BLACK);
+                return textView;
+            }
+        };
+
         spinnerPickupLocation.setAdapter(adapter);
         spinnerReturnLocation.setAdapter(adapter);
-        // Set current selection
-        spinnerPickupLocation.setSelection(java.util.Arrays.asList(locations).indexOf(pickupLocation));
-        spinnerReturnLocation.setSelection(java.util.Arrays.asList(locations).indexOf(returnLocation));
+
+        // Store the current location to compare later
+        String previousPickupLocation = pickupLocation;
+
+        // Set current selection if available
+        if (pickupLocation != null && !pickupLocation.isEmpty() && !"All Locations".equals(pickupLocation)) {
+            int pickupIndex = findLocationIndex(locations, pickupLocation);
+            if (pickupIndex != -1) {
+                spinnerPickupLocation.setSelection(pickupIndex);
+            }
+        } else {
+            // Select "All Locations" by default
+            spinnerPickupLocation.setSelection(0);
+        }
+
+        if (dropoffLocation != null && !dropoffLocation.isEmpty() && !"All Locations".equals(dropoffLocation)) {
+            int dropoffIndex = findLocationIndex(locations, dropoffLocation);
+            if (dropoffIndex != -1) {
+                spinnerReturnLocation.setSelection(dropoffIndex);
+            }
+        } else {
+            // Default dropoff to pickup if not set or set to all locations
+            spinnerReturnLocation.setSelection(spinnerPickupLocation.getSelectedItemPosition());
+        }
 
         // Set current time
-        btnPickupTime.setText(pickupTime);
-        btnReturnTime.setText(returnTime);
+        btnPickupTime.setText(pickupTime != null ? pickupTime : "Select Time");
+        btnReturnTime.setText(dropoffTime != null ? dropoffTime : "Select Time");
+
+        // Create dialog first so we can reference it
+        android.app.AlertDialog dialog = builder.create();
+        dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+
+        // Store dialog reference in button tags for later access
+        btnPickupTime.setTag(dialog);
+        btnReturnTime.setTag(dialog);
 
         // Time pickers
         btnPickupTime.setOnClickListener(v -> showDateTimePicker(btnPickupTime));
         btnReturnTime.setOnClickListener(v -> showDateTimePicker(btnReturnTime));
 
-        android.app.AlertDialog dialog = builder.create();
+        // Instead of using CheckBox, we'll use a simple check for same location
+        boolean sameLocation = (pickupLocation != null &&
+                dropoffLocation != null &&
+                pickupLocation.equals(dropoffLocation));
+
         btnConfirm.setOnClickListener(v -> {
+            // Get selected pickup location
             pickupLocation = spinnerPickupLocation.getSelectedItem().toString();
-            returnLocation = spinnerReturnLocation.getSelectedItem().toString();
-            pickupTime = btnPickupTime.getText().toString();
-            returnTime = btnReturnTime.getText().toString();
+
+            // Get return location (we don't have a checkbox, so just get the selected item)
+            dropoffLocation = spinnerReturnLocation.getSelectedItem().toString();
+
+            // Update the button text
             updateDateTimeLocationButton();
+
+            // Apply the location filter if location changed
+            if (!pickupLocation.equals(previousPickupLocation)) {
+                handleFilterByLocation();
+            }
+
             dialog.dismiss();
         });
+
         btnCancel.setOnClickListener(v -> dialog.dismiss());
+
         dialog.show();
+    }
+
+    // Helper method to find location index in array
+    private int findLocationIndex(String[] locations, String location) {
+        if (location == null) return -1;
+
+        // Handle different location formats
+        String normalizedLocation = location;
+        if (location.contains(" - ")) {
+            normalizedLocation = location.split(" - ")[0]; // Extract city name before dash
+        }
+
+        for (int i = 0; i < locations.length; i++) {
+            if (locations[i].equals(normalizedLocation) ||
+                    normalizedLocation.contains(locations[i]) ||
+                    locations[i].contains(normalizedLocation)) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     private void showDateTimePicker(Button targetButton) {
@@ -330,42 +630,111 @@ public class CarListing extends AppCompatActivity {
         java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("HH:mm dd/MM/yyyy");
         java.util.Calendar calendar = java.util.Calendar.getInstance();
         try { calendar.setTime(sdf.parse(current)); } catch (Exception ignored) {}
-        int year = calendar.get(java.util.Calendar.YEAR);
-        int month = calendar.get(java.util.Calendar.MONTH);
-        int day = calendar.get(java.util.Calendar.DAY_OF_MONTH);
-        int hour = calendar.get(java.util.Calendar.HOUR_OF_DAY);
-        int minute = calendar.get(java.util.Calendar.MINUTE);
-        android.app.DatePickerDialog datePicker = new android.app.DatePickerDialog(this, (view, y, m, d) -> {
-            android.app.TimePickerDialog timePicker = new android.app.TimePickerDialog(this, (tp, h, min) -> {
-                java.util.Calendar cal = java.util.Calendar.getInstance();
-                cal.set(y, m, d, h, min);
-                targetButton.setText(sdf.format(cal.getTime()));
-            }, hour, minute, true);
-            timePicker.show();
-        }, year, month, day);
-        datePicker.show();
+        // Directly show Material date picker for the button that was clicked
+        showMaterialDatePicker(targetButton, calendar);
+    }
+    private void showMaterialDatePicker(Button targetButton, java.util.Calendar calendar) {
+        // Create constraints to limit date selection
+        // Setting minimum date to today to prevent selecting past dates
+        java.util.Calendar minDate = java.util.Calendar.getInstance();
+
+        // Create the date picker builder
+        com.google.android.material.datepicker.MaterialDatePicker.Builder<Long> builder =
+                com.google.android.material.datepicker.MaterialDatePicker.Builder.datePicker();
+        if (targetButton.getId() == R.id.btnPickupTime) {
+            builder.setTitleText("Select Pickup Date");
+        } else {
+            builder.setTitleText("Select Return Date");
+        }
+        builder.setSelection(calendar.getTimeInMillis());
+        builder.setCalendarConstraints(new com.google.android.material.datepicker.CalendarConstraints.Builder()
+                .setValidator(com.google.android.material.datepicker.DateValidatorPointForward.from(minDate.getTimeInMillis()))
+                .build());
+
+        // Apply custom dark theme
+        builder.setTheme(R.style.CustomMaterialCalendar);
+
+        // Create and customize the date picker
+        com.google.android.material.datepicker.MaterialDatePicker<Long> datePicker = builder.build();
+
+        // Set up the positive button click listener
+        datePicker.addOnPositiveButtonClickListener(selection -> {
+            calendar.setTimeInMillis(selection);
+
+            // After date is selected, show time picker for the SAME button that was clicked
+            showMaterialTimePicker(targetButton, calendar);
+        });
+        // Show the date picker with a subtle animation
+        datePicker.show(getSupportFragmentManager(), "DATE_PICKER");
     }
 
+    private void showMaterialTimePicker(Button targetButton, java.util.Calendar calendar) {
+        int hour = calendar.get(java.util.Calendar.HOUR_OF_DAY);
+        int minute = calendar.get(java.util.Calendar.MINUTE);
+
+        // Create the Material TimePicker
+        com.google.android.material.timepicker.MaterialTimePicker.Builder builder =
+                new com.google.android.material.timepicker.MaterialTimePicker.Builder()
+                        .setTimeFormat(com.google.android.material.timepicker.TimeFormat.CLOCK_24H)
+                        .setHour(hour)
+                        .setMinute(minute)
+                        .setTheme(R.style.CustomMaterialTimePicker); // Apply custom dark theme
+        // Set different title based on which button was clicked
+        if (targetButton.getId() == R.id.btnPickupTime) {
+            builder.setTitleText("Select Pickup Time");
+        } else {
+            builder.setTitleText("Select Return Time");
+        }
+        com.google.android.material.timepicker.MaterialTimePicker timePicker = builder.build();
+
+        // Set up listeners for the time picker
+        timePicker.addOnPositiveButtonClickListener(view -> {
+            calendar.set(java.util.Calendar.HOUR_OF_DAY, timePicker.getHour());
+            calendar.set(java.util.Calendar.MINUTE, timePicker.getMinute());
+
+            java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("HH:mm dd/MM/yyyy");
+            targetButton.setText(sdf.format(calendar.getTime()));
+
+            // Check if this is pickup time and adjust dropoff if needed
+            Button btnReturnTime = ((android.app.AlertDialog)targetButton.getTag()).findViewById(R.id.btnReturnTime);
+
+            if (targetButton.getId() == R.id.btnPickupTime && btnReturnTime != null) {
+                String returnTimeStr = btnReturnTime.getText().toString();
+                java.util.Calendar returnCal = java.util.Calendar.getInstance();
+                try {
+                    returnCal.setTime(sdf.parse(returnTimeStr));
+                    // If return date/time is before pickup date/time, adjust it
+                    if (returnCal.before(calendar)) {
+                        // Set return time to 1 hour after pickup
+                        returnCal.setTimeInMillis(calendar.getTimeInMillis());
+                        returnCal.add(java.util.Calendar.HOUR_OF_DAY, 1);
+                        btnReturnTime.setText(sdf.format(returnCal.getTime()));
+                        Toast.makeText(CarListing.this, "Return time adjusted to be after pickup time", Toast.LENGTH_SHORT).show();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        // Show the time picker
+        timePicker.show(getSupportFragmentManager(), "TIME_PICKER");
+    }
+    private boolean isSameDay(java.util.Calendar cal1, java.util.Calendar cal2) {
+        return cal1.get(java.util.Calendar.YEAR) == cal2.get(java.util.Calendar.YEAR) &&
+                cal1.get(java.util.Calendar.DAY_OF_YEAR) == cal2.get(java.util.Calendar.DAY_OF_YEAR);
+    }
     private void handleFilterOptions() {
         // TODO: Open filter options dialog
         Toast.makeText(this, "Filter options - Coming soon", Toast.LENGTH_SHORT).show();
     }
 
-    private void handleRentalNow(CarItem car) {
+    private void handleRentalNow(Car car) {
         // Navigate to Car Detail activity
         Toast.makeText(this, "Opening details for " + car.getName(), Toast.LENGTH_SHORT).show();
 
         // Create intent and pass car data to CarDetailActivity
         Intent intent = new Intent(CarListing.this, com.midterm.mobiledesignfinalterm.CarDetail.CarDetailActivity.class);
-        intent.putExtra("car_name", car.getName());
-        intent.putExtra("car_type", car.getType());
-        intent.putExtra("car_fuel", car.getFuelType());
-        intent.putExtra("car_transmission", car.getTransmission());
-        intent.putExtra("car_seats", car.getSeats());
-        intent.putExtra("car_consumption", car.getConsumption());
-        intent.putExtra("car_price", car.getPrice());
-        intent.putExtra("car_original_price", car.getOriginalPrice());
-        intent.putExtra("car_image", car.getImageResource());
+        intent.putExtra("car_id", car.getVehicleId());
 
         // Pass user information
         intent.putExtra("user_phone", userPhone);
@@ -373,14 +742,16 @@ public class CarListing extends AppCompatActivity {
 
         // Pass booking details
         intent.putExtra("pickup_time", pickupTime);
-        intent.putExtra("return_time", returnTime);
+        intent.putExtra("pickup_date", pickupDate);
+        intent.putExtra("dropoff_time", dropoffTime);
+        intent.putExtra("dropoff_date", dropoffDate);
         intent.putExtra("pickup_location", pickupLocation);
-        intent.putExtra("return_location", returnLocation);
+        intent.putExtra("dropoff_location", dropoffLocation);
 
         startActivity(intent);
     }
 
-    private void handleFavoriteToggle(CarItem car, int position) {
+    private void handleFavoriteToggle(Car car, int position) {
         car.setFavorite(!car.isFavorite());
         carAdapter.notifyItemChanged(position);
 
@@ -548,7 +919,7 @@ public class CarListing extends AppCompatActivity {
     }
 
     public String getReturnTime() {
-        return returnTime;
+        return dropoffTime;
     }
 
     public String getPickupLocation() {
@@ -556,7 +927,7 @@ public class CarListing extends AppCompatActivity {
     }
 
     public String getReturnLocation() {
-        return returnLocation;
+        return dropoffLocation;
     }
 
     // Setter methods to update time and location
@@ -566,7 +937,7 @@ public class CarListing extends AppCompatActivity {
     }
 
     public void setReturnTime(String returnTime) {
-        this.returnTime = returnTime;
+        this.dropoffTime = returnTime;
         updateDateTimeLocationButton();
     }
 
@@ -576,68 +947,8 @@ public class CarListing extends AppCompatActivity {
     }
 
     public void setReturnLocation(String returnLocation) {
-        this.returnLocation = returnLocation;
+        this.dropoffLocation = returnLocation;
         updateDateTimeLocationButton();
-    }
-
-    // Car Item Data Class
-    public static class CarItem {
-        private String name;
-        private String type;
-        private String fuelType;
-        private String transmission;
-        private String seats;
-        private String consumption;
-        private String price;
-        private String originalPrice;
-        private int imageResource;
-        private boolean isFavorite;
-
-        public CarItem(String name, String type, String fuelType, String transmission,
-                       String seats, String consumption, String price, String originalPrice,
-                       int imageResource, boolean isFavorite) {
-            this.name = name;
-            this.type = type;
-            this.fuelType = fuelType;
-            this.transmission = transmission;
-            this.seats = seats;
-            this.consumption = consumption;
-            this.price = price;
-            this.originalPrice = originalPrice;
-            this.imageResource = imageResource;
-            this.isFavorite = isFavorite;
-        }
-
-        // Getters and Setters
-        public String getName() { return name; }
-        public void setName(String name) { this.name = name; }
-
-        public String getType() { return type; }
-        public void setType(String type) { this.type = type; }
-
-        public String getFuelType() { return fuelType; }
-        public void setFuelType(String fuelType) { this.fuelType = fuelType; }
-
-        public String getTransmission() { return transmission; }
-        public void setTransmission(String transmission) { this.transmission = transmission; }
-
-        public String getSeats() { return seats; }
-        public void setSeats(String seats) { this.seats = seats; }
-
-        public String getConsumption() { return consumption; }
-        public void setConsumption(String consumption) { this.consumption = consumption; }
-
-        public String getPrice() { return price; }
-        public void setPrice(String price) { this.price = price; }
-
-        public String getOriginalPrice() { return originalPrice; }
-        public void setOriginalPrice(String originalPrice) { this.originalPrice = originalPrice; }
-
-        public int getImageResource() { return imageResource; }
-        public void setImageResource(int imageResource) { this.imageResource = imageResource; }
-
-        public boolean isFavorite() { return isFavorite; }
-        public void setFavorite(boolean favorite) { isFavorite = favorite; }
     }
 }
 

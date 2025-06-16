@@ -11,34 +11,42 @@
         android:layout_height="wrap_content"
         android:text="Địa điểm nhận xe"
         android:textStyle="bold"
-        android:textColor="#222222"
+        android:textColor="#FFFFFF"
         android:layout_marginTop="8dp"/>
     <Spinner
         android:id="@+id/spinnerPickupLocation"
         android:layout_width="match_parent"
-        android:layout_height="40dp"
-        android:layout_marginBottom="12dp"
-        android:backgroundTint="#222222"/>
+        android:layout_height="35dp"
+        android:background="@drawable/bg_spinner_white_rounded"
+        android:popupBackground="@drawable/bg_spinner_white_rounded"
+        style="@style/CustomSpinnerStyle"
+        android:spinnerMode="dropdown"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"/>
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Địa điểm trả xe"
         android:textStyle="bold"
-        android:textColor="#222222"/>
+        android:textColor="#FFFFFF"/>
     <Spinner
         android:id="@+id/spinnerReturnLocation"
         android:layout_width="match_parent"
-        android:layout_height="40dp"
-        android:layout_marginBottom="12dp"
-        android:backgroundTint="#222222"/>
+        android:layout_height="35dp"
+        android:background="@drawable/bg_spinner_white_rounded"
+        android:popupBackground="@drawable/bg_spinner_white_rounded"
+        style="@style/CustomSpinnerStyle"
+        android:spinnerMode="dropdown"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"/>
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Thời gian nhận xe"
         android:textStyle="bold"
-        android:textColor="#222222"/>
+        android:textColor="#FFFFFF"/>
     <Button
         android:id="@+id/btnPickupTime"
         android:layout_width="match_parent"
@@ -46,14 +54,14 @@
         android:layout_marginBottom="12dp"
         android:text="Chọn thời gian nhận"
         android:textColor="#222222"
-        android:backgroundTint="#8BC34A"/>
+        android:backgroundTint="@color/green_primary"/>
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Thời gian trả xe"
         android:textStyle="bold"
-        android:textColor="#222222"/>
+        android:textColor="#FFFFFF"/>
     <Button
         android:id="@+id/btnReturnTime"
         android:layout_width="match_parent"
@@ -61,7 +69,7 @@
         android:layout_marginBottom="16dp"
         android:text="Chọn thời gian trả"
         android:textColor="#222222"
-        android:backgroundTint="#8BC34A"/>
+        android:backgroundTint="@color/green_primary"/>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -82,6 +90,6 @@
             android:text="Xác nhận"
             android:layout_marginStart="16dp"
             android:textColor="#000000"
-            android:backgroundTint="#8BC34A"/>
+            android:backgroundTint="@color/green_primary"/>
     </LinearLayout>
 </LinearLayout>
