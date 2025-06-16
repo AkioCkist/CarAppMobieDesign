@@ -49,4 +49,7 @@ dependencies {
     implementation ("org.mindrot:jbcrypt:0.4")
     implementation ("com.android.volley:volley:1.2.1")
     implementation ("de.hdodenhof:circleimageview:3.1.0")
+    implementation("com.itextpdf:itext7-core:7.2.5")
 }
+
+
