@@ -115,7 +115,8 @@
                 android:layout_height="24dp"
                 android:layout_alignParentStart="true"
                 android:layout_centerVertical="true"
-                android:src="@drawable/arrow_left" />
+                android:src="@drawable/arrow_left"
+                android:layout_marginRight="20dp"/>
 
             <!-- Search EditText -->
             <EditText
@@ -124,7 +125,6 @@
                 android:layout_weight="1"
                 android:layout_height="48dp"
                 android:background="@drawable/search_background"
-                android:backgroundTint="#222126"
                 android:drawableStart="@drawable/ic_search"
                 android:drawablePadding="12dp"
                 android:hint="Search something here"
