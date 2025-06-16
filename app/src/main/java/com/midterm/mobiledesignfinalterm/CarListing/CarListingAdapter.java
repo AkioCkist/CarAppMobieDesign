@@ -5,6 +5,8 @@ import android.animation.ObjectAnimator;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.DecelerateInterpolator;
 import android.view.animation.OvershootInterpolator;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -24,6 +26,7 @@ public class CarListingAdapter extends RecyclerView.Adapter<CarListingAdapter.Ca
     private OnCarItemClickListener listener;
     private int lastAnimatedPosition = -1;
     private boolean animationsEnabled = true;
+    private boolean isScrollingUp = false;
 
     public interface OnCarItemClickListener {
         void onRentalClick(Car car);
@@ -50,7 +53,12 @@ public class CarListingAdapter extends RecyclerView.Adapter<CarListingAdapter.Ca
 
         // Only animate new items in view (not already animated or during fast scroll)
         if (animationsEnabled && position > lastAnimatedPosition) {
-            animateItemEntrance(holder.itemView, position);
+            // Use pull-up animation when scrolling up
+            if (isScrollingUp) {
+                animatePullUp(holder.itemView, position);
+            } else {
+                animateItemEntrance(holder.itemView, position);
+            }
             lastAnimatedPosition = position;
         } else {
             // Reset view properties for recycled views without animation
@@ -74,17 +82,52 @@ public class CarListingAdapter extends RecyclerView.Adapter<CarListingAdapter.Ca
         // Calculate shorter delay based on position but with a maximum cap
         long delay = Math.min(position * 50, 200);
 
-        // Simplify the animation for better performance
-        view.setAlpha(0.8f);
-        view.setTranslationY(50f);
+        // Setup initial state for pull-up animation
+        view.setAlpha(0.6f);
+        view.setTranslationY(120f);
+        view.setScaleX(0.95f);
+        view.setScaleY(0.95f);
 
-        view.animate()
-                .alpha(1f)
-                .translationY(0f)
-                .setDuration(300)  // Shorter duration
-                .setStartDelay(delay)
-                .setInterpolator(new OvershootInterpolator(0.8f))  // Less overshoot
-                .start();
+        // Create and configure animation set for pull-up effect
+        AnimatorSet animatorSet = new AnimatorSet();
+
+        ObjectAnimator translateY = ObjectAnimator.ofFloat(view, "translationY", 120f, 0f);
+        ObjectAnimator alpha = ObjectAnimator.ofFloat(view, "alpha", 0.6f, 1.0f);
+        ObjectAnimator scaleX = ObjectAnimator.ofFloat(view, "scaleX", 0.95f, 1.0f);
+        ObjectAnimator scaleY = ObjectAnimator.ofFloat(view, "scaleY", 0.95f, 1.0f);
+
+        // Combine all animations to create a smooth pull-up effect
+        animatorSet.playTogether(translateY, alpha, scaleX, scaleY);
+        animatorSet.setInterpolator(new DecelerateInterpolator(1.2f));
+        animatorSet.setStartDelay(delay);
+        animatorSet.setDuration(350);
+        animatorSet.start();
+    }
+
+    private void animatePullUp(View view, int position) {
+        // Pull-up animation for new items when scrolling up
+        long delay = Math.min(position * 30, 150); // Faster animation for pull-up
+
+        // Setup initial state for pull-up animation
+        view.setAlpha(0.6f);
+        view.setTranslationY(150f);
+        view.setScaleX(0.9f);
+        view.setScaleY(0.9f);
+
+        // Create and configure animation set for pull-up effect
+        AnimatorSet animatorSet = new AnimatorSet();
+
+        ObjectAnimator translateY = ObjectAnimator.ofFloat(view, "translationY", 150f, 0f);
+        ObjectAnimator alpha = ObjectAnimator.ofFloat(view, "alpha", 0.6f, 1.0f);
+        ObjectAnimator scaleX = ObjectAnimator.ofFloat(view, "scaleX", 0.9f, 1.0f);
+        ObjectAnimator scaleY = ObjectAnimator.ofFloat(view, "scaleY", 0.9f, 1.0f);
+
+        // Combine all animations to create a smooth pull-up effect
+        animatorSet.playTogether(translateY, alpha, scaleX, scaleY);
+        animatorSet.setInterpolator(new DecelerateInterpolator(1.2f));
+        animatorSet.setStartDelay(delay);
+        animatorSet.setDuration(300); // Slightly faster duration
+        animatorSet.start();
     }
 
     public class CarViewHolder extends RecyclerView.ViewHolder {
@@ -250,5 +293,10 @@ public class CarListingAdapter extends RecyclerView.Adapter<CarListingAdapter.Ca
         carList.clear();
         resetAnimationState(); // Reset animation state when clearing items
         notifyDataSetChanged();
+    }
+
+    // Method to set scroll direction for animations
+    public void setScrollingUp(boolean scrollingUp) {
+        this.isScrollingUp = scrollingUp;
     }
 }
