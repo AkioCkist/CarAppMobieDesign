@@ -48,7 +48,9 @@ switch($request_method) {
         }
         break;
     case 'POST':
-        if (isset($_GET['action']) && $_GET['action'] == 'toggle_favorite') {
+        if (isset($_POST['action']) && $_POST['action'] == 'update_status') {
+            updateVehicleStatus($_POST);
+        } elseif (isset($_POST['action']) && $_POST['action'] == 'toggle_favorite') {
             toggle_favorite($vehicle);
         }
         break;
@@ -59,8 +61,9 @@ switch($request_method) {
 
 function get_vehicles($vehicle) {
     // Xử lý tham số query
+    $status_filter = isset($_GET['status']) ? $_GET['status'] : null;
     $limit = isset($_GET['limit']) ? intval($_GET['limit']) : null;
-    $offset = isset($_GET['offset']) ? intval($_GET['offset']) : null;
+    $offset = isset($_GET['offset']) ? intval($_GET['offset']) : null;  
     $search = isset($_GET['search']) ? $_GET['search'] : null;
     $type = isset($_GET['type']) ? $_GET['type'] : null;
     $location = isset($_GET['location']) ? $_GET['location'] : null;
@@ -68,11 +71,13 @@ function get_vehicles($vehicle) {
 
     try {
         if ($favorites_only) {
-            $stmt = $vehicle->getFavoriteVehicles();
+            $stmt = $vehicle->getFavoriteVehicles($status_filter);
         } elseif ($search || $type || $location) {
-            $stmt = $vehicle->searchVehicles($search, $type, $location);
+            // Chỉ gọi searchVehicles khi có ít nhất 1 trong 3 tham số search, type, hoặc location
+            $stmt = $vehicle->searchVehicles($search, $type, $location, $status_filter);
         } else {
-            $stmt = $vehicle->getAllVehicles($limit, $offset);
+            // Khi không có search, type, location thì lấy tất cả xe
+            $stmt = $vehicle->getAllVehicles($limit, $offset, $status_filter);
         }
 
         $num = $stmt->rowCount();
@@ -89,8 +94,17 @@ function get_vehicles($vehicle) {
                 $images_stmt = $vehicle->getVehicleImages($id);
                 $images = array();
                 while ($img_row = $images_stmt->fetch(PDO::FETCH_ASSOC)) {
+                    // Fix URL path - remove duplicate /cars
+                    $img_url = $img_row["image_url"];
+                    if (strpos($img_url, 'http') !== 0) {
+                        // Remove leading /cars if exists, then add the full path
+                        $clean_url = ltrim($img_url, '/cars');
+                        $img_url = 'http://10.0.2.2/myapi/cars/' . $clean_url; // 10.0.2.2 cho emulator
+                    }
+                    
                     $images[] = array(
-                        "url" => $img_row["image_url"],
+                        "id" => $img_row["image_id"],
+                        "url" => $img_url,
                         "is_primary" => $img_row["is_primary"] == 1,
                         "display_order" => $img_row["display_order"]
                     );
@@ -101,6 +115,7 @@ function get_vehicles($vehicle) {
                 $amenities = array();
                 while ($amenity_row = $amenities_stmt->fetch(PDO::FETCH_ASSOC)) {
                     $amenities[] = array(
+                        "id" => $amenity_row["amenity_id"],
                         "name" => $amenity_row["amenity_name"],
                         "icon" => $amenity_row["amenity_icon"],
                         "description" => $amenity_row["description"]
@@ -109,6 +124,7 @@ function get_vehicles($vehicle) {
 
                 // Format giá tiền
                 $price_display = number_format($base_price / 1000, 0) . "K/ngày";
+                $price_formatted = number_format($base_price, 0, ',', '.') . ' VND';
                 
                 // Tạo old price giả (bạn có thể điều chỉnh logic này)
                 $old_price = null;
@@ -116,6 +132,12 @@ function get_vehicles($vehicle) {
                 if ($rating >= 4.5) {
                     $old_price = $base_price * 1.2;
                     $price_discount = "Giảm 20%";
+                }
+
+                // Xử lý URL hình ảnh primary để đảm bảo đường dẫn đúng
+                $primary_image = 'http://localhost/myapi/cars/default_car.png';
+                if (!empty($images)) {
+                    $primary_image = $images[0]["url"]; // Already processed above
                 }
 
                 $vehicle_item = array(
@@ -129,6 +151,7 @@ function get_vehicles($vehicle) {
                     "fuel" => $fuel,
                     "base_price" => floatval($base_price),
                     "priceDisplay" => $price_display,
+                    "price_formatted" => $price_formatted,
                     "oldPrice" => $old_price,
                     "priceDiscount" => $price_discount,
                     "pricePer" => "ngày",
@@ -136,8 +159,10 @@ function get_vehicles($vehicle) {
                     "description" => $description,
                     "status" => $status,
                     "is_favorite" => $is_favorite == 1,
+                    "is_favorite_for_user" => $is_favorite == 1,
+                    "lessor_id" => $lessor_id,
                     "lessor_name" => $lessor_name,
-                    "image" => !empty($images) ? $images[0]["url"] : "/images/default-car.jpg",
+                    "primary_image" => $primary_image,
                     "images" => $images,
                     "amenities" => $amenities,
                     "created_at" => $created_at,
@@ -176,8 +201,17 @@ function get_vehicle_detail($vehicle, $id) {
             $images_stmt = $vehicle->getVehicleImages($id);
             $images = array();
             while ($img_row = $images_stmt->fetch(PDO::FETCH_ASSOC)) {
+                // Fix URL path - remove duplicate /cars
+                $img_url = $img_row["image_url"];
+                if (strpos($img_url, 'http') !== 0) {
+                    // Remove leading /cars if exists, then add the full path
+                    $clean_url = ltrim($img_url, '/cars');
+                    $img_url = 'http://10.0.2.2/myapi/cars/' . $clean_url; // 10.0.2.2 cho emulator
+                }
+                
                 $images[] = array(
-                    "url" => $img_row["image_url"],
+                    "id" => $img_row["image_id"],
+                    "url" => $img_url,
                     "is_primary" => $img_row["is_primary"] == 1,
                     "display_order" => $img_row["display_order"]
                 );
@@ -188,6 +222,7 @@ function get_vehicle_detail($vehicle, $id) {
             $amenities = array();
             while ($amenity_row = $amenities_stmt->fetch(PDO::FETCH_ASSOC)) {
                 $amenities[] = array(
+                    "id" => $amenity_row["amenity_id"],
                     "name" => $amenity_row["amenity_name"],
                     "icon" => $amenity_row["amenity_icon"],
                     "description" => $amenity_row["description"]
@@ -195,6 +230,21 @@ function get_vehicle_detail($vehicle, $id) {
             }
 
             $price_display = number_format($base_price / 1000, 0) . "K/ngày";
+            $price_formatted = number_format($base_price, 0, ',', '.') . ' VND';
+            
+            // Tính toán giá bảo hiểm và tổng giá (tương tự get_car_details.php)
+            $insurance_price = $base_price * 0.1; // 10% của giá cơ bản
+            $insurance_price_formatted = number_format($insurance_price, 0, ',', '.') . ' VND';
+            $total_price = $base_price + $insurance_price;
+            $total_price_formatted = number_format($total_price, 0, ',', '.') . ' VND';
+            
+            // Tạo old price giả
+            $old_price = null;
+            $price_discount = null;
+            if ($rating >= 4.5) {
+                $old_price = $base_price * 1.2;
+                $price_discount = "Giảm 20%";
+            }
             
             $vehicle_item = array(
                 "id" => $id,
@@ -207,10 +257,20 @@ function get_vehicle_detail($vehicle, $id) {
                 "fuel" => $fuel,
                 "base_price" => floatval($base_price),
                 "priceDisplay" => $price_display,
+                "base_price_formatted" => $price_formatted,
+                "insurance_price" => $insurance_price,
+                "insurance_price_formatted" => $insurance_price_formatted,
+                "total_price" => $total_price,
+                "total_price_formatted" => $total_price_formatted,
+                "oldPrice" => $old_price,
+                "priceDiscount" => $price_discount,
+                "pricePer" => "ngày",
                 "vehicle_type" => $vehicle_type,
                 "description" => $description,
                 "status" => $status,
                 "is_favorite" => $is_favorite == 1,
+                "is_favorite_for_user" => $is_favorite == 1,
+                "lessor_id" => $lessor_id,
                 "lessor_name" => $lessor_name,
                 "images" => $images,
                 "amenities" => $amenities,
@@ -249,4 +309,32 @@ function toggle_favorite($vehicle) {
         echo json_encode(array("message" => "Dữ liệu không hợp lệ."));
     }
 }
+
+function updateVehicleStatus($data) {
+    global $pdo;
+    
+    $vehicleId = $data['vehicle_id'] ?? null;
+    $status = $data['status'] ?? 'rented';
+
+    if (!$vehicleId) {
+        http_response_code(400);
+        echo json_encode(['success' => false, 'error' => 'Vehicle ID is required']);
+        return;
+    }
+
+    try {
+        $stmt = $pdo->prepare("UPDATE vehicles SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE vehicle_id = ?");
+        $stmt->execute([$status, $vehicleId]);
+        
+        if ($stmt->rowCount() > 0) {
+            echo json_encode(['success' => true, 'message' => 'Vehicle status updated successfully']);
+        } else {
+            echo json_encode(['success' => false, 'error' => 'Vehicle not found or status unchanged']);
+        }
+    } catch (PDOException $e) {
+        http_response_code(500);
+        echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+    }
+}
+
 ?>
