@@ -52,4 +52,12 @@ public class RetrofitClient {
     public static CarApiService getCarApiService() {
         return getClient().create(CarApiService.class);
     }
+
+    /**
+     * Cung cấp service để gọi API liên quan đến favorite
+     * @return Instance của FavoriteApiService
+     */
+    public static FavoriteApiService getFavoriteApiService() {
+        return getClient().create(FavoriteApiService.class);
+    }
 }
