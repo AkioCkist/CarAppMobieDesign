@@ -39,7 +39,8 @@
     <!-- Primary Colors -->
     <color name="green_primary">#18F45D</color>
     <color name="background_primary_cardetail">#F5F5F5</color>
-
+    <color name="primary_color">#2196F3</color>
+    <color name="primary_dark">#FF000000</color>
     <!-- Basic Colors -->
     <color name="dark_gray">#2E2E2E</color>
 

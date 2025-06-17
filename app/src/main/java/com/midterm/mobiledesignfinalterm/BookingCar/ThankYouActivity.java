@@ -8,13 +8,17 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 // Updated imports for iText 7
 import com.itextpdf.kernel.colors.ColorConstants;
 import com.itextpdf.kernel.colors.DeviceRgb;
 import com.itextpdf.kernel.geom.PageSize;
+import com.itextpdf.kernel.geom.Rectangle;
 import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.kernel.pdf.PdfPage;
 import com.itextpdf.kernel.pdf.PdfWriter;
+import com.itextpdf.kernel.pdf.canvas.PdfCanvas;
 import com.itextpdf.layout.Document;
 import com.itextpdf.layout.borders.SolidBorder;
 import com.itextpdf.layout.element.Cell;
@@ -27,24 +31,39 @@ import com.itextpdf.layout.properties.VerticalAlignment;
 import com.midterm.mobiledesignfinalterm.R;
 import com.midterm.mobiledesignfinalterm.homepage.Homepage;
 
-
 import java.io.IOException;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-
 public class ThankYouActivity extends AppCompatActivity {
 
     private TextView tvBookingId, tvPickupDetails, tvDropoffDetails, tvUserDetails, tvPaymentDetails, tvTotalAmount;
     private Button btnSaveImage, btnBackToHome;
     private static final int CREATE_FILE = 1;
+    // Color for PDF text (using green_primary color)
+    private DeviceRgb greenPrimaryColor;
+
+    private String userId, userName, userPhone;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_thank_you);
+
+        // Initialize the green primary color from resources
+        int greenColorInt = ContextCompat.getColor(this, R.color.green_primary); // #18F45D
+        greenPrimaryColor = new DeviceRgb(
+                (greenColorInt >> 16) & 0xFF,
+                (greenColorInt >> 8) & 0xFF,
+                greenColorInt & 0xFF);
+
+        // Get user info from intent
+        Intent intent = getIntent();
+        userId = intent.getStringExtra("user_id");
+        userName = intent.getStringExtra("user_name");
+        userPhone = intent.getStringExtra("user_phone");
 
         initViews();
         displayBookingDetails();
@@ -93,44 +112,24 @@ public class ThankYouActivity extends AppCompatActivity {
         btnSaveImage.setOnClickListener(v -> saveTicketAsImage());
 
         btnBackToHome.setOnClickListener(v -> {
-            // Create intent to navigate back to Homepage
             Intent intent = new Intent(this, Homepage.class);
-
-            // Get the correct user information from intent
-            // The phone number is stored as "phone" in ThankYouActivity but as "user_phone" in Homepage
-            String userName = getIntent().getStringExtra("user_name");
-            String userPhone = getIntent().getStringExtra("phone");
-            // If user_phone is not found, try alternate keys
-            if (userPhone == null) {
-                userPhone = getIntent().getStringExtra("user_phone");
-            }
-            String userId = getIntent().getStringExtra("user_id");
-            String userData = getIntent().getStringExtra("user_data");
-
-            // Log the data we're passing to help debug
-            System.out.println("ThankYouActivity - Returning to Homepage with:");
-            System.out.println("userName: " + userName);
-            System.out.println("userPhone: " + userPhone);
-            System.out.println("userId: " + userId);
-
-            // Ensure we always send the data with the correct keys
-            if (userName != null) intent.putExtra("user_name", userName);
-            if (userPhone != null) intent.putExtra("user_phone", userPhone);
-            if (userId != null) intent.putExtra("user_id", userId);
-            if (userData != null) intent.putExtra("user_data", userData);
-
-            // Clear all activities on top of Homepage
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-
-            // Start the Homepage activity
+            // Pass user info to Homepage to keep login
+            intent.putExtra("user_id", userId);
+            intent.putExtra("user_name", userName);
+            intent.putExtra("user_phone", userPhone);
             startActivity(intent);
-
-            // Add slide animation for the transition
-            overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
-
-            // Close this activity
             finish();
         });
+    }
+
+    // Helper method to convert Android color resource to iText DeviceRgb
+    private DeviceRgb getColorFromResource(int colorResourceId) {
+        int color = ContextCompat.getColor(this, colorResourceId);
+        int red = (color >> 16) & 0xFF;
+        int green = (color >> 8) & 0xFF;
+        int blue = color & 0xFF;
+        return new DeviceRgb(red, green, blue);
     }
 
     @Override
@@ -143,66 +142,100 @@ public class ThankYouActivity extends AppCompatActivity {
                 try {
                     OutputStream outputStream = getContentResolver().openOutputStream(uri);
                     if (outputStream != null) {
+                        // Get colors from resources
+                        DeviceRgb primaryColor = getColorFromResource(R.color.green_primary);
+                        DeviceRgb accentColor = getColorFromResource(R.color.accent_green);
+                        DeviceRgb secondaryTextColor = getColorFromResource(R.color.text_secondary);
+                        DeviceRgb dividerColor = getColorFromResource(R.color.divider_color);
+                        DeviceRgb backgroundPrimary = getColorFromResource(R.color.background_primary);
+                        DeviceRgb backgroundSecondary = getColorFromResource(R.color.background_secondary);
+                        DeviceRgb whiteText = getColorFromResource(R.color.white);
+
                         // Setup PDF document with A4 page size
                         PdfWriter writer = new PdfWriter(outputStream);
                         PdfDocument pdf = new PdfDocument(writer);
                         Document document = new Document(pdf, PageSize.A4);
-                        document.setMargins(36, 36, 36, 36); // 0.5 inch margins
+
+                        // Draw background color on the page
+                        PdfPage page = pdf.addNewPage();
+                        PdfCanvas canvas = new PdfCanvas(page);
+                        Rectangle pageSize = page.getPageSize();
+                        canvas.setFillColor(backgroundPrimary)
+                                .rectangle(pageSize.getLeft(), pageSize.getBottom(), pageSize.getWidth(), pageSize.getHeight())
+                                .fill();
+
+                        // Set margins for content
+                        document.setMargins(36, 36, 36, 36);
 
                         // Create header section
                         Table headerTable = new Table(UnitValue.createPercentArray(new float[]{1, 1}))
                                 .setWidth(UnitValue.createPercentValue(100));
 
-                        // Company info in left column
+                        // Company info in left column with background
                         Cell companyCell = new Cell()
-                                .add(new Paragraph("Car Booking App").setBold().setFontSize(16))
-                                .add(new Paragraph("Your Premium Transportation Service"))
-                                .add(new Paragraph("www.carbookingapp.com"))
-                                .add(new Paragraph("support@carbookingapp.com"))
+                                .add(new Paragraph("Whale Xe").setBold().setFontSize(16).setFontColor(primaryColor))
+                                .add(new Paragraph("More than rentals - We deliver happiness").setFontColor(whiteText))
+                                .add(new Paragraph("https://car-app-web-design.vercel.app/").setFontColor(whiteText))
+                                .add(new Paragraph("contact@whalexe.com").setFontColor(whiteText))
+                                .setBackgroundColor(backgroundSecondary)
+                                .setPadding(10)
                                 .setBorder(null);
 
-                        // Current date in right column - aligned right
+                        // Current date in right column - aligned right with background
                         SimpleDateFormat dateFormatter = new SimpleDateFormat("MMMM dd, yyyy", Locale.getDefault());
                         String currentDate = dateFormatter.format(new Date());
                         Cell dateCell = new Cell()
-                                .add(new Paragraph("Date: " + currentDate).setTextAlignment(TextAlignment.RIGHT))
+                                .add(new Paragraph("Date: " + currentDate).setTextAlignment(TextAlignment.RIGHT).setFontColor(whiteText))
+                                .setBackgroundColor(backgroundSecondary)
+                                .setPadding(10)
                                 .setBorder(null);
 
                         headerTable.addCell(companyCell);
                         headerTable.addCell(dateCell);
                         document.add(headerTable);
 
-                        // Add divider line
+                        // Add divider line using app colors
                         document.add(new Paragraph("")
                                 .setHeight(1)
-                                .setBorder(new SolidBorder(new DeviceRgb(0, 102, 204), 1))
+                                .setBorder(new SolidBorder(dividerColor, 1))
                                 .setMarginBottom(15)
                         );
 
-                        // Title with styling
+                        // Title with app colors
                         document.add(new Paragraph("BOOKING CONFIRMATION")
                                 .setFontSize(20)
                                 .setBold()
                                 .setTextAlignment(TextAlignment.CENTER)
-                                .setFontColor(new DeviceRgb(0, 102, 204))
+                                .setFontColor(primaryColor)
                                 .setMarginBottom(20));
 
                         // Extract booking ID from the text view
                         String bookingIdText = tvBookingId.getText().toString();
                         String bookingId = bookingIdText.replace("Booking ID: ", "").trim();
 
-                        // Add booking ID with highlight
-                        document.add(new Paragraph("Booking Reference: " + bookingId)
-                                .setBold()
-                                .setTextAlignment(TextAlignment.CENTER)
-                                .setFontSize(14)
-                                .setMarginBottom(20));
+                        // Add booking ID with highlight using accent color and background
+                        Table bookingIdTable = new Table(UnitValue.createPercentArray(new float[]{1}))
+                                .setWidth(UnitValue.createPercentValue(100))
+                                .setMarginBottom(20);
+
+                        Cell bookingIdCell = new Cell()
+                                .add(new Paragraph("Booking Reference: " + bookingId)
+                                        .setBold()
+                                        .setTextAlignment(TextAlignment.CENTER)
+                                        .setFontSize(14)
+                                        .setFontColor(accentColor))
+                                .setBackgroundColor(backgroundSecondary)
+                                .setPadding(12)
+                                .setBorder(null);
+
+                        bookingIdTable.addCell(bookingIdCell);
+                        document.add(bookingIdTable);
 
                         // Customer Information Section
                         document.add(new Paragraph("CUSTOMER DETAILS")
                                 .setFontSize(14)
                                 .setBold()
-                                .setFontColor(new DeviceRgb(0, 102, 204))
+                                .setFontColor(primaryColor)
                                 .setMarginBottom(10));
 
                         // Parse user details from text view
@@ -213,12 +246,18 @@ public class ThankYouActivity extends AppCompatActivity {
                                 .setWidth(UnitValue.createPercentValue(100))
                                 .setMarginBottom(15);
 
-                        // Add user details to table with better formatting
+                        // Add user details to table with app colors and backgrounds
                         for (String line : userLines) {
                             String[] parts = line.split(":", 2);
                             if (parts.length == 2) {
-                                userTable.addCell(new Cell().add(new Paragraph(parts[0].trim() + ":").setBold()));
-                                userTable.addCell(new Cell().add(new Paragraph(parts[1].trim())));
+                                userTable.addCell(new Cell()
+                                        .add(new Paragraph(parts[0].trim() + ":").setBold().setFontColor(whiteText))
+                                        .setBackgroundColor(backgroundSecondary)
+                                        .setPadding(8));
+                                userTable.addCell(new Cell()
+                                        .add(new Paragraph(parts[1].trim()).setFontColor(whiteText))
+                                        .setBackgroundColor(backgroundSecondary)
+                                        .setPadding(8));
                             }
                         }
                         document.add(userTable);
@@ -227,22 +266,34 @@ public class ThankYouActivity extends AppCompatActivity {
                         document.add(new Paragraph("TRIP DETAILS")
                                 .setFontSize(14)
                                 .setBold()
-                                .setFontColor(new DeviceRgb(0, 102, 204))
+                                .setFontColor(primaryColor)
                                 .setMarginBottom(10));
 
                         Table tripTable = new Table(UnitValue.createPercentArray(new float[]{1, 2}))
                                 .setWidth(UnitValue.createPercentValue(100))
                                 .setMarginBottom(15);
 
-                        // Add pickup details
+                        // Add pickup details with background
                         String pickupText = tvPickupDetails.getText().toString();
-                        tripTable.addCell(new Cell().add(new Paragraph("Pickup:").setBold()));
-                        tripTable.addCell(new Cell().add(new Paragraph(pickupText.replace("Pickup: ", ""))));
+                        tripTable.addCell(new Cell()
+                                .add(new Paragraph("Pickup:").setBold().setFontColor(whiteText))
+                                .setBackgroundColor(backgroundSecondary)
+                                .setPadding(8));
+                        tripTable.addCell(new Cell()
+                                .add(new Paragraph(pickupText.replace("Pickup: ", "")).setFontColor(whiteText))
+                                .setBackgroundColor(backgroundSecondary)
+                                .setPadding(8));
 
-                        // Add dropoff details
+                        // Add dropoff details with background
                         String dropoffText = tvDropoffDetails.getText().toString();
-                        tripTable.addCell(new Cell().add(new Paragraph("Drop-off:").setBold()));
-                        tripTable.addCell(new Cell().add(new Paragraph(dropoffText.replace("Drop-off: ", ""))));
+                        tripTable.addCell(new Cell()
+                                .add(new Paragraph("Drop-off:").setBold().setFontColor(whiteText))
+                                .setBackgroundColor(backgroundSecondary)
+                                .setPadding(8));
+                        tripTable.addCell(new Cell()
+                                .add(new Paragraph(dropoffText.replace("Drop-off: ", "")).setFontColor(whiteText))
+                                .setBackgroundColor(backgroundSecondary)
+                                .setPadding(8));
 
                         document.add(tripTable);
 
@@ -250,32 +301,44 @@ public class ThankYouActivity extends AppCompatActivity {
                         document.add(new Paragraph("PAYMENT DETAILS")
                                 .setFontSize(14)
                                 .setBold()
-                                .setFontColor(new DeviceRgb(0, 102, 204))
+                                .setFontColor(primaryColor)
                                 .setMarginBottom(10));
 
                         Table paymentTable = new Table(UnitValue.createPercentArray(new float[]{1, 2}))
                                 .setWidth(UnitValue.createPercentValue(100))
                                 .setMarginBottom(20);
 
-                        // Add payment method
+                        // Add payment method with background
                         String paymentText = tvPaymentDetails.getText().toString();
-                        paymentTable.addCell(new Cell().add(new Paragraph("Payment Method:").setBold()));
-                        paymentTable.addCell(new Cell().add(new Paragraph(paymentText.replace("Payment: ", ""))));
+                        paymentTable.addCell(new Cell()
+                                .add(new Paragraph("Payment Method:").setBold().setFontColor(whiteText))
+                                .setBackgroundColor(backgroundSecondary)
+                                .setPadding(8));
+                        paymentTable.addCell(new Cell()
+                                .add(new Paragraph(paymentText.replace("Payment: ", "")).setFontColor(whiteText))
+                                .setBackgroundColor(backgroundSecondary)
+                                .setPadding(8));
 
-                        // Add total amount with highlighting
-                        paymentTable.addCell(new Cell().add(new Paragraph("Total Amount:").setBold()));
+                        // Add total amount with highlighting using success green and background
+                        DeviceRgb successColor = getColorFromResource(R.color.success_green);
+                        paymentTable.addCell(new Cell()
+                                .add(new Paragraph("Total Amount:").setBold().setFontColor(whiteText))
+                                .setBackgroundColor(backgroundSecondary)
+                                .setPadding(8));
                         paymentTable.addCell(new Cell()
                                 .add(new Paragraph(tvTotalAmount.getText().toString())
-                                .setBold()
-                                .setFontSize(14)
-                                .setFontColor(new DeviceRgb(0, 102, 204))));
+                                        .setBold()
+                                        .setFontSize(14)
+                                        .setFontColor(successColor))
+                                .setBackgroundColor(backgroundSecondary)
+                                .setPadding(8));
 
                         document.add(paymentTable);
 
                         // Footer with thank you message
                         document.add(new Paragraph("")
                                 .setHeight(1)
-                                .setBorder(new SolidBorder(ColorConstants.LIGHT_GRAY, 1))
+                                .setBorder(new SolidBorder(dividerColor, 1))
                                 .setMarginTop(20)
                                 .setMarginBottom(15)
                         );
@@ -283,11 +346,13 @@ public class ThankYouActivity extends AppCompatActivity {
                         document.add(new Paragraph("Thank you for choosing our Car Booking service!")
                                 .setFontSize(12)
                                 .setTextAlignment(TextAlignment.CENTER)
+                                .setFontColor(accentColor)
                                 .setItalic());
 
                         document.add(new Paragraph("This is an electronically generated document and requires no signature.")
                                 .setFontSize(8)
                                 .setTextAlignment(TextAlignment.CENTER)
+                                .setFontColor(whiteText)
                                 .setMarginTop(5));
 
                         document.close();
@@ -311,4 +376,3 @@ public class ThankYouActivity extends AppCompatActivity {
         startActivityForResult(intent, CREATE_FILE);
     }
 }
-

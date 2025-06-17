@@ -22,6 +22,7 @@ public class CheckoutActivity extends AppCompatActivity {
 
     private String pickupLocation, dropoffLocation, pickupDate, pickupTime, dropoffDate, dropoffTime;
     private String fullName, email, phone, aadharNumber, panNumber;
+    private String userId, userName, userPhone;
     private double totalAmount = 80.00;
 
     @Override
@@ -46,8 +47,11 @@ public class CheckoutActivity extends AppCompatActivity {
         fullName = intent.getStringExtra("full_name");
         email = intent.getStringExtra("email");
         phone = intent.getStringExtra("phone");
-        aadharNumber = intent.getStringExtra("aadhar_number");
-        panNumber = intent.getStringExtra("pan_number");
+        aadharNumber = intent.getStringExtra("citizen_id");
+        panNumber = intent.getStringExtra("tax_id");
+        userId = intent.getStringExtra("user_id");
+        userName = intent.getStringExtra("user_name");
+        userPhone = intent.getStringExtra("user_phone");
     }
 
     private void initViews() {
@@ -87,8 +91,14 @@ public class CheckoutActivity extends AppCompatActivity {
             intent.putExtra("full_name", fullName);
             intent.putExtra("email", email);
             intent.putExtra("phone", phone);
+            intent.putExtra("citizen_id", aadharNumber);
+            intent.putExtra("tax_id", panNumber);
             intent.putExtra("payment_method", paymentMethod);
             intent.putExtra("total_amount", String.valueOf(totalAmount));
+            // Pass user data to ThankYouActivity
+            intent.putExtra("user_id", userId);
+            intent.putExtra("user_name", userName);
+            intent.putExtra("user_phone", userPhone);
             startActivity(intent);
             finish();
         });

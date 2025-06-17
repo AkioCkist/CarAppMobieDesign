@@ -27,11 +27,17 @@ public class CarBookingActivity extends AppCompatActivity {
     private String selectedDropoffDate = "";
     private String selectedDropoffTime = "";
     private String carName = "";
-    private BookingData bookingData;
 
     // Calendars to hold pickup and dropoff times for validation
     private Calendar pickupCalendar = Calendar.getInstance();
     private Calendar dropoffCalendar = Calendar.getInstance();
+
+    // Add fields for new intent data
+    private int carId = -1;
+    private String carPrice = "";
+    private String userId = "";
+    private String userPhone = "";
+    private String userName = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,7 +47,6 @@ public class CarBookingActivity extends AppCompatActivity {
         initViews();
         setupClickListeners();
         getCarDataFromIntent();
-        initializeBookingData();
     }
 
     private void initViews() {
@@ -60,39 +65,48 @@ public class CarBookingActivity extends AppCompatActivity {
 
     private void getCarDataFromIntent() {
         // Get car data from intent
+        if (getIntent().hasExtra("car_id")) {
+            carId = getIntent().getIntExtra("car_id", -1);
+        }
         if (getIntent().hasExtra("car_name")) {
             carName = getIntent().getStringExtra("car_name");
         }
-
+        if (getIntent().hasExtra("car_price")) {
+            carPrice = getIntent().getStringExtra("car_price");
+        }
+        // Get user info from intent
+        if (getIntent().hasExtra("user_id")) {
+            userId = getIntent().getStringExtra("user_id");
+        }
+        if (getIntent().hasExtra("user_phone")) {
+            userPhone = getIntent().getStringExtra("user_phone");
+        }
+        if (getIntent().hasExtra("user_name")) {
+            userName = getIntent().getStringExtra("user_name");
+        }
         // Get pickup and drop-off data from intent
         if (getIntent().hasExtra("pickup_date")) {
             selectedPickupDate = getIntent().getStringExtra("pickup_date");
             tvPickupDate.setText(selectedPickupDate);
         }
-
         if (getIntent().hasExtra("pickup_time")) {
             selectedPickupTime = getIntent().getStringExtra("pickup_time");
             tvPickupTime.setText(selectedPickupTime);
         }
-
         if (getIntent().hasExtra("dropoff_date")) {
             selectedDropoffDate = getIntent().getStringExtra("dropoff_date");
             tvDropoffDate.setText(selectedDropoffDate);
         }
-
         if (getIntent().hasExtra("dropoff_time")) {
             selectedDropoffTime = getIntent().getStringExtra("dropoff_time");
             tvDropoffTime.setText(selectedDropoffTime);
         }
-    }
-
-    private void initializeBookingData() {
-        // Initialize BookingData with real-time data
-        bookingData = new BookingData(carName);
-
-        // Log booking initialization
-        System.out.println("Booking initialized: " + bookingData.getBookingId());
-        System.out.println("Timestamp: " + bookingData.getFormattedBookingDate());
+        if (getIntent().hasExtra("pickup_location")) {
+            etPickupLocation.setText(getIntent().getStringExtra("pickup_location"));
+        }
+        if (getIntent().hasExtra("dropoff_location")) {
+            etDropoffLocation.setText(getIntent().getStringExtra("dropoff_location"));
+        }
     }
 
     private void setupClickListeners() {
@@ -105,43 +119,26 @@ public class CarBookingActivity extends AppCompatActivity {
 
         btnNextStep.setOnClickListener(v -> {
             if (validateInputs()) {
-                // Update booking data with current form inputs
-                updateBookingDataFromForm();
-
                 // Create intent for UserInfoActivity
                 Intent intent = new Intent(CarBookingActivity.this, UserInfoActivity.class);
 
-                // Pass booking data as serializable object
-                intent.putExtra("booking_data", bookingData);
-
-                // Also pass individual values for backward compatibility
+                // Pass all booking data as intent extras
+                intent.putExtra("car_id", carId);
                 intent.putExtra("car_name", carName);
+                intent.putExtra("car_price", carPrice);
+                intent.putExtra("user_id", userId);
+                intent.putExtra("user_phone", userPhone);
+                intent.putExtra("user_name", userName);
                 intent.putExtra("pickup_location", etPickupLocation.getText().toString());
                 intent.putExtra("dropoff_location", etDropoffLocation.getText().toString());
-                intent.putExtra("pickup_date", selectedPickupDate);
-                intent.putExtra("pickup_time", selectedPickupTime);
-                intent.putExtra("dropoff_date", selectedDropoffDate);
-                intent.putExtra("dropoff_time", selectedDropoffTime);
+                intent.putExtra("pickup_date", tvPickupDate.getText().toString());
+                intent.putExtra("pickup_time", tvPickupTime.getText().toString());
+                intent.putExtra("dropoff_date", tvDropoffDate.getText().toString());
+                intent.putExtra("dropoff_time", tvDropoffTime.getText().toString());
 
                 startActivity(intent);
             }
         });
-    }
-
-    private void updateBookingDataFromForm() {
-        // Update booking data with current timestamp
-        bookingData.updateTimestamp();
-
-        // Set form data to booking object
-        bookingData.setPickupLocation(etPickupLocation.getText().toString().trim());
-        bookingData.setDropoffLocation(etDropoffLocation.getText().toString().trim());
-        bookingData.setPickupDate(selectedPickupDate);
-        bookingData.setPickupTime(selectedPickupTime);
-        bookingData.setDropoffDate(selectedDropoffDate);
-        bookingData.setDropoffTime(selectedDropoffTime);
-
-        // Log updated booking data
-        System.out.println("Booking updated: " + bookingData.toString());
     }
 
     private void showDatePicker(boolean isPickup) {
@@ -275,8 +272,6 @@ public class CarBookingActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         // Update timestamp when activity resumes
-        if (bookingData != null) {
-            bookingData.updateTimestamp();
-        }
+        // Removed bookingData usage
     }
 }
