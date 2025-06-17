@@ -87,7 +87,6 @@ public class CarDetailActivity extends AppCompatActivity {
         // Get data from intent
         getDataFromIntent();
 
-
         // Set up amenities recyclerview
         setupAmenitiesRecyclerView();
 
