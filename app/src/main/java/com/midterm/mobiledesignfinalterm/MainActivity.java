@@ -25,6 +25,7 @@ public class MainActivity extends AppCompatActivity {
         isFromIntroduction = getIntent().getBooleanExtra("from_introduction", false);
 
         setContentView(R.layout.activity_main);
+<<<<<<< HEAD
 
         initializeViews();
         setupClickListeners();
@@ -53,6 +54,13 @@ public class MainActivity extends AppCompatActivity {
                 });
             }
         });
+=======
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            return insets;
+        });oiidwawoinawodin
+>>>>>>> ffbf090 (still bug but commit for safety)
     }
 
     private void applyEntranceAnimation() {
