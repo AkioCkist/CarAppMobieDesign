@@ -19,8 +19,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
 
-import com.midterm.mobiledesignfinalterm.homepage.Homepage;
+import com.midterm.mobiledesignfinalterm.MainActivity;
 import com.midterm.mobiledesignfinalterm.R;
+import com.midterm.mobiledesignfinalterm.admin.AdminLoginActivity;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -41,6 +42,7 @@ public class Login extends AppCompatActivity {
     private Button buttonSignIn;
     private TextView textViewForgotPassword;
     private TextView textViewSignUp;
+    private TextView textViewAdminAccess;
 
     private boolean isPasswordVisible = false;
 
@@ -112,6 +114,7 @@ public class Login extends AppCompatActivity {
         buttonSignIn = findViewById(R.id.buttonSignIn);
         textViewForgotPassword = findViewById(R.id.textViewForgotPassword);
         textViewSignUp = findViewById(R.id.textViewSignUp);
+        textViewAdminAccess = findViewById(R.id.textViewAdminAccess);
     }
 
     private void setupClickListeners() {
@@ -142,6 +145,14 @@ public class Login extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 animateCheckboxClick(v);
+            }
+        });
+
+        textViewAdminAccess.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                animateTextClick(v);
+                handleAdminAccess();
             }
         });
     }
@@ -176,7 +187,7 @@ public class Login extends AppCompatActivity {
     private void animateInitialEntrance() {
         View[] views = {editTextPhoneNumber, editTextPassword, buttonTogglePassword,
                 checkBoxRememberMe, buttonSignIn,
-                textViewForgotPassword, textViewSignUp};
+                textViewForgotPassword, textViewSignUp, textViewAdminAccess};
 
         for (int i = 0; i < views.length; i++) {
             View view = views[i];
@@ -271,7 +282,7 @@ public class Login extends AppCompatActivity {
         String password = editTextPassword.getText().toString().trim();
 
         if (phoneNumber.equals("0123456789") && password.equals("123456")) {
-            Intent intent = new Intent(Login.this, Homepage.class);
+            Intent intent = new Intent(Login.this, MainActivity.class);
             intent.putExtra("user_name", "Tài khoản ảo");
             intent.putExtra("user_phone", phoneNumber);
             intent.putExtra("user_id", "virtual_user");
@@ -375,8 +386,8 @@ public class Login extends AppCompatActivity {
                             System.out.println("User ID: '" + userId + "'");
                             System.out.println("Full user object: " + userObject.toString());
 
-                            // ✅ Pass user data to Homepage
-                            Intent intent = new Intent(Login.this, Homepage.class);
+                            // ✅ Pass user data to MainActivity
+                            Intent intent = new Intent(Login.this, MainActivity.class);
                             intent.putExtra("user_name", userName);
                             intent.putExtra("user_phone", userPhone);
                             intent.putExtra("user_id", userId);
@@ -428,13 +439,19 @@ public class Login extends AppCompatActivity {
     }
 
     private void handleForgotPassword() {
-        Intent intent = new Intent(Login.this, ForgotPassword.class);
-        startActivity(intent);
+        // Handle forgot password logic
+        Toast.makeText(this, "Forgot password clicked", Toast.LENGTH_SHORT).show();
     }
 
     private void handleSignUp() {
+        // Handle sign up logic
         Intent intent = new Intent(Login.this, Register.class);
         startActivity(intent);
     }
-}
 
+    private void handleAdminAccess() {
+        // Handle admin access logic
+        Intent intent = new Intent(Login.this, AdminLoginActivity.class);
+        startActivity(intent);
+    }
+}

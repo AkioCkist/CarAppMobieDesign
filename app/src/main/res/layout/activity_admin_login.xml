@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/background_primary"
+    android:padding="24dp"
+    android:gravity="center_vertical">
+
+    <!-- Status bar spacer -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="48dp" />
+
+    <!-- Header Section -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="32dp">
+
+        <ImageView
+            android:id="@+id/imageViewAdminBack"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/arrow_left"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:padding="4dp"
+            android:layout_marginEnd="16dp"
+            app:tint="@color/white"
+            android:contentDescription="Go back" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Admin\nLogin"
+            android:textSize="48sp"
+            android:fontFamily="sans-serif-medium"
+            android:textColor="@color/white"
+            android:lineSpacingExtra="4dp"
+            android:gravity="start" />
+
+    </LinearLayout>
+
+    <!-- Subtitle -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="40dp"
+        android:text="Sign in as administrator"
+        android:fontFamily="sans-serif-medium"
+        android:textColor="@color/text_secondary"
+        android:textSize="20sp" />
+
+    <!-- Admin ID Input -->
+    <EditText
+        android:id="@+id/editTextAdminId"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:background="@drawable/input_background"
+        android:hint="Admin ID"
+        android:textColorHint="@color/text_hint"
+        android:textColor="@color/white"
+        android:textSize="16sp"
+        android:inputType="text"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Password Input -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:layout_marginBottom="32dp">
+
+        <EditText
+            android:id="@+id/editTextAdminPassword"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/input_background"
+            android:hint="Password"
+            android:textColorHint="@color/text_hint"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            android:inputType="textPassword"
+            android:paddingStart="20dp"
+            android:paddingEnd="56dp" />
+
+        <ImageView
+            android:id="@+id/imageViewTogglePassword"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="16dp"
+            android:src="@drawable/ic_eye_off"
+            android:contentDescription="Toggle password visibility"
+            android:scaleType="centerInside"
+            android:padding="4dp"
+            app:tint="@color/text_hint"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?attr/selectableItemBackgroundBorderless" />
+
+    </RelativeLayout>
+
+    <!-- Sign In Button -->
+    <Button
+        android:id="@+id/buttonAdminSignIn"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:text="Admin Sign In"
+        android:textColor="@color/white"
+        android:fontFamily="sans-serif-medium"
+        android:textSize="16sp"
+        android:background="@drawable/button_primary"
+        android:layout_marginBottom="40dp"
+        android:elevation="4dp" />
+
+    <!-- Spacer -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <!-- Footer -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="Authorized Personnel Only"
+        android:textColor="@color/text_hint"
+        android:fontFamily="sans-serif-medium"
+        android:textSize="14sp"
+        android:gravity="center" />
+
+</LinearLayout>

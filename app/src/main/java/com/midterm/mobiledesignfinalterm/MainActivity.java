@@ -1,6 +1,9 @@
 package com.midterm.mobiledesignfinalterm;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
+import androidx.core.graphics.Insets;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -37,7 +40,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void initializeViews() {
         buttonGoToLogin = findViewById(R.id.buttonGoToLogin);
-        rootLayout = findViewById(android.R.id.content); // Get the root layout
+        rootLayout = findViewById(R.id.mainLayout); // Get the actual root layout
     }
 
     private void setupClickListeners() {
@@ -53,6 +56,15 @@ public class MainActivity extends AppCompatActivity {
                 });
             }
         });
+        
+        // Apply window insets only if rootLayout is not null
+        if (rootLayout != null) {
+            ViewCompat.setOnApplyWindowInsetsListener(rootLayout, (v, insets) -> {
+                Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+                v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+                return insets;
+            });
+        }
     }
 
     private void applyEntranceAnimation() {
@@ -125,7 +137,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         // Add smooth back animation
-        super.onBackPressed();
         rootLayout.animate()
                 .alpha(0f)
                 .setDuration(200)

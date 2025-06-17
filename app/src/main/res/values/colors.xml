@@ -55,5 +55,10 @@
 
     <!-- AboutUs screen colors -->
     <color name="stat_card_background">#333333</color>
+    <color name="success_color">#4CAF50</color>
+    
+    <!-- Primary theme colors -->
+    <color name="primary_color">#FFD700</color>
+    <color name="primary_dark">#FFC107</color>
 </resources>
 
