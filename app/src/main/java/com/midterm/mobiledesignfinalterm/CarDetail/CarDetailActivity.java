@@ -98,16 +98,6 @@ public class CarDetailActivity extends AppCompatActivity {
         setupListeners();
     }
 
-    private void getCarDataFromIntent() {
-        if (getIntent().hasExtra("car_name")) {
-            carName = getIntent().getStringExtra("car_name");
-            Toast.makeText(this, "Viewing details for " + carName, Toast.LENGTH_SHORT).show();
-        } else {
-            // Default car name if not provided
-            carName = "Selected Car";
-        }
-    }
-
     private void initializeViews() {
         mainCarImageView = findViewById(R.id.iv_primaryCarImage);
         thumbnail1 = findViewById(R.id.thumbnail1);
@@ -378,28 +368,6 @@ public class CarDetailActivity extends AppCompatActivity {
             }
         }
     }
-    private void setupThumbnailListeners(List<Map<String, Object>> images) {
-        if (images.size() > 0) {
-            thumbnail1.setOnClickListener(v -> {
-                String url = (String) images.get(0).get("url");
-                Glide.with(CarDetailActivity.this).load(url).into(mainCarImageView);
-            });
-        }
-
-        if (images.size() > 1) {
-            thumbnail2.setOnClickListener(v -> {
-                String url = (String) images.get(1).get("url");
-                Glide.with(CarDetailActivity.this).load(url).into(mainCarImageView);
-            });
-        }
-
-        if (images.size() > 2) {
-            thumbnail3.setOnClickListener(v -> {
-                String url = (String) images.get(2).get("url");
-                Glide.with(CarDetailActivity.this).load(url).into(mainCarImageView);
-            });
-        }
-    }
     private void setupImageGallery() {
         // Initialize the thumbnail array
         thumbnailViews = new ImageView[]{thumbnail1, thumbnail2, thumbnail3};
@@ -482,25 +450,6 @@ public class CarDetailActivity extends AppCompatActivity {
         thumbnailViews[currentImageIndex].setScaleX(1.1f);
         thumbnailViews[currentImageIndex].setScaleY(1.1f);
     }
-
-    private void updateThumbnailSelection(ImageView selectedThumbnail) {
-        // Reset all thumbnails to normal state
-        resetThumbnailSelection(thumbnail1);
-        resetThumbnailSelection(thumbnail2);
-        resetThumbnailSelection(thumbnail3);
-
-        // Highlight selected thumbnail
-        selectedThumbnail.setAlpha(1.0f);
-        selectedThumbnail.setScaleX(1.1f);
-        selectedThumbnail.setScaleY(1.1f);
-    }
-
-    private void resetThumbnailSelection(ImageView thumbnail) {
-        thumbnail.setAlpha(0.7f);
-        thumbnail.setScaleX(1.0f);
-        thumbnail.setScaleY(1.0f);
-    }
-
     @Override
     protected void onResume() {
         super.onResume();
