@@ -6,8 +6,6 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -149,9 +147,7 @@ public class AdminDashboardActivity extends AppCompatActivity {
         for (int i = 0; i < views.length; i++) {
             final View view = views[i];
             new Handler().postDelayed(() -> {
-                Animation slideIn = AnimationUtils.loadAnimation(this, R.anim.slide_in_left);
                 view.setVisibility(View.VISIBLE);
-                view.startAnimation(slideIn);
             }, i * 100);
         }
     }
@@ -289,6 +285,6 @@ public class AdminDashboardActivity extends AppCompatActivity {
     public void onBackPressed() {
         // Override back press to perform logout
         handleLogout();
-        // super.onBackPressed(); // Optionally call super if you want default back behavior after logout, but usually not needed with finish()
+        super.onBackPressed(); // Required to call super method
     }
 }

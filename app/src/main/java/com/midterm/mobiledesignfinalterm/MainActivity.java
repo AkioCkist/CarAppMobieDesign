@@ -59,6 +59,7 @@ public class MainActivity extends AppCompatActivity {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
+<<<<<<< HEAD
         });oiidwawoinawodin
 >>>>>>> ffbf090 (still bug but commit for safety)
     }
@@ -148,5 +149,8 @@ public class MainActivity extends AppCompatActivity {
                     }
                 })
                 .start();
+=======
+        });
+>>>>>>> e7ce6bb (Add drawable resources and network security configuration)
     }
 }

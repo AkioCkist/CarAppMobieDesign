@@ -13,10 +13,11 @@ import android.view.animation.BounceInterpolator;
 import android.view.animation.OvershootInterpolator;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
 import com.midterm.mobiledesignfinalterm.R;
 
 import org.json.JSONException;
@@ -32,7 +33,7 @@ public class AdminLoginActivity extends AppCompatActivity {
 
     private EditText editTextAdminId;
     private EditText editTextPassword;
-    private ImageButton buttonTogglePassword;
+    private ImageView buttonTogglePassword;
     private Button buttonAdminSignIn;
     private ImageView imageViewBack;
 
@@ -58,8 +59,15 @@ public class AdminLoginActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_admin_login);
 
+        // Make status bar transparent and content edge-to-edge
+        WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
+        WindowInsetsControllerCompat windowInsetsController =
+                WindowCompat.getInsetsController(getWindow(), getWindow().getDecorView());
+        windowInsetsController.setAppearanceLightStatusBars(false);
+
         initializeViews();
         setupClickListeners();
+        setupFocusListeners();
         setupPasswordToggle();
         animateInitialEntrance();
     }
@@ -67,7 +75,7 @@ public class AdminLoginActivity extends AppCompatActivity {
     private void initializeViews() {
         editTextAdminId = findViewById(R.id.editTextAdminId);
         editTextPassword = findViewById(R.id.editTextAdminPassword);
-        buttonTogglePassword = findViewById(R.id.buttonToggleAdminPassword);
+        buttonTogglePassword = findViewById(R.id.imageViewTogglePassword);
         buttonAdminSignIn = findViewById(R.id.buttonAdminSignIn);
         imageViewBack = findViewById(R.id.imageViewAdminBack);
     }
@@ -264,5 +272,51 @@ public class AdminLoginActivity extends AppCompatActivity {
                 });
             }
         }).start();
+    }
+
+    private void setupFocusListeners() {
+        // Admin ID field focus animation
+        editTextAdminId.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (hasFocus) {
+                    animateEditTextFocus(v, true);
+                } else {
+                    animateEditTextFocus(v, false);
+                }
+            }
+        });
+
+        // Password field focus animation
+        editTextPassword.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (hasFocus) {
+                    animateEditTextFocus(v, true);
+                } else {
+                    animateEditTextFocus(v, false);
+                }
+            }
+        });
+    }
+
+    private void animateEditTextFocus(View view, boolean hasFocus) {
+        if (hasFocus) {
+            // Focus gained - popup effect
+            ObjectAnimator scaleX = ObjectAnimator.ofFloat(view, "scaleX", 1f, 1.05f, 1f);
+            ObjectAnimator scaleY = ObjectAnimator.ofFloat(view, "scaleY", 1f, 1.05f, 1f);
+            ObjectAnimator elevation = ObjectAnimator.ofFloat(view, "elevation", 0f, 8f);
+
+            AnimatorSet animatorSet = new AnimatorSet();
+            animatorSet.playTogether(scaleX, scaleY, elevation);
+            animatorSet.setDuration(300);
+            animatorSet.setInterpolator(new OvershootInterpolator(1.1f));
+            animatorSet.start();
+        } else {
+            // Focus lost - return to normal
+            ObjectAnimator elevation = ObjectAnimator.ofFloat(view, "elevation", 8f, 0f);
+            elevation.setDuration(200);
+            elevation.start();
+        }
     }
 }

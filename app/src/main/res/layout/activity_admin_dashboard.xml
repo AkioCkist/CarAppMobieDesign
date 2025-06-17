@@ -1,15 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res/auto"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/gradient_background">
+    android:background="@color/background_primary">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="24dp">
+
+        <!-- Status bar spacer -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="24dp" />
 
         <!-- Header Section -->
         <LinearLayout
@@ -17,8 +22,7 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:layout_marginTop="24dp"
-            android:layout_marginBottom="24dp">
+            android:layout_marginBottom="32dp">
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -30,27 +34,29 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Welcome Back,"
-                    android:textColor="@android:color/white"
-                    android:textSize="16sp"
-                    android:alpha="0.8" />
+                    android:textColor="@color/text_secondary"
+                    android:fontFamily="sans-serif-medium"
+                    android:textSize="16sp" />
 
                 <TextView
                     android:id="@+id/textViewAdminName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Administrator"
-                    android:textColor="@android:color/white"
-                    android:textSize="24sp"
-                    android:textStyle="bold" />
+                    android:textColor="@color/white"
+                    android:fontFamily="sans-serif-medium"
+                    android:textSize="28sp"
+                    android:layout_marginTop="4dp" />
 
                 <TextView
                     android:id="@+id/textViewAdminRole"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="System Admin"
-                    android:textColor="@android:color/white"
+                    android:textColor="@color/text_hint"
+                    android:fontFamily="sans-serif-medium"
                     android:textSize="14sp"
-                    android:alpha="0.7" />
+                    android:layout_marginTop="2dp" />
 
             </LinearLayout>
 
@@ -62,7 +68,9 @@
                 android:background="@drawable/circle_background"
                 android:padding="8dp"
                 android:contentDescription="Logout"
-                android:elevation="4dp" />
+                app:tint="@color/white"
+                android:clickable="true"
+                android:focusable="true" />
 
         </LinearLayout>
 
@@ -71,15 +79,15 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:layout_marginBottom="24dp">
+            android:layout_marginBottom="32dp">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Dashboard Overview"
-                android:textColor="@android:color/white"
-                android:textSize="18sp"
-                android:textStyle="bold"
+                android:textColor="@color/white"
+                android:fontFamily="sans-serif-medium"
+                android:textSize="20sp"
                 android:layout_marginBottom="16dp" />
 
             <!-- Statistics Row 1 -->
@@ -94,9 +102,9 @@
                     android:layout_height="80dp"
                     android:layout_weight="1"
                     android:layout_marginEnd="8dp"
-                    app:cardCornerRadius="12dp"
-                    app:cardElevation="6dp"
-                    app:cardBackgroundColor="@android:color/white">
+                    app:cardCornerRadius="8dp"
+                    app:cardElevation="4dp"
+                    app:cardBackgroundColor="@color/input_background">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -111,15 +119,16 @@
                             android:layout_height="wrap_content"
                             android:text="0"
                             android:textSize="24sp"
-                            android:textStyle="bold"
-                            android:textColor="@color/blue_primary" />
+                            android:fontFamily="sans-serif-medium"
+                            android:textColor="@color/accent_green" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Total Users"
                             android:textSize="12sp"
-                            android:textColor="@android:color/darker_gray" />
+                            android:fontFamily="sans-serif-medium"
+                            android:textColor="@color/text_secondary" />
 
                     </LinearLayout>
 
@@ -130,9 +139,9 @@
                     android:layout_height="80dp"
                     android:layout_weight="1"
                     android:layout_marginStart="8dp"
-                    app:cardCornerRadius="12dp"
-                    app:cardElevation="6dp"
-                    app:cardBackgroundColor="@android:color/white">
+                    app:cardCornerRadius="8dp"
+                    app:cardElevation="4dp"
+                    app:cardBackgroundColor="@color/input_background">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -255,9 +264,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Management"
-                android:textColor="@android:color/white"
-                android:textSize="18sp"
-                android:textStyle="bold"
+                android:textColor="@color/white"
+                android:fontFamily="sans-serif-medium"
+                android:textSize="20sp"
                 android:layout_marginBottom="16dp" />
 
             <!-- Management Cards Row 1 -->
@@ -270,12 +279,12 @@
                 <androidx.cardview.widget.CardView
                     android:id="@+id/cardUsers"
                     android:layout_width="0dp"
-                    android:layout_height="120dp"
+                    android:layout_height="100dp"
                     android:layout_weight="1"
                     android:layout_marginEnd="8dp"
-                    app:cardCornerRadius="16dp"
-                    app:cardElevation="8dp"
-                    app:cardBackgroundColor="@android:color/white"
+                    app:cardCornerRadius="8dp"
+                    app:cardElevation="4dp"
+                    app:cardBackgroundColor="@color/input_background"
                     android:clickable="true"
                     android:focusable="true"
                     android:foreground="?android:attr/selectableItemBackground">
@@ -288,18 +297,19 @@
                         android:padding="16dp">
 
                         <ImageView
-                            android:layout_width="40dp"
-                            android:layout_height="40dp"
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
                             android:src="@drawable/ic_users"
+                            app:tint="@color/accent_green"
                             android:layout_marginBottom="8dp" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="User\nManagement"
-                            android:textSize="14sp"
-                            android:textStyle="bold"
-                            android:textColor="@android:color/black"
+                            android:textSize="12sp"
+                            android:fontFamily="sans-serif-medium"
+                            android:textColor="@color/white"
                             android:gravity="center" />
 
                     </LinearLayout>
@@ -309,12 +319,12 @@
                 <androidx.cardview.widget.CardView
                     android:id="@+id/cardCars"
                     android:layout_width="0dp"
-                    android:layout_height="120dp"
+                    android:layout_height="100dp"
                     android:layout_weight="1"
                     android:layout_marginStart="8dp"
-                    app:cardCornerRadius="16dp"
-                    app:cardElevation="8dp"
-                    app:cardBackgroundColor="@android:color/white"
+                    app:cardCornerRadius="8dp"
+                    app:cardElevation="4dp"
+                    app:cardBackgroundColor="@color/input_background"
                     android:clickable="true"
                     android:focusable="true"
                     android:foreground="?android:attr/selectableItemBackground">
@@ -327,18 +337,19 @@
                         android:padding="16dp">
 
                         <ImageView
-                            android:layout_width="40dp"
-                            android:layout_height="40dp"
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
                             android:src="@drawable/ic_car"
+                            app:tint="@color/accent_green"
                             android:layout_marginBottom="8dp" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Car\nManagement"
-                            android:textSize="14sp"
-                            android:textStyle="bold"
-                            android:textColor="@android:color/black"
+                            android:textSize="12sp"
+                            android:fontFamily="sans-serif-medium"
+                            android:textColor="@color/white"
                             android:gravity="center" />
 
                     </LinearLayout>
@@ -356,12 +367,12 @@
                 <androidx.cardview.widget.CardView
                     android:id="@+id/cardBookings"
                     android:layout_width="0dp"
-                    android:layout_height="120dp"
+                    android:layout_height="100dp"
                     android:layout_weight="1"
                     android:layout_marginEnd="8dp"
-                    app:cardCornerRadius="16dp"
-                    app:cardElevation="8dp"
-                    app:cardBackgroundColor="@android:color/white"
+                    app:cardCornerRadius="8dp"
+                    app:cardElevation="4dp"
+                    app:cardBackgroundColor="@color/input_background"
                     android:clickable="true"
                     android:focusable="true"
                     android:foreground="?android:attr/selectableItemBackground">
@@ -374,18 +385,19 @@
                         android:padding="16dp">
 
                         <ImageView
-                            android:layout_width="40dp"
-                            android:layout_height="40dp"
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
                             android:src="@drawable/ic_booking"
+                            app:tint="@color/accent_green"
                             android:layout_marginBottom="8dp" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Booking\nManagement"
-                            android:textSize="14sp"
-                            android:textStyle="bold"
-                            android:textColor="@android:color/black"
+                            android:textSize="12sp"
+                            android:fontFamily="sans-serif-medium"
+                            android:textColor="@color/white"
                             android:gravity="center" />
 
                     </LinearLayout>
@@ -395,12 +407,12 @@
                 <androidx.cardview.widget.CardView
                     android:id="@+id/cardReports"
                     android:layout_width="0dp"
-                    android:layout_height="120dp"
+                    android:layout_height="100dp"
                     android:layout_weight="1"
                     android:layout_marginStart="8dp"
-                    app:cardCornerRadius="16dp"
-                    app:cardElevation="8dp"
-                    app:cardBackgroundColor="@android:color/white"
+                    app:cardCornerRadius="8dp"
+                    app:cardElevation="4dp"
+                    app:cardBackgroundColor="@color/input_background"
                     android:clickable="true"
                     android:focusable="true"
                     android:foreground="?android:attr/selectableItemBackground">
@@ -413,18 +425,19 @@
                         android:padding="16dp">
 
                         <ImageView
-                            android:layout_width="40dp"
-                            android:layout_height="40dp"
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
                             android:src="@drawable/ic_reports"
+                            app:tint="@color/accent_green"
                             android:layout_marginBottom="8dp" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Reports &amp;\nAnalytics"
-                            android:textSize="14sp"
-                            android:textStyle="bold"
-                            android:textColor="@android:color/black"
+                            android:textSize="12sp"
+                            android:fontFamily="sans-serif-medium"
+                            android:textColor="@color/white"
                             android:gravity="center" />
 
                     </LinearLayout>

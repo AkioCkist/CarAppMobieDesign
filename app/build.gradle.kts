@@ -29,6 +29,10 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+    
+    lint {
+        baseline = file("lint-baseline.xml")
+    }
 }
 
 dependencies {
@@ -42,6 +46,7 @@ dependencies {
     androidTestImplementation(libs.espresso.core)
 
     implementation ("com.google.android.material:material:1.9.0")
+    implementation ("androidx.cardview:cardview:1.0.0")
     implementation ("androidx.transition:transition:1.4.1")
 
     implementation ("mysql:mysql-connector-java:8.0.28")
@@ -49,5 +54,4 @@ dependencies {
     implementation ("org.mindrot:jbcrypt:0.4")
     implementation ("com.android.volley:volley:1.2.1")
     implementation ("de.hdodenhof:circleimageview:3.1.0")
-    implementation ("androidx.cardview:cardview:1.0.0")
 }

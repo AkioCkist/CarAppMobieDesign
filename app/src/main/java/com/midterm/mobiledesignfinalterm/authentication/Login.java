@@ -19,7 +19,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
 
-import com.midterm.mobiledesignfinalterm.homepage.Homepage;
+import com.midterm.mobiledesignfinalterm.MainActivity;
 import com.midterm.mobiledesignfinalterm.R;
 import com.midterm.mobiledesignfinalterm.admin.AdminLoginActivity;
 
@@ -282,7 +282,7 @@ public class Login extends AppCompatActivity {
         String password = editTextPassword.getText().toString().trim();
 
         if (phoneNumber.equals("0123456789") && password.equals("123456")) {
-            Intent intent = new Intent(Login.this, Homepage.class);
+            Intent intent = new Intent(Login.this, MainActivity.class);
             intent.putExtra("user_name", "Tài khoản ảo");
             intent.putExtra("user_phone", phoneNumber);
             intent.putExtra("user_id", "virtual_user");
@@ -386,8 +386,8 @@ public class Login extends AppCompatActivity {
                             System.out.println("User ID: '" + userId + "'");
                             System.out.println("Full user object: " + userObject.toString());
 
-                            // ✅ Pass user data to Homepage
-                            Intent intent = new Intent(Login.this, Homepage.class);
+                            // ✅ Pass user data to MainActivity
+                            Intent intent = new Intent(Login.this, MainActivity.class);
                             intent.putExtra("user_name", userName);
                             intent.putExtra("user_phone", userPhone);
                             intent.putExtra("user_id", userId);
@@ -439,6 +439,7 @@ public class Login extends AppCompatActivity {
     }
 
     private void handleForgotPassword() {
+<<<<<<< HEAD
         // Handle forgot password logic
         Toast.makeText(this, "Forgot password clicked", Toast.LENGTH_SHORT).show();
     }
@@ -447,6 +448,13 @@ public class Login extends AppCompatActivity {
         // Handle sign up logic
         Intent intent = new Intent(Login.this, SignUp.class);
         startActivity(intent);
+=======
+        Toast.makeText(this, "Forgot Password feature coming soon", Toast.LENGTH_SHORT).show();
+    }
+
+    private void handleSignUp() {
+        Toast.makeText(this, "Sign Up feature coming soon", Toast.LENGTH_SHORT).show();
+>>>>>>> e7ce6bb (Add drawable resources and network security configuration)
     }
 
     private void handleAdminAccess() {
