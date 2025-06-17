@@ -116,6 +116,7 @@ public class CarListing extends AppCompatActivity {
             userPhone = intent.getStringExtra("user_phone");
             userName = intent.getStringExtra("user_name");
             userRoles = intent.getStringArrayListExtra("user_roles");
+            userId = intent.getStringExtra("user_id"); // Changed from account_id to user_id to match Homepage
             pickupLocation = intent.getStringExtra("pickup_location");
             dropoffLocation = intent.getStringExtra("dropoff_location");
             pickupDate = intent.getStringExtra("pickup_date");
@@ -932,11 +933,88 @@ public class CarListing extends AppCompatActivity {
     }
 
     private void handleFavoriteToggle(Car car, int position) {
-        car.setFavorite(!car.isFavorite());
-        carAdapter.notifyItemChanged(position);
+        // Check if user is logged in (userId is required)
+        if (userId == null || userId.isEmpty()) {
+            Toast.makeText(this, "Please log in to add favorites", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
-        String message = car.isFavorite() ? "Added to favorites" : "Removed from favorites";
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+        // Show loading indicator
+        View loadingView = findViewById(R.id.loadingView);
+        if (loadingView != null) {
+            loadingView.setVisibility(View.VISIBLE);
+        }
+
+        // Prepare the request body
+        java.util.HashMap<String, Object> requestBody = new java.util.HashMap<>();
+        requestBody.put("account_id", Integer.parseInt(userId));
+        requestBody.put("vehicle_id", car.getVehicleId());
+
+        Log.d("FavoriteToggle", "Toggling favorite for car ID: " + car.getVehicleId() +
+                              ", account ID: " + userId +
+                              ", current status: " + car.isFavorite());
+
+        // Make API call to toggle favorite
+        com.midterm.mobiledesignfinalterm.api.FavoriteApiService apiService =
+                com.midterm.mobiledesignfinalterm.api.RetrofitClient.getFavoriteApiService();
+
+        apiService.toggleFavorite(requestBody).enqueue(new retrofit2.Callback<Map<String, Object>>() {
+            @Override
+            public void onResponse(retrofit2.Call<Map<String, Object>> call, retrofit2.Response<Map<String, Object>> response) {
+                // Hide loading indicator
+                if (loadingView != null) {
+                    loadingView.setVisibility(View.GONE);
+                }
+
+                if (response.isSuccessful() && response.body() != null) {
+                    try {
+                        Map<String, Object> responseData = response.body();
+                        String status = (String) responseData.get("status");
+                        String message = (String) responseData.get("message");
+                        Boolean isFavorite = (Boolean) responseData.get("is_favorite");
+
+                        if ("success".equals(status)) {
+                            // Update the car's favorite status based on server response
+                            car.setFavorite(isFavorite != null ? isFavorite : !car.isFavorite());
+
+                            // Update the UI
+                            carAdapter.notifyItemChanged(position);
+
+                            // Show success message
+                            Toast.makeText(CarListing.this, message, Toast.LENGTH_SHORT).show();
+
+                            Log.d("FavoriteToggle", "Success: " + message + ", is_favorite: " + car.isFavorite());
+                        } else {
+                            // Show error message
+                            Toast.makeText(CarListing.this, "Failed to update favorite: " + message, Toast.LENGTH_SHORT).show();
+                            Log.e("FavoriteToggle", "API error: " + message);
+                        }
+                    } catch (Exception e) {
+                        Toast.makeText(CarListing.this, "Error processing response", Toast.LENGTH_SHORT).show();
+                        Log.e("FavoriteToggle", "Error parsing response: " + e.getMessage(), e);
+                    }
+                } else {
+                    try {
+                        String errorBody = response.errorBody() != null ? response.errorBody().string() : "Unknown error";
+                        Toast.makeText(CarListing.this, "Failed to update favorite", Toast.LENGTH_SHORT).show();
+                        Log.e("FavoriteToggle", "API response error: " + response.code() + " - " + errorBody);
+                    } catch (Exception e) {
+                        Log.e("FavoriteToggle", "Error reading error body: " + e.getMessage());
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(retrofit2.Call<Map<String, Object>> call, Throwable t) {
+                // Hide loading indicator
+                if (loadingView != null) {
+                    loadingView.setVisibility(View.GONE);
+                }
+
+                Toast.makeText(CarListing.this, "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                Log.e("FavoriteToggle", "API call failed", t);
+            }
+        });
     }
 
     // Dropdown menu methods
