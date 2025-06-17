@@ -71,6 +71,9 @@ public class CarDetailActivity extends AppCompatActivity {
     // List to hold image URLs
     private List<String> imageUrls = new ArrayList<>();
 
+    // Thêm biến lưu Car cuối cùng được load
+    private Car lastLoadedCar = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -140,6 +143,19 @@ public class CarDetailActivity extends AppCompatActivity {
                     intent.putExtra("car_id", carId);
                     intent.putExtra("car_name", tvCarName.getText().toString());
                     intent.putExtra("car_price", tvTotalPrice.getText().toString());
+                    // Truyền đúng giá trị số từ model Car, không lấy từ TextView
+                    double basePrice = 0;
+                    double insurancePrice = 0;
+                    double totalPrice = 0;
+                    try {
+                        // Lấy trực tiếp từ model Car thay vì TextView
+                        basePrice = lastLoadedCar != null ? lastLoadedCar.getBasePrice() : 0;
+                        insurancePrice = basePrice * 0.1;
+                        totalPrice = basePrice + insurancePrice;
+                    } catch (Exception e) {
+                        totalPrice = 0;
+                    }
+                    intent.putExtra("car_price_raw", totalPrice);
 
                     // Pass user information
                     intent.putExtra("user_id", userID);
@@ -250,6 +266,7 @@ public class CarDetailActivity extends AppCompatActivity {
         });
     }
     private void updateCarDetailsFromCarObject(Car car) {
+        lastLoadedCar = car;
         // Update car name
         tvCarName.setText(car.getName());
 

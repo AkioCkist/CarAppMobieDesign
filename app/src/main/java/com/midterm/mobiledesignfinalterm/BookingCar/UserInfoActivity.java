@@ -21,6 +21,7 @@ public class UserInfoActivity extends AppCompatActivity {
 
     private String pickupLocation, dropoffLocation, pickupDate, pickupTime, dropoffDate, dropoffTime;
     private String carId, carName, carPrice, userId, userPhone, userName;
+    private double carPriceRaw = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,6 +44,9 @@ public class UserInfoActivity extends AppCompatActivity {
         carId = String.valueOf(intent.getIntExtra("car_id", -1));
         carName = intent.getStringExtra("car_name");
         carPrice = intent.getStringExtra("car_price");
+        if (intent.hasExtra("car_price_raw")) {
+            carPriceRaw = intent.getDoubleExtra("car_price_raw", 0);
+        }
         userId = intent.getStringExtra("user_id");
         userPhone = intent.getStringExtra("user_phone");
         userName = intent.getStringExtra("user_name");
@@ -95,7 +99,8 @@ public class UserInfoActivity extends AppCompatActivity {
                 intent.putExtra("user_id", userId);
                 intent.putExtra("user_name", userName);
                 intent.putExtra("user_phone", userPhone);
-
+                // Pass car price raw
+                intent.putExtra("car_price_raw", carPriceRaw);
                 startActivity(intent);
 
                 // Reset button state
