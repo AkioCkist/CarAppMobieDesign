@@ -56,6 +56,7 @@ public class CarListing extends AppCompatActivity {
     // User information
     private String userPhone;
     private String userName;
+    private String userId;
     private List<String> userRoles;
     private boolean isDropdownVisible = false;
 
@@ -915,6 +916,7 @@ public class CarListing extends AppCompatActivity {
         intent.putExtra("car_id", car.getVehicleId());
 
         // Pass user information
+        intent.putExtra("user_id", userId);
         intent.putExtra("user_phone", userPhone);
         intent.putExtra("user_name", userName);
 
