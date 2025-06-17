@@ -45,6 +45,8 @@ public class ThankYouActivity extends AppCompatActivity {
     // Color for PDF text (using green_primary color)
     private DeviceRgb greenPrimaryColor;
 
+    private String userId, userName, userPhone;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,6 +58,12 @@ public class ThankYouActivity extends AppCompatActivity {
                 (greenColorInt >> 16) & 0xFF,
                 (greenColorInt >> 8) & 0xFF,
                 greenColorInt & 0xFF);
+
+        // Get user info from intent
+        Intent intent = getIntent();
+        userId = intent.getStringExtra("user_id");
+        userName = intent.getStringExtra("user_name");
+        userPhone = intent.getStringExtra("user_phone");
 
         initViews();
         displayBookingDetails();
@@ -106,6 +114,10 @@ public class ThankYouActivity extends AppCompatActivity {
         btnBackToHome.setOnClickListener(v -> {
             Intent intent = new Intent(this, Homepage.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+            // Pass user info to Homepage to keep login
+            intent.putExtra("user_id", userId);
+            intent.putExtra("user_name", userName);
+            intent.putExtra("user_phone", userPhone);
             startActivity(intent);
             finish();
         });

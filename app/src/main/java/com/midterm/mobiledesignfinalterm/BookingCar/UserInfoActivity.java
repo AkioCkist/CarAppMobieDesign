@@ -91,6 +91,10 @@ public class UserInfoActivity extends AppCompatActivity {
                 intent.putExtra("phone", etPhone.getText().toString().trim());
                 intent.putExtra("citizen_id", etCitizenId.getText().toString().trim());
                 intent.putExtra("tax_id", etTaxId.getText().toString().trim());
+                // Pass user data for next activities
+                intent.putExtra("user_id", userId);
+                intent.putExtra("user_name", userName);
+                intent.putExtra("user_phone", userPhone);
 
                 startActivity(intent);
 
