@@ -20,6 +20,8 @@ public class UserInfoActivity extends AppCompatActivity {
     private ImageView ivBack;
 
     private String pickupLocation, dropoffLocation, pickupDate, pickupTime, dropoffDate, dropoffTime;
+    private String carId, carName, carPrice, userId, userPhone, userName;
+    private double carPriceRaw = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +41,15 @@ public class UserInfoActivity extends AppCompatActivity {
         pickupTime = intent.getStringExtra("pickup_time");
         dropoffDate = intent.getStringExtra("dropoff_date");
         dropoffTime = intent.getStringExtra("dropoff_time");
+        carId = String.valueOf(intent.getIntExtra("car_id", -1));
+        carName = intent.getStringExtra("car_name");
+        carPrice = intent.getStringExtra("car_price");
+        if (intent.hasExtra("car_price_raw")) {
+            carPriceRaw = intent.getDoubleExtra("car_price_raw", 0);
+        }
+        userId = intent.getStringExtra("user_id");
+        userPhone = intent.getStringExtra("user_phone");
+        userName = intent.getStringExtra("user_name");
     }
 
     private void initViews() {
@@ -50,6 +61,15 @@ public class UserInfoActivity extends AppCompatActivity {
         cbTermsAccepted = findViewById(R.id.cb_terms_accepted);
         btnNextStep = findViewById(R.id.btn_next_step);
         ivBack = findViewById(R.id.iv_back);
+
+        // Autofill user info if available
+        if (userName != null && !userName.isEmpty()) {
+            etFullName.setText(userName);
+        }
+        if (userPhone != null && !userPhone.isEmpty()) {
+            etPhone.setText(userPhone);
+        }
+        // Optionally, autofill email or other fields if you have them
     }
 
     private void setupClickListeners() {
@@ -75,7 +95,12 @@ public class UserInfoActivity extends AppCompatActivity {
                 intent.putExtra("phone", etPhone.getText().toString().trim());
                 intent.putExtra("citizen_id", etCitizenId.getText().toString().trim());
                 intent.putExtra("tax_id", etTaxId.getText().toString().trim());
-
+                // Pass user data for next activities
+                intent.putExtra("user_id", userId);
+                intent.putExtra("user_name", userName);
+                intent.putExtra("user_phone", userPhone);
+                // Pass car price raw
+                intent.putExtra("car_price_raw", carPriceRaw);
                 startActivity(intent);
 
                 // Reset button state

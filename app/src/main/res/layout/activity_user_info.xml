@@ -49,6 +49,12 @@
         <View
             android:layout_width="60dp"
             android:layout_height="4dp"
+            android:background="#9AFF00"
+            android:layout_marginStart="5dp" />
+
+        <View
+            android:layout_width="60dp"
+            android:layout_height="4dp"
             android:background="#555555"
             android:layout_marginStart="5dp" />
     </LinearLayout>
