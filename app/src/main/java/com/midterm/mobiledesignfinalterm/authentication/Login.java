@@ -439,7 +439,6 @@ public class Login extends AppCompatActivity {
     }
 
     private void handleForgotPassword() {
-<<<<<<< HEAD
         // Handle forgot password logic
         Toast.makeText(this, "Forgot password clicked", Toast.LENGTH_SHORT).show();
     }
@@ -448,13 +447,6 @@ public class Login extends AppCompatActivity {
         // Handle sign up logic
         Intent intent = new Intent(Login.this, SignUp.class);
         startActivity(intent);
-=======
-        Toast.makeText(this, "Forgot Password feature coming soon", Toast.LENGTH_SHORT).show();
-    }
-
-    private void handleSignUp() {
-        Toast.makeText(this, "Sign Up feature coming soon", Toast.LENGTH_SHORT).show();
->>>>>>> e7ce6bb (Add drawable resources and network security configuration)
     }
 
     private void handleAdminAccess() {
