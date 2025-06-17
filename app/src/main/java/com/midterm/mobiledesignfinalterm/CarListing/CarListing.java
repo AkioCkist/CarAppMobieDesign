@@ -170,13 +170,38 @@ public class CarListing extends AppCompatActivity {
 
         // Second line: Pickup Time, Pickup Date --- Dropoff Time, Dropoff Date
         if (pickupTime != null && pickupDate != null && dropoffTime != null && dropoffDate != null) {
-            sb.append(pickupTime)
-                    .append(", ")
-                    .append(pickupDate)
-                    .append(" --- ")
-                    .append(dropoffTime)
-                    .append(", ")
-                    .append(dropoffDate);
+            try {
+                // Convert from stored format (dd/MM/yyyy) to display format (dd MMMM yyyy)
+                java.text.SimpleDateFormat storedFormat = new java.text.SimpleDateFormat("dd/MM/yyyy");
+                java.text.SimpleDateFormat displayFormat = new java.text.SimpleDateFormat("dd MMMM yyyy");
+
+                // Parse and format the pickup date
+                java.util.Date pickupDateObj = storedFormat.parse(pickupDate);
+                String pickupDateFormatted = displayFormat.format(pickupDateObj);
+
+                // Parse and format the dropoff date
+                java.util.Date dropoffDateObj = storedFormat.parse(dropoffDate);
+                String dropoffDateFormatted = displayFormat.format(dropoffDateObj);
+
+                sb.append(pickupTime)
+                        .append(", ")
+                        .append(pickupDateFormatted)
+                        .append(" --- ")
+                        .append(dropoffTime)
+                        .append(", ")
+                        .append(dropoffDateFormatted);
+            } catch (Exception e) {
+                // Fallback to original format if parsing fails
+                Log.e("CarListing", "Error converting date format: " + e.getMessage());
+
+                sb.append(pickupTime)
+                        .append(", ")
+                        .append(pickupDate)
+                        .append(" --- ")
+                        .append(dropoffTime)
+                        .append(", ")
+                        .append(dropoffDate);
+            }
         } else {
             sb.append("Time and date not specified");
         }
@@ -799,10 +824,10 @@ public class CarListing extends AppCompatActivity {
 
             // Format time portion (HH:mm)
             java.text.SimpleDateFormat timeFormat = new java.text.SimpleDateFormat("HH:mm");
-            // Format date portion (dd/MM/yyyy)
-            java.text.SimpleDateFormat dateFormat = new java.text.SimpleDateFormat("dd/MM/yyyy");
+            // Format date portion with month as text (dd MMMM yyyy), e.g. "15 June 2023"
+            java.text.SimpleDateFormat dateFormat = new java.text.SimpleDateFormat("dd MMMM yyyy");
 
-            // Combine them with the desired format "HH:mm - dd/MM/yyyy"
+            // Combine them with the desired format "HH:mm - dd MMMM yyyy" (e.g. "14:30 - 15 June 2023")
             String formattedDateTime = timeFormat.format(calendar.getTime()) + " - " + dateFormat.format(calendar.getTime());
             targetButton.setText(formattedDateTime);
 
@@ -821,19 +846,35 @@ public class CarListing extends AppCompatActivity {
                     Toast.makeText(CarListing.this, "Return time set to 1 hour after pickup", Toast.LENGTH_SHORT).show();
                 } else {
                     try {
-                        // Try to parse the return time using the new format
-                        String[] parts = returnTimeStr.split(" - ");
-                        if (parts.length == 2) {
-                            java.text.SimpleDateFormat fullFormat = new java.text.SimpleDateFormat("HH:mm dd/MM/yyyy");
-                            returnCal.setTime(fullFormat.parse(parts[0] + " " + parts[1]));
+                        // Try to parse the return time using the new format with text month
+                        if (returnTimeStr.contains(" - ")) {
+                            String[] parts = returnTimeStr.split(" - ");
 
-                            // If return date/time is before pickup date/time, adjust it
-                            if (returnCal.before(calendar)) {
-                                // Set return time to 1 hour after pickup
-                                returnCal.setTimeInMillis(calendar.getTimeInMillis());
-                                returnCal.add(java.util.Calendar.HOUR_OF_DAY, 1);
-                                btnReturnTime.setText(timeFormat.format(returnCal.getTime()) + " - " + dateFormat.format(returnCal.getTime()));
-                                Toast.makeText(CarListing.this, "Return time adjusted to be after pickup time", Toast.LENGTH_SHORT).show();
+                            if (parts.length == 2) {
+                                java.text.SimpleDateFormat fullFormat = new java.text.SimpleDateFormat("HH:mm dd MMMM yyyy");
+
+                                try {
+                                    // First try parsing with the new format (with text month)
+                                    returnCal.setTime(fullFormat.parse(parts[0] + " " + parts[1]));
+                                } catch (Exception e) {
+                                    // If parsing fails, check if the old format was used
+                                    try {
+                                        java.text.SimpleDateFormat oldFormat = new java.text.SimpleDateFormat("HH:mm dd/MM/yyyy");
+                                        returnCal.setTime(oldFormat.parse(parts[0] + " " + parts[1]));
+                                    } catch (Exception ex) {
+                                        // If both formats fail, just continue with current calendar
+                                        Log.e("CarListing", "Error parsing return date: " + ex.getMessage());
+                                    }
+                                }
+
+                                // If return date/time is before pickup date/time, adjust it
+                                if (returnCal.before(calendar)) {
+                                    // Set return time to 1 hour after pickup
+                                    returnCal.setTimeInMillis(calendar.getTimeInMillis());
+                                    returnCal.add(java.util.Calendar.HOUR_OF_DAY, 1);
+                                    btnReturnTime.setText(timeFormat.format(returnCal.getTime()) + " - " + dateFormat.format(returnCal.getTime()));
+                                    Toast.makeText(CarListing.this, "Return time adjusted to be after pickup time", Toast.LENGTH_SHORT).show();
+                                }
                             }
                         }
                     } catch (Exception e) {
@@ -845,10 +886,12 @@ public class CarListing extends AppCompatActivity {
             // Update the class variables based on which button was clicked
             if (targetButton.getId() == R.id.btnPickupTime) {
                 pickupTime = timeFormat.format(calendar.getTime());
-                pickupDate = dateFormat.format(calendar.getTime());
+                // Store the date in MM/dd/yyyy format to maintain compatibility
+                pickupDate = new java.text.SimpleDateFormat("dd/MM/yyyy").format(calendar.getTime());
             } else {
                 dropoffTime = timeFormat.format(calendar.getTime());
-                dropoffDate = dateFormat.format(calendar.getTime());
+                // Store the date in MM/dd/yyyy format to maintain compatibility
+                dropoffDate = new java.text.SimpleDateFormat("dd/MM/yyyy").format(calendar.getTime());
             }
         });
         // Show the time picker
