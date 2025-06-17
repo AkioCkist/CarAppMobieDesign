@@ -604,9 +604,18 @@ public class CarListing extends AppCompatActivity {
             spinnerReturnLocation.setSelection(spinnerPickupLocation.getSelectedItemPosition());
         }
 
-        // Set current time
-        btnPickupTime.setText(pickupTime != null ? pickupTime : "Select Time");
-        btnReturnTime.setText(dropoffTime != null ? dropoffTime : "Select Time");
+        // Set current time and date for pickup and return buttons
+        if (pickupTime != null && pickupDate != null) {
+            btnPickupTime.setText(pickupTime + " - " + pickupDate);
+        } else {
+            btnPickupTime.setText("Select Time");
+        }
+
+        if (dropoffTime != null && dropoffDate != null) {
+            btnReturnTime.setText(dropoffTime + " - " + dropoffDate);
+        } else {
+            btnReturnTime.setText("Select Time");
+        }
 
         // Create dialog first so we can reference it
         android.app.AlertDialog dialog = builder.create();
@@ -631,6 +640,37 @@ public class CarListing extends AppCompatActivity {
 
             // Get return location (we don't have a checkbox, so just get the selected item)
             dropoffLocation = spinnerReturnLocation.getSelectedItem().toString();
+
+            // Get the date/time values from the buttons
+            String pickupTimeText = btnPickupTime.getText().toString();
+            String returnTimeText = btnReturnTime.getText().toString();
+
+            // Parse the date/time values if they're in the expected format
+            if (!pickupTimeText.equals("Select Time") && pickupTimeText.contains(" - ")) {
+                try {
+                    // Expected format is "HH:mm - dd/MM/yyyy"
+                    String[] parts = pickupTimeText.split(" - ", 2);
+                    if (parts.length == 2) {
+                        pickupTime = parts[0]; // HH:mm
+                        pickupDate = parts[1]; // dd/MM/yyyy
+                    }
+                } catch (Exception e) {
+                    Log.e("CarListing", "Error parsing pickup time/date: " + e.getMessage());
+                }
+            }
+
+            if (!returnTimeText.equals("Select Time") && returnTimeText.contains(" - ")) {
+                try {
+                    // Expected format is "HH:mm - dd/MM/yyyy"
+                    String[] parts = returnTimeText.split(" - ", 2);
+                    if (parts.length == 2) {
+                        dropoffTime = parts[0]; // HH:mm
+                        dropoffDate = parts[1]; // dd/MM/yyyy
+                    }
+                } catch (Exception e) {
+                    Log.e("CarListing", "Error parsing return time/date: " + e.getMessage());
+                }
+            }
 
             // Update the button text
             updateDateTimeLocationButton();
@@ -673,7 +713,28 @@ public class CarListing extends AppCompatActivity {
         String current = targetButton.getText().toString();
         java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("HH:mm dd/MM/yyyy");
         java.util.Calendar calendar = java.util.Calendar.getInstance();
-        try { calendar.setTime(sdf.parse(current)); } catch (Exception ignored) {}
+
+        // Try to parse the current button text if it has the correct format
+        try {
+            calendar.setTime(sdf.parse(current));
+        } catch (Exception e) {
+            // If parsing fails, set calendar to current time
+            // Also try to use the existing date/time values from the class variables
+            if (targetButton.getId() == R.id.btnPickupTime && pickupTime != null && pickupDate != null) {
+                try {
+                    calendar.setTime(sdf.parse(pickupTime + " " + pickupDate));
+                } catch (Exception ex) {
+                    // Just use current time if this also fails
+                }
+            } else if (targetButton.getId() == R.id.btnReturnTime && dropoffTime != null && dropoffDate != null) {
+                try {
+                    calendar.setTime(sdf.parse(dropoffTime + " " + dropoffDate));
+                } catch (Exception ex) {
+                    // Just use current time if this also fails
+                }
+            }
+        }
+
         // Directly show Material date picker for the button that was clicked
         showMaterialDatePicker(targetButton, calendar);
     }
@@ -736,8 +797,14 @@ public class CarListing extends AppCompatActivity {
             calendar.set(java.util.Calendar.HOUR_OF_DAY, timePicker.getHour());
             calendar.set(java.util.Calendar.MINUTE, timePicker.getMinute());
 
-            java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("HH:mm dd/MM/yyyy");
-            targetButton.setText(sdf.format(calendar.getTime()));
+            // Format time portion (HH:mm)
+            java.text.SimpleDateFormat timeFormat = new java.text.SimpleDateFormat("HH:mm");
+            // Format date portion (dd/MM/yyyy)
+            java.text.SimpleDateFormat dateFormat = new java.text.SimpleDateFormat("dd/MM/yyyy");
+
+            // Combine them with the desired format "HH:mm - dd/MM/yyyy"
+            String formattedDateTime = timeFormat.format(calendar.getTime()) + " - " + dateFormat.format(calendar.getTime());
+            targetButton.setText(formattedDateTime);
 
             // Check if this is pickup time and adjust dropoff if needed
             Button btnReturnTime = ((android.app.AlertDialog)targetButton.getTag()).findViewById(R.id.btnReturnTime);
@@ -745,19 +812,43 @@ public class CarListing extends AppCompatActivity {
             if (targetButton.getId() == R.id.btnPickupTime && btnReturnTime != null) {
                 String returnTimeStr = btnReturnTime.getText().toString();
                 java.util.Calendar returnCal = java.util.Calendar.getInstance();
-                try {
-                    returnCal.setTime(sdf.parse(returnTimeStr));
-                    // If return date/time is before pickup date/time, adjust it
-                    if (returnCal.before(calendar)) {
-                        // Set return time to 1 hour after pickup
-                        returnCal.setTimeInMillis(calendar.getTimeInMillis());
-                        returnCal.add(java.util.Calendar.HOUR_OF_DAY, 1);
-                        btnReturnTime.setText(sdf.format(returnCal.getTime()));
-                        Toast.makeText(CarListing.this, "Return time adjusted to be after pickup time", Toast.LENGTH_SHORT).show();
+
+                if (returnTimeStr.equals("Select Time")) {
+                    // If return time is not set yet, set it to pickup time + 1 hour
+                    returnCal.setTimeInMillis(calendar.getTimeInMillis());
+                    returnCal.add(java.util.Calendar.HOUR_OF_DAY, 1);
+                    btnReturnTime.setText(timeFormat.format(returnCal.getTime()) + " - " + dateFormat.format(returnCal.getTime()));
+                    Toast.makeText(CarListing.this, "Return time set to 1 hour after pickup", Toast.LENGTH_SHORT).show();
+                } else {
+                    try {
+                        // Try to parse the return time using the new format
+                        String[] parts = returnTimeStr.split(" - ");
+                        if (parts.length == 2) {
+                            java.text.SimpleDateFormat fullFormat = new java.text.SimpleDateFormat("HH:mm dd/MM/yyyy");
+                            returnCal.setTime(fullFormat.parse(parts[0] + " " + parts[1]));
+
+                            // If return date/time is before pickup date/time, adjust it
+                            if (returnCal.before(calendar)) {
+                                // Set return time to 1 hour after pickup
+                                returnCal.setTimeInMillis(calendar.getTimeInMillis());
+                                returnCal.add(java.util.Calendar.HOUR_OF_DAY, 1);
+                                btnReturnTime.setText(timeFormat.format(returnCal.getTime()) + " - " + dateFormat.format(returnCal.getTime()));
+                                Toast.makeText(CarListing.this, "Return time adjusted to be after pickup time", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    } catch (Exception e) {
+                        Log.e("CarListing", "Error parsing return time: " + e.getMessage());
                     }
-                } catch (Exception e) {
-                    e.printStackTrace();
                 }
+            }
+
+            // Update the class variables based on which button was clicked
+            if (targetButton.getId() == R.id.btnPickupTime) {
+                pickupTime = timeFormat.format(calendar.getTime());
+                pickupDate = dateFormat.format(calendar.getTime());
+            } else {
+                dropoffTime = timeFormat.format(calendar.getTime());
+                dropoffDate = dateFormat.format(calendar.getTime());
             }
         });
         // Show the time picker
