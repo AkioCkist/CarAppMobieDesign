@@ -170,13 +170,38 @@ public class CarListing extends AppCompatActivity {
 
         // Second line: Pickup Time, Pickup Date --- Dropoff Time, Dropoff Date
         if (pickupTime != null && pickupDate != null && dropoffTime != null && dropoffDate != null) {
-            sb.append(pickupTime)
-                    .append(", ")
-                    .append(pickupDate)
-                    .append(" --- ")
-                    .append(dropoffTime)
-                    .append(", ")
-                    .append(dropoffDate);
+            try {
+                // Convert from stored format (dd/MM/yyyy) to display format (dd MMMM yyyy)
+                java.text.SimpleDateFormat storedFormat = new java.text.SimpleDateFormat("dd/MM/yyyy");
+                java.text.SimpleDateFormat displayFormat = new java.text.SimpleDateFormat("dd MMMM yyyy");
+
+                // Parse and format the pickup date
+                java.util.Date pickupDateObj = storedFormat.parse(pickupDate);
+                String pickupDateFormatted = displayFormat.format(pickupDateObj);
+
+                // Parse and format the dropoff date
+                java.util.Date dropoffDateObj = storedFormat.parse(dropoffDate);
+                String dropoffDateFormatted = displayFormat.format(dropoffDateObj);
+
+                sb.append(pickupTime)
+                        .append(", ")
+                        .append(pickupDateFormatted)
+                        .append(" --- ")
+                        .append(dropoffTime)
+                        .append(", ")
+                        .append(dropoffDateFormatted);
+            } catch (Exception e) {
+                // Fallback to original format if parsing fails
+                Log.e("CarListing", "Error converting date format: " + e.getMessage());
+
+                sb.append(pickupTime)
+                        .append(", ")
+                        .append(pickupDate)
+                        .append(" --- ")
+                        .append(dropoffTime)
+                        .append(", ")
+                        .append(dropoffDate);
+            }
         } else {
             sb.append("Time and date not specified");
         }
@@ -192,6 +217,45 @@ public class CarListing extends AppCompatActivity {
             public void onClick(View v) {
                 // Navigate back to previous screen
                 finish();
+            }
+        });
+
+        // Search functionality with debounce handler
+        android.os.Handler searchHandler = new android.os.Handler(android.os.Looper.getMainLooper());
+        Runnable searchRunnable = new Runnable() {
+            @Override
+            public void run() {
+                String query = editTextSearch.getText().toString().trim();
+                if (!query.isEmpty()) {
+                    performSearch(query);
+                } else {
+                    // Reset to original list if search is cleared
+                    filteredCarList.clear();
+                    filteredCarList.addAll(carList);
+                    carAdapter.notifyDataSetChanged();
+                    textViewCarCount.setText("Found " + filteredCarList.size() + " cars");
+                }
+            }
+        };
+
+        // Add TextWatcher to handle text changes with debounce
+        editTextSearch.addTextChangedListener(new android.text.TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                // Not used
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                // Not used
+            }
+
+            @Override
+            public void afterTextChanged(android.text.Editable s) {
+                // Remove any pending searches
+                searchHandler.removeCallbacks(searchRunnable);
+                // Schedule a new search after 500ms (0.5 seconds)
+                searchHandler.postDelayed(searchRunnable, 500);
             }
         });
 
@@ -565,9 +629,18 @@ public class CarListing extends AppCompatActivity {
             spinnerReturnLocation.setSelection(spinnerPickupLocation.getSelectedItemPosition());
         }
 
-        // Set current time
-        btnPickupTime.setText(pickupTime != null ? pickupTime : "Select Time");
-        btnReturnTime.setText(dropoffTime != null ? dropoffTime : "Select Time");
+        // Set current time and date for pickup and return buttons
+        if (pickupTime != null && pickupDate != null) {
+            btnPickupTime.setText(pickupTime + " - " + pickupDate);
+        } else {
+            btnPickupTime.setText("Select Time");
+        }
+
+        if (dropoffTime != null && dropoffDate != null) {
+            btnReturnTime.setText(dropoffTime + " - " + dropoffDate);
+        } else {
+            btnReturnTime.setText("Select Time");
+        }
 
         // Create dialog first so we can reference it
         android.app.AlertDialog dialog = builder.create();
@@ -592,6 +665,37 @@ public class CarListing extends AppCompatActivity {
 
             // Get return location (we don't have a checkbox, so just get the selected item)
             dropoffLocation = spinnerReturnLocation.getSelectedItem().toString();
+
+            // Get the date/time values from the buttons
+            String pickupTimeText = btnPickupTime.getText().toString();
+            String returnTimeText = btnReturnTime.getText().toString();
+
+            // Parse the date/time values if they're in the expected format
+            if (!pickupTimeText.equals("Select Time") && pickupTimeText.contains(" - ")) {
+                try {
+                    // Expected format is "HH:mm - dd/MM/yyyy"
+                    String[] parts = pickupTimeText.split(" - ", 2);
+                    if (parts.length == 2) {
+                        pickupTime = parts[0]; // HH:mm
+                        pickupDate = parts[1]; // dd/MM/yyyy
+                    }
+                } catch (Exception e) {
+                    Log.e("CarListing", "Error parsing pickup time/date: " + e.getMessage());
+                }
+            }
+
+            if (!returnTimeText.equals("Select Time") && returnTimeText.contains(" - ")) {
+                try {
+                    // Expected format is "HH:mm - dd/MM/yyyy"
+                    String[] parts = returnTimeText.split(" - ", 2);
+                    if (parts.length == 2) {
+                        dropoffTime = parts[0]; // HH:mm
+                        dropoffDate = parts[1]; // dd/MM/yyyy
+                    }
+                } catch (Exception e) {
+                    Log.e("CarListing", "Error parsing return time/date: " + e.getMessage());
+                }
+            }
 
             // Update the button text
             updateDateTimeLocationButton();
@@ -634,7 +738,28 @@ public class CarListing extends AppCompatActivity {
         String current = targetButton.getText().toString();
         java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("HH:mm dd/MM/yyyy");
         java.util.Calendar calendar = java.util.Calendar.getInstance();
-        try { calendar.setTime(sdf.parse(current)); } catch (Exception ignored) {}
+
+        // Try to parse the current button text if it has the correct format
+        try {
+            calendar.setTime(sdf.parse(current));
+        } catch (Exception e) {
+            // If parsing fails, set calendar to current time
+            // Also try to use the existing date/time values from the class variables
+            if (targetButton.getId() == R.id.btnPickupTime && pickupTime != null && pickupDate != null) {
+                try {
+                    calendar.setTime(sdf.parse(pickupTime + " " + pickupDate));
+                } catch (Exception ex) {
+                    // Just use current time if this also fails
+                }
+            } else if (targetButton.getId() == R.id.btnReturnTime && dropoffTime != null && dropoffDate != null) {
+                try {
+                    calendar.setTime(sdf.parse(dropoffTime + " " + dropoffDate));
+                } catch (Exception ex) {
+                    // Just use current time if this also fails
+                }
+            }
+        }
+
         // Directly show Material date picker for the button that was clicked
         showMaterialDatePicker(targetButton, calendar);
     }
@@ -697,8 +822,14 @@ public class CarListing extends AppCompatActivity {
             calendar.set(java.util.Calendar.HOUR_OF_DAY, timePicker.getHour());
             calendar.set(java.util.Calendar.MINUTE, timePicker.getMinute());
 
-            java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("HH:mm dd/MM/yyyy");
-            targetButton.setText(sdf.format(calendar.getTime()));
+            // Format time portion (HH:mm)
+            java.text.SimpleDateFormat timeFormat = new java.text.SimpleDateFormat("HH:mm");
+            // Format date portion with month as text (dd MMMM yyyy), e.g. "15 June 2023"
+            java.text.SimpleDateFormat dateFormat = new java.text.SimpleDateFormat("dd MMMM yyyy");
+
+            // Combine them with the desired format "HH:mm - dd MMMM yyyy" (e.g. "14:30 - 15 June 2023")
+            String formattedDateTime = timeFormat.format(calendar.getTime()) + " - " + dateFormat.format(calendar.getTime());
+            targetButton.setText(formattedDateTime);
 
             // Check if this is pickup time and adjust dropoff if needed
             Button btnReturnTime = ((android.app.AlertDialog)targetButton.getTag()).findViewById(R.id.btnReturnTime);
@@ -706,19 +837,61 @@ public class CarListing extends AppCompatActivity {
             if (targetButton.getId() == R.id.btnPickupTime && btnReturnTime != null) {
                 String returnTimeStr = btnReturnTime.getText().toString();
                 java.util.Calendar returnCal = java.util.Calendar.getInstance();
-                try {
-                    returnCal.setTime(sdf.parse(returnTimeStr));
-                    // If return date/time is before pickup date/time, adjust it
-                    if (returnCal.before(calendar)) {
-                        // Set return time to 1 hour after pickup
-                        returnCal.setTimeInMillis(calendar.getTimeInMillis());
-                        returnCal.add(java.util.Calendar.HOUR_OF_DAY, 1);
-                        btnReturnTime.setText(sdf.format(returnCal.getTime()));
-                        Toast.makeText(CarListing.this, "Return time adjusted to be after pickup time", Toast.LENGTH_SHORT).show();
+
+                if (returnTimeStr.equals("Select Time")) {
+                    // If return time is not set yet, set it to pickup time + 1 hour
+                    returnCal.setTimeInMillis(calendar.getTimeInMillis());
+                    returnCal.add(java.util.Calendar.HOUR_OF_DAY, 1);
+                    btnReturnTime.setText(timeFormat.format(returnCal.getTime()) + " - " + dateFormat.format(returnCal.getTime()));
+                    Toast.makeText(CarListing.this, "Return time set to 1 hour after pickup", Toast.LENGTH_SHORT).show();
+                } else {
+                    try {
+                        // Try to parse the return time using the new format with text month
+                        if (returnTimeStr.contains(" - ")) {
+                            String[] parts = returnTimeStr.split(" - ");
+
+                            if (parts.length == 2) {
+                                java.text.SimpleDateFormat fullFormat = new java.text.SimpleDateFormat("HH:mm dd MMMM yyyy");
+
+                                try {
+                                    // First try parsing with the new format (with text month)
+                                    returnCal.setTime(fullFormat.parse(parts[0] + " " + parts[1]));
+                                } catch (Exception e) {
+                                    // If parsing fails, check if the old format was used
+                                    try {
+                                        java.text.SimpleDateFormat oldFormat = new java.text.SimpleDateFormat("HH:mm dd/MM/yyyy");
+                                        returnCal.setTime(oldFormat.parse(parts[0] + " " + parts[1]));
+                                    } catch (Exception ex) {
+                                        // If both formats fail, just continue with current calendar
+                                        Log.e("CarListing", "Error parsing return date: " + ex.getMessage());
+                                    }
+                                }
+
+                                // If return date/time is before pickup date/time, adjust it
+                                if (returnCal.before(calendar)) {
+                                    // Set return time to 1 hour after pickup
+                                    returnCal.setTimeInMillis(calendar.getTimeInMillis());
+                                    returnCal.add(java.util.Calendar.HOUR_OF_DAY, 1);
+                                    btnReturnTime.setText(timeFormat.format(returnCal.getTime()) + " - " + dateFormat.format(returnCal.getTime()));
+                                    Toast.makeText(CarListing.this, "Return time adjusted to be after pickup time", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        }
+                    } catch (Exception e) {
+                        Log.e("CarListing", "Error parsing return time: " + e.getMessage());
                     }
-                } catch (Exception e) {
-                    e.printStackTrace();
                 }
+            }
+
+            // Update the class variables based on which button was clicked
+            if (targetButton.getId() == R.id.btnPickupTime) {
+                pickupTime = timeFormat.format(calendar.getTime());
+                // Store the date in MM/dd/yyyy format to maintain compatibility
+                pickupDate = new java.text.SimpleDateFormat("dd/MM/yyyy").format(calendar.getTime());
+            } else {
+                dropoffTime = timeFormat.format(calendar.getTime());
+                // Store the date in MM/dd/yyyy format to maintain compatibility
+                dropoffDate = new java.text.SimpleDateFormat("dd/MM/yyyy").format(calendar.getTime());
             }
         });
         // Show the time picker
@@ -943,5 +1116,147 @@ public class CarListing extends AppCompatActivity {
         this.dropoffLocation = returnLocation;
         updateDateTimeLocationButton();
     }
-}
 
+    private void performSearch(String query) {
+        // Show loading indicator
+        View loadingView = findViewById(R.id.loadingView);
+        if (loadingView != null) {
+            loadingView.setVisibility(View.VISIBLE);
+        }
+
+        // Use RetrofitClient to call the search API
+        CarApiService apiService = RetrofitClient.getCarApiService();
+
+        // Kiểm tra location - nếu là "Current Location" hoặc "All Locations" thì không gửi tham số location
+        String locationParam = null;
+        if (pickupLocation != null && !pickupLocation.isEmpty() &&
+            !pickupLocation.equals("Current Location") && !pickupLocation.equals("All Locations")) {
+            locationParam = pickupLocation;
+        }
+
+        // Ghi log để debug
+        Log.d("CarListing", "Searching with query: '" + query +
+              "', location: '" + (locationParam != null ? locationParam : "null") + "'");
+
+        // Call the searchCars API with appropriate parameters
+        apiService.searchCars(query, null, locationParam, "available").enqueue(new retrofit2.Callback<Map<String, Object>>() {
+            @Override
+            public void onResponse(retrofit2.Call<Map<String, Object>> call, retrofit2.Response<Map<String, Object>> response) {
+                if (loadingView != null) {
+                    loadingView.setVisibility(View.GONE);
+                }
+
+                if (response.isSuccessful() && response.body() != null) {
+                    try {
+                        // Parse the response
+                        Map<String, Object> responseMap = response.body();
+                        List<Map<String, Object>> records = (List<Map<String, Object>>) responseMap.get("records");
+
+                        // Clear existing filtered data
+                        filteredCarList.clear();
+
+                        if (records != null && !records.isEmpty()) {
+                            // Process each car record from search results
+                            for (Map<String, Object> carMap : records) {
+                                Car car = new Car();
+
+                                // Handle integer fields safely
+                                if (carMap.get("id") instanceof Number) {
+                                    car.setVehicleId(((Number) carMap.get("id")).intValue());
+                                }
+
+                                car.setName((String) carMap.get("name"));
+
+                                // Handle float fields safely
+                                if (carMap.get("rating") instanceof Number) {
+                                    car.setRating(((Number) carMap.get("rating")).floatValue());
+                                }
+
+                                // Handle integer fields safely
+                                if (carMap.get("trips") instanceof Number) {
+                                    car.setTotalTrips(((Number) carMap.get("trips")).intValue());
+                                }
+
+                                car.setLocation((String) carMap.get("location"));
+                                car.setTransmission((String) carMap.get("transmission"));
+
+                                // Handle integer fields safely
+                                if (carMap.get("seats") instanceof Number) {
+                                    car.setSeats(((Number) carMap.get("seats")).intValue());
+                                }
+
+                                car.setFuelType((String) carMap.get("fuel"));
+
+                                // Handle double fields safely
+                                if (carMap.get("base_price") instanceof Number) {
+                                    car.setBasePrice(((Number) carMap.get("base_price")).doubleValue());
+                                }
+
+                                car.setPriceFormatted((String) carMap.get("price_formatted"));
+                                car.setVehicleType((String) carMap.get("vehicle_type"));
+                                car.setDescription((String) carMap.get("description"));
+                                car.setStatus((String) carMap.get("status"));
+                                car.setFavorite((Boolean) carMap.get("is_favorite"));
+                                car.setFavoriteForUser((Boolean) carMap.get("is_favorite_for_user"));
+                                car.setLessorName((String) carMap.get("lessor_name"));
+                                car.setPrimaryImage((String) carMap.get("primary_image"));
+                                car.setFuel_consumption((String) carMap.get("fuel_consumption"));
+                                car.setBrandCar((String) carMap.get("brand"));
+
+                                // Process amenities if available
+                                if (carMap.containsKey("amenities") && carMap.get("amenities") instanceof List) {
+                                    List<Map<String, Object>> amenitiesList = (List<Map<String, Object>>) carMap.get("amenities");
+                                    List<com.midterm.mobiledesignfinalterm.CarDetail.Amenity> carAmenities = new ArrayList<>();
+
+                                    for (Map<String, Object> amenityMap : amenitiesList) {
+                                        int id = 0;
+                                        if (amenityMap.get("id") instanceof Number) {
+                                            id = ((Number) amenityMap.get("id")).intValue();
+                                        }
+                                        String name = (String) amenityMap.get("name");
+                                        String icon = (String) amenityMap.get("icon");
+                                        String description = (String) amenityMap.get("description");
+
+                                        carAmenities.add(new com.midterm.mobiledesignfinalterm.CarDetail.Amenity(id, name, icon, description));
+                                    }
+                                    car.setAmenities(carAmenities);
+                                }
+
+                                filteredCarList.add(car);
+                            }
+
+                            // Update UI
+                            runOnUiThread(() -> {
+                                carAdapter.notifyDataSetChanged();
+                                textViewCarCount.setText("Found " + filteredCarList.size() + " cars");
+                            });
+                        } else {
+                            // No results found
+                            runOnUiThread(() -> {
+                                carAdapter.notifyDataSetChanged();
+                                textViewCarCount.setText("Found 0 cars");
+                                Toast.makeText(CarListing.this, "No cars found for '" + query + "'", Toast.LENGTH_SHORT).show();
+                            });
+                        }
+
+                    } catch (Exception e) {
+                        Log.e("CarListing", "Error parsing search response: " + e.getMessage(), e);
+                        Toast.makeText(CarListing.this, "Error parsing search data", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Toast.makeText(CarListing.this, "Failed to search for cars", Toast.LENGTH_SHORT).show();
+                    Log.e("CarListing", "API search response error: " + response.code());
+                }
+            }
+
+            @Override
+            public void onFailure(retrofit2.Call<Map<String, Object>> call, Throwable t) {
+                if (loadingView != null) {
+                    loadingView.setVisibility(View.GONE);
+                }
+                Toast.makeText(CarListing.this, "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                Log.e("CarListing", "API search call failed", t);
+            }
+        });
+    }
+}

@@ -19,14 +19,49 @@ public class AmenityAdapter extends RecyclerView.Adapter<AmenityAdapter.AmenityV
 
     private final Context context;
     private List<Amenity> amenityList;
+    private RecyclerView recyclerView;
 
     public AmenityAdapter(Context context, List<Amenity> amenityList) {
         this.context = context;
         this.amenityList = amenityList;
     }
+
     public void setAmenities(List<Amenity> amenities) {
         this.amenityList = amenities;
         notifyDataSetChanged();
+        // Tự động điều chỉnh chiều cao của RecyclerView sau khi dữ liệu thay đổi
+        if (recyclerView != null) {
+            adjustRecyclerViewHeight();
+        }
+    }
+
+    @Override
+    public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
+        super.onAttachedToRecyclerView(recyclerView);
+        this.recyclerView = recyclerView;
+        // Điều chỉnh chiều cao ngay khi adapter được gắn vào RecyclerView
+        adjustRecyclerViewHeight();
+    }
+
+    private void adjustRecyclerViewHeight() {
+        if (recyclerView == null || amenityList == null || amenityList.isEmpty()) return;
+
+        // Tính toán chiều cao dựa trên số lượng item và thông số của item_layout
+        int itemHeight = context.getResources().getDimensionPixelSize(R.dimen.amenity_item_height);
+        if (itemHeight == 0) {
+            // Nếu không có dimension, lấy giá trị mặc định (chiều cao của một hàng + padding)
+            itemHeight = (int) (36 * context.getResources().getDisplayMetrics().density); // 36dp là ước lượng chiều cao item
+        }
+
+        int totalRows = (int) Math.ceil(amenityList.size() / 2.0); // Giả sử hiển thị 2 cột
+        int totalHeight = totalRows * itemHeight;
+
+        ViewGroup.LayoutParams layoutParams = recyclerView.getLayoutParams();
+        if (layoutParams != null && layoutParams.height != totalHeight) {
+            layoutParams.height = totalHeight;
+            recyclerView.setLayoutParams(layoutParams);
+            Log.d("AmenityAdapter", "Set RecyclerView height to: " + totalHeight + ", rows: " + totalRows);
+        }
     }
 
     @NonNull
@@ -47,6 +82,7 @@ public class AmenityAdapter extends RecyclerView.Adapter<AmenityAdapter.AmenityV
         int resourceId = mapIconToResourceId(amenity.getIcon());
         holder.imgAmenityIcon.setImageResource(resourceId);
     }
+
     private int mapIconToResourceId(String iconName) {
         if (iconName == null) return R.drawable.cardetail_ic_default;
 
@@ -63,7 +99,7 @@ public class AmenityAdapter extends RecyclerView.Adapter<AmenityAdapter.AmenityV
                 return R.drawable.cardetail_ic_etc;
             case "sunroof":
                 return R.drawable.cardetail_ic_carroof;
-            case "sportMode":
+            case "sportmode":
                 return R.drawable.cardetail_ic_sportmode;
             case "tablet":
                 return R.drawable.cardetail_ic_screencar;
@@ -71,7 +107,7 @@ public class AmenityAdapter extends RecyclerView.Adapter<AmenityAdapter.AmenityV
                 return R.drawable.cardetail_ic_camera360;
             case "map":
                 return R.drawable.cardetail_ic_map;
-            case "rotateCcw":
+            case "rotateccw":
                 return R.drawable.cardetail_ic_rearviewcamera;
             case "circle":
                 return R.drawable.cardetail_ic_cartire;
