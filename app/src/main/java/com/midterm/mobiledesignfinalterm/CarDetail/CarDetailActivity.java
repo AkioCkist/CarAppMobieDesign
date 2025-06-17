@@ -387,19 +387,27 @@ public class CarDetailActivity extends AppCompatActivity {
         ImageButton buttonNext = findViewById(R.id.buttonNext);
 
         buttonPrevious.setOnClickListener(v -> {
+            // Modify for infinite scrolling - go to last image when at the beginning
             if (currentImageIndex > 0) {
                 currentImageIndex--;
-                updateMainImage();
-                updateThumbnailSelection();
+            } else {
+                // Jump to the last image when at the first image
+                currentImageIndex = MAX_IMAGES - 1;
             }
+            updateMainImage();
+            updateThumbnailSelection();
         });
 
         buttonNext.setOnClickListener(v -> {
+            // Modify for infinite scrolling - go back to first image when at the end
             if (currentImageIndex < MAX_IMAGES - 1) {
                 currentImageIndex++;
-                updateMainImage();
-                updateThumbnailSelection();
+            } else {
+                // Jump to the first image when at the last image
+                currentImageIndex = 0;
             }
+            updateMainImage();
+            updateThumbnailSelection();
         });
 
         // Set initial image and selection
