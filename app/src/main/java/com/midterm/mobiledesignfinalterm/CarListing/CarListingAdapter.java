@@ -2,6 +2,7 @@ package com.midterm.mobiledesignfinalterm.CarListing;
 
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
+import android.annotation.SuppressLint;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -47,7 +48,7 @@ public class CarListingAdapter extends RecyclerView.Adapter<CarListingAdapter.Ca
     }
 
     @Override
-    public void onBindViewHolder(@NonNull CarViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull CarViewHolder holder, @SuppressLint("RecyclerView") int position) {
         Car car = carList.get(position);
         holder.bind(car, position);
 
