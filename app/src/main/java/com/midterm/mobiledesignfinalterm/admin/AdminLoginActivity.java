@@ -201,7 +201,7 @@ public class AdminLoginActivity extends AppCompatActivity {
         
         new Thread(() -> {
             try {
-                URL url = new URL("http://10.0.2.2/myapi/admin_login.php");
+                URL url = new URL("http://172.0.0.1/myapi/admin_login.php");
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                 conn.setRequestMethod("POST");
                 conn.setRequestProperty("Content-Type", "application/json; utf-8");

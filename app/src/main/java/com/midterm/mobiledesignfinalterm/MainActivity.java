@@ -40,7 +40,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void initializeViews() {
         buttonGoToLogin = findViewById(R.id.buttonGoToLogin);
-        rootLayout = findViewById(android.R.id.content); // Get the root layout
+        rootLayout = findViewById(R.id.mainLayout); // Get the actual root layout
     }
 
     private void setupClickListeners() {
@@ -56,11 +56,15 @@ public class MainActivity extends AppCompatActivity {
                 });
             }
         });
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
+        
+        // Apply window insets only if rootLayout is not null
+        if (rootLayout != null) {
+            ViewCompat.setOnApplyWindowInsetsListener(rootLayout, (v, insets) -> {
+                Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+                v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+                return insets;
+            });
+        }
     }
 
     private void applyEntranceAnimation() {

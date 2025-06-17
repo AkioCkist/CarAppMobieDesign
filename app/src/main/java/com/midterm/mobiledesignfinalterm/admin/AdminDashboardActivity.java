@@ -182,7 +182,7 @@ public class AdminDashboardActivity extends AppCompatActivity {
     private void loadStatsFromAPI() {
         new Thread(() -> {
             try {
-                URL url = new URL("http://10.0.2.2/myapi/dashboard_stats.php");
+                URL url = new URL("http://172.0.0.1/myapi/dashboard_stats.php");
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                 conn.setRequestMethod("GET");
                 conn.setRequestProperty("Accept", "application/json");
