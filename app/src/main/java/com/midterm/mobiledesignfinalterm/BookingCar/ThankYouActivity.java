@@ -8,6 +8,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 // Updated imports for iText 7
 import com.itextpdf.kernel.colors.ColorConstants;
@@ -27,24 +28,31 @@ import com.itextpdf.layout.properties.VerticalAlignment;
 import com.midterm.mobiledesignfinalterm.R;
 import com.midterm.mobiledesignfinalterm.homepage.Homepage;
 
-
 import java.io.IOException;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-
 public class ThankYouActivity extends AppCompatActivity {
 
     private TextView tvBookingId, tvPickupDetails, tvDropoffDetails, tvUserDetails, tvPaymentDetails, tvTotalAmount;
     private Button btnSaveImage, btnBackToHome;
     private static final int CREATE_FILE = 1;
+    // Color for PDF text (using green_primary color)
+    private DeviceRgb greenPrimaryColor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_thank_you);
+
+        // Initialize the green primary color from resources
+        int greenColorInt = ContextCompat.getColor(this, R.color.green_primary); // #18F45D
+        greenPrimaryColor = new DeviceRgb(
+                (greenColorInt >> 16) & 0xFF,
+                (greenColorInt >> 8) & 0xFF,
+                greenColorInt & 0xFF);
 
         initViews();
         displayBookingDetails();
@@ -93,42 +101,9 @@ public class ThankYouActivity extends AppCompatActivity {
         btnSaveImage.setOnClickListener(v -> saveTicketAsImage());
 
         btnBackToHome.setOnClickListener(v -> {
-            // Create intent to navigate back to Homepage
             Intent intent = new Intent(this, Homepage.class);
-
-            // Get the correct user information from intent
-            // The phone number is stored as "phone" in ThankYouActivity but as "user_phone" in Homepage
-            String userName = getIntent().getStringExtra("user_name");
-            String userPhone = getIntent().getStringExtra("phone");
-            // If user_phone is not found, try alternate keys
-            if (userPhone == null) {
-                userPhone = getIntent().getStringExtra("user_phone");
-            }
-            String userId = getIntent().getStringExtra("user_id");
-            String userData = getIntent().getStringExtra("user_data");
-
-            // Log the data we're passing to help debug
-            System.out.println("ThankYouActivity - Returning to Homepage with:");
-            System.out.println("userName: " + userName);
-            System.out.println("userPhone: " + userPhone);
-            System.out.println("userId: " + userId);
-
-            // Ensure we always send the data with the correct keys
-            if (userName != null) intent.putExtra("user_name", userName);
-            if (userPhone != null) intent.putExtra("user_phone", userPhone);
-            if (userId != null) intent.putExtra("user_id", userId);
-            if (userData != null) intent.putExtra("user_data", userData);
-
-            // Clear all activities on top of Homepage
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-
-            // Start the Homepage activity
             startActivity(intent);
-
-            // Add slide animation for the transition
-            overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
-
-            // Close this activity
             finish();
         });
     }
@@ -175,7 +150,7 @@ public class ThankYouActivity extends AppCompatActivity {
                         // Add divider line
                         document.add(new Paragraph("")
                                 .setHeight(1)
-                                .setBorder(new SolidBorder(new DeviceRgb(0, 102, 204), 1))
+                                .setBorder(new SolidBorder(greenPrimaryColor, 1))
                                 .setMarginBottom(15)
                         );
 
@@ -184,7 +159,7 @@ public class ThankYouActivity extends AppCompatActivity {
                                 .setFontSize(20)
                                 .setBold()
                                 .setTextAlignment(TextAlignment.CENTER)
-                                .setFontColor(new DeviceRgb(0, 102, 204))
+                                .setFontColor(greenPrimaryColor)
                                 .setMarginBottom(20));
 
                         // Extract booking ID from the text view
@@ -202,7 +177,7 @@ public class ThankYouActivity extends AppCompatActivity {
                         document.add(new Paragraph("CUSTOMER DETAILS")
                                 .setFontSize(14)
                                 .setBold()
-                                .setFontColor(new DeviceRgb(0, 102, 204))
+                                .setFontColor(greenPrimaryColor)
                                 .setMarginBottom(10));
 
                         // Parse user details from text view
@@ -227,7 +202,7 @@ public class ThankYouActivity extends AppCompatActivity {
                         document.add(new Paragraph("TRIP DETAILS")
                                 .setFontSize(14)
                                 .setBold()
-                                .setFontColor(new DeviceRgb(0, 102, 204))
+                                .setFontColor(greenPrimaryColor)
                                 .setMarginBottom(10));
 
                         Table tripTable = new Table(UnitValue.createPercentArray(new float[]{1, 2}))
@@ -250,7 +225,7 @@ public class ThankYouActivity extends AppCompatActivity {
                         document.add(new Paragraph("PAYMENT DETAILS")
                                 .setFontSize(14)
                                 .setBold()
-                                .setFontColor(new DeviceRgb(0, 102, 204))
+                                .setFontColor(greenPrimaryColor)
                                 .setMarginBottom(10));
 
                         Table paymentTable = new Table(UnitValue.createPercentArray(new float[]{1, 2}))
@@ -266,9 +241,9 @@ public class ThankYouActivity extends AppCompatActivity {
                         paymentTable.addCell(new Cell().add(new Paragraph("Total Amount:").setBold()));
                         paymentTable.addCell(new Cell()
                                 .add(new Paragraph(tvTotalAmount.getText().toString())
-                                .setBold()
-                                .setFontSize(14)
-                                .setFontColor(new DeviceRgb(0, 102, 204))));
+                                        .setBold()
+                                        .setFontSize(14)
+                                        .setFontColor(greenPrimaryColor)));
 
                         document.add(paymentTable);
 
@@ -311,4 +286,3 @@ public class ThankYouActivity extends AppCompatActivity {
         startActivityForResult(intent, CREATE_FILE);
     }
 }
-
