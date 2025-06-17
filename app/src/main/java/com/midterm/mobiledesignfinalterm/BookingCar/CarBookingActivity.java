@@ -35,6 +35,7 @@ public class CarBookingActivity extends AppCompatActivity {
     // Add fields for new intent data
     private int carId = -1;
     private String carPrice = "";
+    private double carPriceRaw = 0;
     private String userId = "";
     private String userPhone = "";
     private String userName = "";
@@ -60,7 +61,7 @@ public class CarBookingActivity extends AppCompatActivity {
         ivBack = findViewById(R.id.iv_back);
 
         // Optional: if you have a TextView to display car name
-       // tvCarName = findViewById(R.id.tv_car_name); // Add this to your layout if needed
+        // tvCarName = findViewById(R.id.tv_car_name); // Add this to your layout if needed
     }
 
     private void getCarDataFromIntent() {
@@ -73,6 +74,9 @@ public class CarBookingActivity extends AppCompatActivity {
         }
         if (getIntent().hasExtra("car_price")) {
             carPrice = getIntent().getStringExtra("car_price");
+        }
+        if (getIntent().hasExtra("car_price_raw")) {
+            carPriceRaw = getIntent().getDoubleExtra("car_price_raw", 0);
         }
         // Get user info from intent
         if (getIntent().hasExtra("user_id")) {
@@ -121,11 +125,11 @@ public class CarBookingActivity extends AppCompatActivity {
             if (validateInputs()) {
                 // Create intent for UserInfoActivity
                 Intent intent = new Intent(CarBookingActivity.this, UserInfoActivity.class);
-
                 // Pass all booking data as intent extras
                 intent.putExtra("car_id", carId);
                 intent.putExtra("car_name", carName);
                 intent.putExtra("car_price", carPrice);
+                intent.putExtra("car_price_raw", carPriceRaw);
                 intent.putExtra("user_id", userId);
                 intent.putExtra("user_phone", userPhone);
                 intent.putExtra("user_name", userName);
@@ -200,16 +204,16 @@ public class CarBookingActivity extends AppCompatActivity {
 
             // If pickup time is selected and dropoff is on the same day, validate the times
             if (timeTextView == tvPickupTime &&
-                isSameDay(pickupCalendar, dropoffCalendar) &&
-                pickupCalendar.after(dropoffCalendar)) {
+                    isSameDay(pickupCalendar, dropoffCalendar) &&
+                    pickupCalendar.after(dropoffCalendar)) {
 
                 // Set dropoff time to be 1 hour after pickup if on the same day
                 dropoffCalendar.setTimeInMillis(pickupCalendar.getTimeInMillis());
                 dropoffCalendar.add(Calendar.HOUR_OF_DAY, 1);
                 updateTimeTextView(tvDropoffTime, dropoffCalendar);
                 Toast.makeText(CarBookingActivity.this,
-                    "Return time adjusted to be after pickup time",
-                    Toast.LENGTH_SHORT).show();
+                        "Return time adjusted to be after pickup time",
+                        Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -224,7 +228,7 @@ public class CarBookingActivity extends AppCompatActivity {
 
     private boolean isSameDay(Calendar calendar1, Calendar calendar2) {
         return calendar1.get(Calendar.YEAR) == calendar2.get(Calendar.YEAR) &&
-               calendar1.get(Calendar.DAY_OF_YEAR) == calendar2.get(Calendar.DAY_OF_YEAR);
+                calendar1.get(Calendar.DAY_OF_YEAR) == calendar2.get(Calendar.DAY_OF_YEAR);
     }
 
     private boolean validateInputs() {

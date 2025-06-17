@@ -71,6 +71,9 @@ public class CarDetailActivity extends AppCompatActivity {
     // List to hold image URLs
     private List<String> imageUrls = new ArrayList<>();
 
+    // Thêm biến lưu Car cuối cùng được load
+    private Car lastLoadedCar = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -140,6 +143,19 @@ public class CarDetailActivity extends AppCompatActivity {
                     intent.putExtra("car_id", carId);
                     intent.putExtra("car_name", tvCarName.getText().toString());
                     intent.putExtra("car_price", tvTotalPrice.getText().toString());
+                    // Truyền đúng giá trị số từ model Car, không lấy từ TextView
+                    double basePrice = 0;
+                    double insurancePrice = 0;
+                    double totalPrice = 0;
+                    try {
+                        // Lấy trực tiếp từ model Car thay vì TextView
+                        basePrice = lastLoadedCar != null ? lastLoadedCar.getBasePrice() : 0;
+                        insurancePrice = basePrice * 0.1;
+                        totalPrice = basePrice + insurancePrice;
+                    } catch (Exception e) {
+                        totalPrice = 0;
+                    }
+                    intent.putExtra("car_price_raw", totalPrice);
 
                     // Pass user information
                     intent.putExtra("user_id", userID);
@@ -178,6 +194,9 @@ public class CarDetailActivity extends AppCompatActivity {
         backArrow.setOnClickListener(v -> {
             finish(); // Return to previous screen
         });
+
+        // Remove duplicate rent now button click listener here
+        // Navigation and data passing is handled in initializeViews()
 
         setupImageGallery();
         // Image navigation buttons
@@ -247,6 +266,7 @@ public class CarDetailActivity extends AppCompatActivity {
         });
     }
     private void updateCarDetailsFromCarObject(Car car) {
+        lastLoadedCar = car;
         // Update car name
         tvCarName.setText(car.getName());
 
@@ -345,10 +365,10 @@ public class CarDetailActivity extends AppCompatActivity {
         if (!imageUrls.isEmpty()) {
             Log.d("CarDetailActivity", "Loading main image: " + imageUrls.get(0));
             Glide.with(this)
-                .load(imageUrls.get(0))
-                .placeholder(R.drawable.intro_bg_1)
-                .error(R.drawable.intro_bg_1)
-                .into(mainCarImageView);
+                    .load(imageUrls.get(0))
+                    .placeholder(R.drawable.intro_bg_1)
+                    .error(R.drawable.intro_bg_1)
+                    .into(mainCarImageView);
         }
 
         // Load thumbnails
@@ -357,10 +377,10 @@ public class CarDetailActivity extends AppCompatActivity {
                 Log.d("CarDetailActivity", "Loading thumbnail " + i + ": " + imageUrls.get(i));
                 final int index = i;
                 Glide.with(this)
-                    .load(imageUrls.get(i))
-                    .placeholder(R.drawable.intro_bg_1)
-                    .error(R.drawable.intro_bg_1)
-                    .into(thumbnailViews[i]);
+                        .load(imageUrls.get(i))
+                        .placeholder(R.drawable.intro_bg_1)
+                        .error(R.drawable.intro_bg_1)
+                        .into(thumbnailViews[i]);
 
                 // Update click listener to use the URL
                 thumbnailViews[i].setOnClickListener(v -> {
@@ -435,15 +455,15 @@ public class CarDetailActivity extends AppCompatActivity {
 
         // Load image from URL using Glide
         Glide.with(this)
-            .load(imageUrls.get(currentImageIndex))
-            .placeholder(R.drawable.intro_bg_1)
-            .error(R.drawable.intro_bg_1)
-            .into(mainCarImageView);
+                .load(imageUrls.get(currentImageIndex))
+                .placeholder(R.drawable.intro_bg_1)
+                .error(R.drawable.intro_bg_1)
+                .into(mainCarImageView);
 
         mainCarImageView.animate()
-            .alpha(1.0f)
-            .setDuration(200)
-            .start();
+                .alpha(1.0f)
+                .setDuration(200)
+                .start();
 
         // Log which image is being displayed
         Log.d("CarDetailActivity", "Showing main image: " + imageUrls.get(currentImageIndex));

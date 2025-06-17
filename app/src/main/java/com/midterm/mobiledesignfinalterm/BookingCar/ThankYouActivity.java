@@ -105,7 +105,17 @@ public class ThankYouActivity extends AppCompatActivity {
         tvUserDetails.setText(String.format("Name: %s\nEmail: %s\nPhone: %s",
                 fullName, email, phone));
         tvPaymentDetails.setText("Payment: " + (paymentMethod != null ? paymentMethod : ""));
-        tvTotalAmount.setText(totalAmount != null ? "$" + totalAmount : "$0.00");
+        tvTotalAmount.setText(formatCurrencyVND(totalAmount));
+    }
+
+    private String formatCurrencyVND(String amountStr) {
+        try {
+            double amount = Double.parseDouble(amountStr.replaceAll("[^\\d.]", ""));
+            java.text.NumberFormat formatter = java.text.NumberFormat.getInstance(new java.util.Locale("vi", "VN"));
+            return formatter.format(amount) + " VND";
+        } catch (Exception e) {
+            return amountStr + " VND";
+        }
     }
 
     private void setupClickListeners() {
