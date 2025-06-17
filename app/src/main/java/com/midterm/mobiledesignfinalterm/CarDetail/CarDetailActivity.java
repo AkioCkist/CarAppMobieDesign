@@ -66,7 +66,7 @@ public class CarDetailActivity extends AppCompatActivity {
     private String dropoffTime;
     private String pickupLocation;
     private String dropoffLocation;
-    private String userName, userPhone;
+    private String userName, userPhone, userID;
 
     // List to hold image URLs
     private List<String> imageUrls = new ArrayList<>();
@@ -137,12 +137,22 @@ public class CarDetailActivity extends AppCompatActivity {
                     // Navigate to CarBookingActivity
                     Intent intent = new Intent(CarDetailActivity.this, CarBookingActivity.class);
 
-                    // Pass car name to booking activity
-                    intent.putExtra("car_name", carName);
+                    intent.putExtra("car_id", carId);
+                    intent.putExtra("car_name", tvCarName.getText().toString());
+                    intent.putExtra("car_price", tvTotalPrice.getText().toString());
 
-                    // Add any additional car details you want to pass
-                    intent.putExtra("car_type", "Sedan"); // Example - replace with actual data
-                    intent.putExtra("car_price", 50.0); // Example - replace with actual price
+                    // Pass user information
+                    intent.putExtra("user_id", userID);
+                    intent.putExtra("user_phone", userPhone);
+                    intent.putExtra("user_name", userName);
+
+                    // Pass booking details
+                    intent.putExtra("pickup_time", pickupTime);
+                    intent.putExtra("pickup_date", pickupDate);
+                    intent.putExtra("dropoff_time", dropoffTime);
+                    intent.putExtra("dropoff_date", dropoffDate);
+                    intent.putExtra("pickup_location", pickupLocation);
+                    intent.putExtra("dropoff_location", dropoffLocation);
 
                     // Start the booking activity
                     startActivity(intent);
@@ -169,12 +179,8 @@ public class CarDetailActivity extends AppCompatActivity {
             finish(); // Return to previous screen
         });
 
-        // Handle rent now button click
-        buttonRentNow.setOnClickListener(v -> {
-            Toast.makeText(this, "Rental request submitted", Toast.LENGTH_SHORT).show();
-             Intent intent = new Intent(this, CarBookingActivity.class);
-             startActivity(intent);
-        });
+        // Remove duplicate rent now button click listener here
+        // Navigation and data passing is handled in initializeViews()
 
         setupImageGallery();
         // Image navigation buttons
@@ -193,6 +199,7 @@ public class CarDetailActivity extends AppCompatActivity {
             carId = intent.getIntExtra("car_id", -1);
 
             // User info
+            userID = intent.getStringExtra("user_id");
             userName = intent.getStringExtra("user_name");
             userPhone = intent.getStringExtra("user_phone");
 

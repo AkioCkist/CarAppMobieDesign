@@ -42,11 +42,20 @@ public class ThankYouActivity extends AppCompatActivity {
     private TextView tvBookingId, tvPickupDetails, tvDropoffDetails, tvUserDetails, tvPaymentDetails, tvTotalAmount;
     private Button btnSaveImage, btnBackToHome;
     private static final int CREATE_FILE = 1;
+    // Color for PDF text (using green_primary color)
+    private DeviceRgb greenPrimaryColor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_thank_you);
+
+        // Initialize the green primary color from resources
+        int greenColorInt = ContextCompat.getColor(this, R.color.green_primary); // #18F45D
+        greenPrimaryColor = new DeviceRgb(
+                (greenColorInt >> 16) & 0xFF,
+                (greenColorInt >> 8) & 0xFF,
+                greenColorInt & 0xFF);
 
         initViews();
         displayBookingDetails();
@@ -95,42 +104,9 @@ public class ThankYouActivity extends AppCompatActivity {
         btnSaveImage.setOnClickListener(v -> saveTicketAsImage());
 
         btnBackToHome.setOnClickListener(v -> {
-            // Create intent to navigate back to Homepage
             Intent intent = new Intent(this, Homepage.class);
-
-            // Get the correct user information from intent
-            // The phone number is stored as "phone" in ThankYouActivity but as "user_phone" in Homepage
-            String userName = getIntent().getStringExtra("user_name");
-            String userPhone = getIntent().getStringExtra("phone");
-            // If user_phone is not found, try alternate keys
-            if (userPhone == null) {
-                userPhone = getIntent().getStringExtra("user_phone");
-            }
-            String userId = getIntent().getStringExtra("user_id");
-            String userData = getIntent().getStringExtra("user_data");
-
-            // Log the data we're passing to help debug
-            System.out.println("ThankYouActivity - Returning to Homepage with:");
-            System.out.println("userName: " + userName);
-            System.out.println("userPhone: " + userPhone);
-            System.out.println("userId: " + userId);
-
-            // Ensure we always send the data with the correct keys
-            if (userName != null) intent.putExtra("user_name", userName);
-            if (userPhone != null) intent.putExtra("user_phone", userPhone);
-            if (userId != null) intent.putExtra("user_id", userId);
-            if (userData != null) intent.putExtra("user_data", userData);
-
-            // Clear all activities on top of Homepage
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-
-            // Start the Homepage activity
             startActivity(intent);
-
-            // Add slide animation for the transition
-            overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
-
-            // Close this activity
             finish();
         });
     }
