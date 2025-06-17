@@ -445,7 +445,7 @@ public class Login extends AppCompatActivity {
 
     private void handleSignUp() {
         // Handle sign up logic
-        Intent intent = new Intent(Login.this, SignUp.class);
+        Intent intent = new Intent(Login.this, Register.class);
         startActivity(intent);
     }
 
