@@ -363,30 +363,48 @@ public class Login extends AppCompatActivity {
                                 userId = userObject.optString("account_id", "");
                             }
 
-                            // Create a user roles list - even though API might not provide roles,
-                            // we'll set a default "User" role
+                            // Get user role
+                            String userRole = userObject.optString("role", "user");
+
+                            // Create a user roles list
                             ArrayList<String> userRoles = new ArrayList<>();
-                            userRoles.add("User");
+                            userRoles.add(userRole);
 
                             // ✅ Debug: Print what we extracted
                             System.out.println("Extracted user data:");
                             System.out.println("Username: '" + userName + "'");
                             System.out.println("Phone: '" + userPhone + "'");
                             System.out.println("User ID: '" + userId + "'");
+                            System.out.println("User Role: '" + userRole + "'");
                             System.out.println("Full user object: " + userObject.toString());
 
-                            // ✅ Pass user data to Homepage
-                            Intent intent = new Intent(Login.this, Homepage.class);
-                            intent.putExtra("user_name", userName);
-                            intent.putExtra("user_phone", userPhone);
-                            intent.putExtra("user_id", userId);
-                            intent.putStringArrayListExtra("user_roles", userRoles);
-
-                            // ✅ Pass the entire user object as JSON string for future use
-                            intent.putExtra("user_data", userObject.toString());
-
-                            startActivity(intent);
-                            finish(); // Close login activity so user can't go back
+                            // ✅ Check if user is admin and redirect accordingly
+                            System.out.println("Checking user role: " + userRole);
+                            if ("admin".equals(userRole)) {
+                                // Redirect to Admin Dashboard
+                                System.out.println("Redirecting to Admin Dashboard for user: " + userName);
+                                Toast.makeText(Login.this, "Chào mừng Admin " + userName, Toast.LENGTH_SHORT).show();
+                                Intent intent = new Intent(Login.this, com.midterm.mobiledesignfinalterm.admin.AdminDashboard.class);
+                                intent.putExtra("user_name", userName);
+                                intent.putExtra("user_phone", userPhone);
+                                intent.putExtra("user_id", userId);
+                                intent.putExtra("user_role", userRole);
+                                intent.putStringArrayListExtra("user_roles", userRoles);
+                                intent.putExtra("user_data", userObject.toString());
+                                startActivity(intent);
+                                finish();
+                            } else {
+                                // ✅ Pass user data to Homepage for regular users
+                                System.out.println("Redirecting to Homepage for regular user: " + userName);
+                                Intent intent = new Intent(Login.this, Homepage.class);
+                                intent.putExtra("user_name", userName);
+                                intent.putExtra("user_phone", userPhone);
+                                intent.putExtra("user_id", userId);
+                                intent.putStringArrayListExtra("user_roles", userRoles);
+                                intent.putExtra("user_data", userObject.toString());
+                                startActivity(intent);
+                                finish(); // Close login activity so user can't go back
+                            }
 
                         } else {
                             String errorMessage = result.optString("error", "Phone number or password is incorrect");
