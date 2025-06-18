@@ -42,7 +42,7 @@ public class FilterDialog extends Dialog {
     private Button btnApply;
 
     // Lists of filter options
-    private final List<String> brandOptions = Arrays.asList("All", "Toyota", "Honda", "Mazda", "Ford", "BMW", "Mercedes", "Audi");
+    private final List<String> brandOptions = Arrays.asList("All", "Toyota", "Honda", "Mazda", "Ford", "BMW", "Mercedes", "Audi", "Ferrari", "Lamborghini", "Porsche", "McLaren", "Bentley", "Aston Martin");
     private final List<String> vehicleTypeOptions = Arrays.asList("All", "Sedan", "SUV", "Pickup", "Supercar");
     private final List<String> fuelTypeOptions = Arrays.asList("All", "Gasoline", "Diesel", "Electric", "Hybrid");
     private final List<String> seatOptions = Arrays.asList("All", "2 Seats", "4 Seats", "5 Seats", "7+ Seats");
@@ -103,13 +103,13 @@ public class FilterDialog extends Dialog {
 
     private void setupRecyclerViews() {
         // Brand RecyclerView setup
-        GridLayoutManager brandsLayoutManager = new GridLayoutManager(getContext(), 4);
+        GridLayoutManager brandsLayoutManager = new GridLayoutManager(getContext(), 3);
         recyclerViewBrands.setLayoutManager(brandsLayoutManager);
         brandsAdapter = new FilterChipAdapter(brandOptions, (position, value) -> selectedBrand = value);
         recyclerViewBrands.setAdapter(brandsAdapter);
 
         // Vehicle Type RecyclerView setup
-        GridLayoutManager vehicleTypesLayoutManager = new GridLayoutManager(getContext(), 4);
+        GridLayoutManager vehicleTypesLayoutManager = new GridLayoutManager(getContext(), 3);
         recyclerViewVehicleTypes.setLayoutManager(vehicleTypesLayoutManager);
         vehicleTypesAdapter = new FilterChipAdapter(vehicleTypeOptions, (position, value) -> {
             selectedVehicleType = value;
@@ -120,7 +120,7 @@ public class FilterDialog extends Dialog {
         recyclerViewVehicleTypes.setAdapter(vehicleTypesAdapter);
 
         // Fuel Type RecyclerView setup
-        GridLayoutManager fuelTypesLayoutManager = new GridLayoutManager(getContext(), 4);
+        GridLayoutManager fuelTypesLayoutManager = new GridLayoutManager(getContext(), 3);
         recyclerViewFuelTypes.setLayoutManager(fuelTypesLayoutManager);
         fuelTypesAdapter = new FilterChipAdapter(fuelTypeOptions, (position, value) -> {
             selectedFuelType = value;
@@ -131,7 +131,7 @@ public class FilterDialog extends Dialog {
         recyclerViewFuelTypes.setAdapter(fuelTypesAdapter);
 
         // Seats RecyclerView setup
-        GridLayoutManager seatsLayoutManager = new GridLayoutManager(getContext(), 4);
+        GridLayoutManager seatsLayoutManager = new GridLayoutManager(getContext(), 3);
         recyclerViewSeats.setLayoutManager(seatsLayoutManager);
         seatsAdapter = new FilterChipAdapter(seatOptions, (position, value) -> {
             // Convert seat text to Integer value
