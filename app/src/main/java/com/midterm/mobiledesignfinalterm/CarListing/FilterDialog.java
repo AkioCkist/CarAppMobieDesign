@@ -3,12 +3,18 @@ package com.midterm.mobiledesignfinalterm.CarListing;
 import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
+import android.view.ViewGroup;
 import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 
-import com.google.android.material.chip.Chip;
-import com.google.android.material.chip.ChipGroup;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.midterm.mobiledesignfinalterm.R;
+
+import java.util.Arrays;
+import java.util.List;
 
 public class FilterDialog extends Dialog {
 
@@ -22,13 +28,24 @@ public class FilterDialog extends Dialog {
     private String selectedFuelType = null;
     private Integer selectedSeats = null;
 
-    private ChipGroup chipGroupBrand;
-    private ChipGroup chipGroupVehicleType;
-    private ChipGroup chipGroupFuelType;
-    private ChipGroup chipGroupSeats;
+    private RecyclerView recyclerViewBrands;
+    private RecyclerView recyclerViewVehicleTypes;
+    private RecyclerView recyclerViewFuelTypes;
+    private RecyclerView recyclerViewSeats;
+
+    private FilterChipAdapter brandsAdapter;
+    private FilterChipAdapter vehicleTypesAdapter;
+    private FilterChipAdapter fuelTypesAdapter;
+    private FilterChipAdapter seatsAdapter;
 
     private Button btnReset;
     private Button btnApply;
+
+    // Lists of filter options
+    private final List<String> brandOptions = Arrays.asList("All", "Toyota", "Honda", "Mazda", "Ford", "BMW", "Mercedes", "Audi");
+    private final List<String> vehicleTypeOptions = Arrays.asList("All", "Sedan", "SUV", "Pickup", "Supercar");
+    private final List<String> fuelTypeOptions = Arrays.asList("All", "Gasoline", "Diesel", "Electric", "Hybrid");
+    private final List<String> seatOptions = Arrays.asList("All", "2 Seats", "4 Seats", "5 Seats", "7+ Seats");
 
     public FilterDialog(Context context) {
         super(context);
@@ -51,135 +68,133 @@ public class FilterDialog extends Dialog {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.dialog_filter_carlisting);
 
-        // Khởi tạo views
-        chipGroupBrand = findViewById(R.id.chipGroupBrand);
-        chipGroupVehicleType = findViewById(R.id.chipGroupVehicleType);
-        chipGroupFuelType = findViewById(R.id.chipGroupFuelType);
-        chipGroupSeats = findViewById(R.id.chipGroupSeats);
-        btnReset = findViewById(R.id.btnReset);
-        btnApply = findViewById(R.id.btnApply);
+        // Set dialog to take almost full width of the screen
+        Window window = getWindow();
+        if (window != null) {
+            WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
+            layoutParams.copyFrom(window.getAttributes());
+            layoutParams.width = WindowManager.LayoutParams.MATCH_PARENT;
+            layoutParams.height = WindowManager.LayoutParams.WRAP_CONTENT;
+            window.setAttributes(layoutParams);
+            window.setBackgroundDrawableResource(android.R.color.transparent);
+        }
 
-        // Thiết lập trạng thái ban đầu nếu đã chọn trước đó
+        // Initialize views
+        initializeViews();
+
+        // Set up RecyclerViews
+        setupRecyclerViews();
+
+        // Apply initial state if filters were previously selected
         applyInitialState();
 
-        // Thiết lập listeners cho chip groups
-        setupChipListeners();
-
-        // Thiết lập listeners cho buttons
+        // Set up button listeners
         setupButtonListeners();
+    }
+
+    private void initializeViews() {
+        recyclerViewBrands = findViewById(R.id.recyclerViewBrands);
+        recyclerViewVehicleTypes = findViewById(R.id.recyclerViewVehicleTypes);
+        recyclerViewFuelTypes = findViewById(R.id.recyclerViewFuelTypes);
+        recyclerViewSeats = findViewById(R.id.recyclerViewSeats);
+        btnReset = findViewById(R.id.btnReset);
+        btnApply = findViewById(R.id.btnApply);
+    }
+
+    private void setupRecyclerViews() {
+        // Brand RecyclerView setup
+        GridLayoutManager brandsLayoutManager = new GridLayoutManager(getContext(), 4);
+        recyclerViewBrands.setLayoutManager(brandsLayoutManager);
+        brandsAdapter = new FilterChipAdapter(brandOptions, (position, value) -> selectedBrand = value);
+        recyclerViewBrands.setAdapter(brandsAdapter);
+
+        // Vehicle Type RecyclerView setup
+        GridLayoutManager vehicleTypesLayoutManager = new GridLayoutManager(getContext(), 4);
+        recyclerViewVehicleTypes.setLayoutManager(vehicleTypesLayoutManager);
+        vehicleTypesAdapter = new FilterChipAdapter(vehicleTypeOptions, (position, value) -> {
+            selectedVehicleType = value;
+            if (value != null) {
+                selectedVehicleType = value.toLowerCase(); // Convert to lowercase to match expected format
+            }
+        });
+        recyclerViewVehicleTypes.setAdapter(vehicleTypesAdapter);
+
+        // Fuel Type RecyclerView setup
+        GridLayoutManager fuelTypesLayoutManager = new GridLayoutManager(getContext(), 4);
+        recyclerViewFuelTypes.setLayoutManager(fuelTypesLayoutManager);
+        fuelTypesAdapter = new FilterChipAdapter(fuelTypeOptions, (position, value) -> {
+            selectedFuelType = value;
+            if (value != null) {
+                selectedFuelType = value.toLowerCase(); // Convert to lowercase to match expected format
+            }
+        });
+        recyclerViewFuelTypes.setAdapter(fuelTypesAdapter);
+
+        // Seats RecyclerView setup
+        GridLayoutManager seatsLayoutManager = new GridLayoutManager(getContext(), 4);
+        recyclerViewSeats.setLayoutManager(seatsLayoutManager);
+        seatsAdapter = new FilterChipAdapter(seatOptions, (position, value) -> {
+            // Convert seat text to Integer value
+            if (position == 0) {
+                selectedSeats = null; // "All"
+            } else if (value != null) {
+                if (value.startsWith("2")) {
+                    selectedSeats = 2;
+                } else if (value.startsWith("4")) {
+                    selectedSeats = 4;
+                } else if (value.startsWith("5")) {
+                    selectedSeats = 5;
+                } else if (value.startsWith("7")) {
+                    selectedSeats = 7;
+                }
+            }
+        });
+        recyclerViewSeats.setAdapter(seatsAdapter);
     }
 
     private void applyInitialState() {
         // Brand selection
         if (selectedBrand != null) {
-            for (int i = 0; i < chipGroupBrand.getChildCount(); i++) {
-                Chip chip = (Chip) chipGroupBrand.getChildAt(i);
-                if (chip.getText().toString().equalsIgnoreCase(selectedBrand)) {
-                    chip.setChecked(true);
-                    break;
-                }
+            int brandPosition = brandOptions.indexOf(selectedBrand);
+            if (brandPosition != -1) {
+                brandsAdapter.setSelectedPosition(brandPosition);
             }
-        } else {
-            // Mặc định chọn "All"
-            ((Chip) chipGroupBrand.getChildAt(0)).setChecked(true);
         }
 
         // Vehicle type selection
         if (selectedVehicleType != null) {
-            for (int i = 0; i < chipGroupVehicleType.getChildCount(); i++) {
-                Chip chip = (Chip) chipGroupVehicleType.getChildAt(i);
-                if (chip.getText().toString().equalsIgnoreCase(selectedVehicleType)) {
-                    chip.setChecked(true);
-                    break;
-                }
+            // Find the position case-insensitive
+            String vehicleTypeCapitalized = selectedVehicleType.substring(0, 1).toUpperCase() + selectedVehicleType.substring(1);
+            int typePosition = vehicleTypeOptions.indexOf(vehicleTypeCapitalized);
+            if (typePosition != -1) {
+                vehicleTypesAdapter.setSelectedPosition(typePosition);
             }
-        } else {
-            // Mặc định chọn "All"
-            ((Chip) chipGroupVehicleType.getChildAt(0)).setChecked(true);
         }
 
         // Fuel type selection
         if (selectedFuelType != null) {
-            for (int i = 0; i < chipGroupFuelType.getChildCount(); i++) {
-                Chip chip = (Chip) chipGroupFuelType.getChildAt(i);
-                if (chip.getText().toString().equalsIgnoreCase(selectedFuelType)) {
-                    chip.setChecked(true);
-                    break;
-                }
+            // Find the position case-insensitive
+            String fuelTypeCapitalized = selectedFuelType.substring(0, 1).toUpperCase() + selectedFuelType.substring(1);
+            int fuelPosition = fuelTypeOptions.indexOf(fuelTypeCapitalized);
+            if (fuelPosition != -1) {
+                fuelTypesAdapter.setSelectedPosition(fuelPosition);
             }
-        } else {
-            // Mặc định chọn "All"
-            ((Chip) chipGroupFuelType.getChildAt(0)).setChecked(true);
         }
 
         // Seats selection
         if (selectedSeats != null) {
-            for (int i = 0; i < chipGroupSeats.getChildCount(); i++) {
-                Chip chip = (Chip) chipGroupSeats.getChildAt(i);
-                String chipText = chip.getText().toString();
-
-                if (chipText.contains(selectedSeats.toString())) {
-                    chip.setChecked(true);
-                    break;
-                }
+            int seatPosition = 0; // Default to "All"
+            if (selectedSeats == 2) {
+                seatPosition = 1;
+            } else if (selectedSeats == 4) {
+                seatPosition = 2;
+            } else if (selectedSeats == 5) {
+                seatPosition = 3;
+            } else if (selectedSeats == 7) {
+                seatPosition = 4;
             }
-        } else {
-            // Mặc định chọn "All"
-            ((Chip) chipGroupSeats.getChildAt(0)).setChecked(true);
+            seatsAdapter.setSelectedPosition(seatPosition);
         }
-    }
-
-    private void setupChipListeners() {
-        // Brand selection
-        chipGroupBrand.setOnCheckedChangeListener((group, checkedId) -> {
-            if (checkedId == R.id.chipBrandAll) {
-                selectedBrand = null;
-            } else {
-                Chip chip = group.findViewById(checkedId);
-                if (chip != null) {
-                    selectedBrand = chip.getText().toString();
-                }
-            }
-        });
-
-        // Vehicle type selection
-        chipGroupVehicleType.setOnCheckedChangeListener((group, checkedId) -> {
-            if (checkedId == R.id.chipTypeAll) {
-                selectedVehicleType = null;
-            } else {
-                Chip chip = group.findViewById(checkedId);
-                if (chip != null) {
-                    selectedVehicleType = chip.getText().toString().toLowerCase();
-                }
-            }
-        });
-
-        // Fuel type selection
-        chipGroupFuelType.setOnCheckedChangeListener((group, checkedId) -> {
-            if (checkedId == R.id.chipFuelAll) {
-                selectedFuelType = null;
-            } else {
-                Chip chip = group.findViewById(checkedId);
-                if (chip != null) {
-                    selectedFuelType = chip.getText().toString().toLowerCase();
-                }
-            }
-        });
-
-        // Seats selection
-        chipGroupSeats.setOnCheckedChangeListener((group, checkedId) -> {
-            if (checkedId == R.id.chipSeatsAll) {
-                selectedSeats = null;
-            } else if (checkedId == R.id.chipSeats2) {
-                selectedSeats = 2;
-            } else if (checkedId == R.id.chipSeats4) {
-                selectedSeats = 4;
-            } else if (checkedId == R.id.chipSeats5) {
-                selectedSeats = 5;
-            } else if (checkedId == R.id.chipSeats7) {
-                selectedSeats = 7;
-            }
-        });
     }
 
     private void setupButtonListeners() {
@@ -187,7 +202,7 @@ public class FilterDialog extends Dialog {
 
         btnApply.setOnClickListener(v -> {
             if (listener != null) {
-                // Gọi callback đến activity với các filter đã chọn
+                // Call callback to activity with selected filters
                 listener.onFiltersApplied(selectedBrand, selectedVehicleType, selectedFuelType, selectedSeats);
             }
             dismiss();
@@ -200,10 +215,10 @@ public class FilterDialog extends Dialog {
         selectedFuelType = null;
         selectedSeats = null;
 
-        // Reset chips về trạng thái mặc định
-        ((Chip) chipGroupBrand.getChildAt(0)).setChecked(true);
-        ((Chip) chipGroupVehicleType.getChildAt(0)).setChecked(true);
-        ((Chip) chipGroupFuelType.getChildAt(0)).setChecked(true);
-        ((Chip) chipGroupSeats.getChildAt(0)).setChecked(true);
+        // Reset all adapters to select the first item (All)
+        brandsAdapter.setSelectedPosition(0);
+        vehicleTypesAdapter.setSelectedPosition(0);
+        fuelTypesAdapter.setSelectedPosition(0);
+        seatsAdapter.setSelectedPosition(0);
     }
 }
