@@ -107,17 +107,6 @@
                     app:layout_constraintStart_toEndOf="@+id/profile_image"
                     app:layout_constraintTop_toBottomOf="@+id/user_role" />
 
-                <ImageView
-                    android:id="@+id/edit_profile_icon"
-                    android:layout_width="19dp"
-                    android:layout_height="19dp"
-                    android:layout_marginStart="8dp"
-                    android:src="@drawable/edit"
-                    app:layout_constraintBottom_toBottomOf="@+id/user_name"
-                    app:layout_constraintStart_toEndOf="@+id/user_name"
-                    app:layout_constraintTop_toTopOf="@+id/user_name"
-                    app:tint="@android:color/holo_green_light" />
-
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <LinearLayout

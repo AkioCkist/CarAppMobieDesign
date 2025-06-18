@@ -99,15 +99,6 @@ public class UserDashboard extends AppCompatActivity {
         // EditText editConfirmPassword = findViewById(R.id.edit_confirm_password);
         // Button btnSave = findViewById(R.id.btn_save);
 
-        // --- REMOVED: Edit profile icon click listener from Activity ---
-        // ImageView editProfileIcon = findViewById(R.id.edit_profile_icon);
-        // editProfileIcon.setOnClickListener(v -> {
-        //     // This logic will now be handled within ProfileFragment
-        // });
-        // --- REMOVED: Save and Cancel button click handlers from Activity ---
-        // btnSave.setOnClickListener(v -> {
-        //     saveProfileChanges(editUsername, editPhone, editPassword, editConfirmPassword, editProfileForm);
-        // });
     }
 
     private void animateScreenEntry() {
