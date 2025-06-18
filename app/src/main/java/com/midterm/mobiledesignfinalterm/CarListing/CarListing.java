@@ -3,6 +3,7 @@ package com.midterm.mobiledesignfinalterm.CarListing;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -582,10 +583,10 @@ public class CarListing extends AppCompatActivity {
         Button btnCancel = dialogView.findViewById(R.id.btnCancel);
 
         // Change text color for buttons
-        btnPickupTime.setTextColor(android.graphics.Color.BLACK);
-        btnReturnTime.setTextColor(android.graphics.Color.BLACK);
-        btnConfirm.setTextColor(android.graphics.Color.BLACK);
-        btnCancel.setTextColor(android.graphics.Color.BLACK);
+        btnPickupTime.setTextColor(Color.WHITE);
+        btnReturnTime.setTextColor(Color.WHITE);
+        btnConfirm.setTextColor(Color.WHITE);
+        btnCancel.setTextColor(Color.WHITE);
 
         // Setup location options with custom adapter for black text
         // Add "All Locations" as the first option
