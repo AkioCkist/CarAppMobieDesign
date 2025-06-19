@@ -136,6 +136,50 @@
         android:elevation="0dp"
         android:fontFamily="@font/notosans_semibold"
         style="@style/Widget.AppCompat.Button.Borderless" />
+
+    <!-- Social Login Buttons -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_marginBottom="16dp">
+
+        <Button
+            android:id="@+id/buttonGoogleSignIn"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:backgroundTint="#fff"
+            android:text="Google"
+            android:textColor="@color/white"
+            android:textSize="14sp"
+            android:drawableLeft="@drawable/google"
+            android:drawablePadding="8dp"
+            android:elevation="0dp"
+            android:fontFamily="@font/notosans_semibold"
+            style="@style/Widget.AppCompat.Button.Borderless" />
+
+        <Space
+            android:layout_width="16dp"
+            android:layout_height="0dp" />
+
+        <Button
+            android:id="@+id/buttonFacebookSignIn"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:backgroundTint="#1877F3"
+            android:text="Facebook"
+            android:textColor="#fff"
+            android:textSize="14sp"
+            android:drawableLeft="@drawable/facebook"
+            android:drawablePadding="8dp"
+            android:elevation="0dp"
+            android:fontFamily="@font/notosans_semibold"
+            style="@style/Widget.AppCompat.Button.Borderless" />
+    </LinearLayout>
+
     <!-- Sign Up Text -->
     <LinearLayout
         android:layout_width="wrap_content"
