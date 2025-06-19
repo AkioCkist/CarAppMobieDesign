@@ -37,6 +37,7 @@ import com.midterm.mobiledesignfinalterm.R;
 import com.midterm.mobiledesignfinalterm.UserDashboard.UserDashboard;
 import com.midterm.mobiledesignfinalterm.aboutUs.AboutUs;
 import com.midterm.mobiledesignfinalterm.authentication.Login;
+import com.midterm.mobiledesignfinalterm.faq.FAQActivity;
 
 import android.widget.Toast;
 import android.Manifest;
@@ -82,7 +83,14 @@ public class Homepage extends AppCompatActivity implements LocationListener {
     private LinearLayout layoutTopCarsSection;
     private Button btnMyProfile;
     private Button btnAboutUs; // Changed from btnMyBooking to match layout
+    private Button btnFAQ;
     private Button btnSignOut;
+
+    // FAQ section elements
+    private LinearLayout faqItem1, faqItem2, faqItem3, faqItem4, faqItem5;
+    private TextView faqAnswer1, faqAnswer2, faqAnswer3, faqAnswer4, faqAnswer5;
+    private ImageView faqArrow1, faqArrow2, faqArrow3, faqArrow4, faqArrow5;
+    private Button btnViewAllFAQ;
 
     // Pickup/Drop-off elements
     private TextView textViewPickupLocation;
@@ -303,7 +311,26 @@ public class Homepage extends AppCompatActivity implements LocationListener {
         layoutTopCarsSection = findViewById(R.id.layoutTopCarsSection);
         btnMyProfile = findViewById(R.id.btnMyProfile);
         btnAboutUs = findViewById(R.id.btnAboutUs);
+        btnFAQ = findViewById(R.id.btnFAQ);
         btnSignOut = findViewById(R.id.btnSignOut);
+
+        // Initialize FAQ section elements
+        faqItem1 = findViewById(R.id.faqItem1);
+        faqItem2 = findViewById(R.id.faqItem2);
+        faqItem3 = findViewById(R.id.faqItem3);
+        faqItem4 = findViewById(R.id.faqItem4);
+        faqItem5 = findViewById(R.id.faqItem5);
+        faqAnswer1 = findViewById(R.id.faqAnswer1);
+        faqAnswer2 = findViewById(R.id.faqAnswer2);
+        faqAnswer3 = findViewById(R.id.faqAnswer3);
+        faqAnswer4 = findViewById(R.id.faqAnswer4);
+        faqAnswer5 = findViewById(R.id.faqAnswer5);
+        faqArrow1 = findViewById(R.id.faqArrow1);
+        faqArrow2 = findViewById(R.id.faqArrow2);
+        faqArrow3 = findViewById(R.id.faqArrow3);
+        faqArrow4 = findViewById(R.id.faqArrow4);
+        faqArrow5 = findViewById(R.id.faqArrow5);
+        btnViewAllFAQ = findViewById(R.id.btnViewAllFAQ);
 
         // Initialize pickup/drop-off elements
         layoutPickupLocation = findViewById(R.id.layoutPickupLocation);
@@ -553,6 +580,13 @@ public class Homepage extends AppCompatActivity implements LocationListener {
             startActivity(intent);
         });
 
+        btnFAQ.setOnClickListener(v -> {
+            animateMenuItemClick(v);
+            hideDropdownMenu();
+            Intent intent = new Intent(Homepage.this, FAQActivity.class);
+            startActivity(intent);
+        });
+
         btnSignOut.setOnClickListener(v -> {
             animateMenuItemClick(v);
             hideDropdownMenu();
@@ -608,6 +642,19 @@ public class Homepage extends AppCompatActivity implements LocationListener {
             intent.putExtra("pickup_time", textViewPickupTime.getText().toString());
             intent.putExtra("dropoff_date", textViewDropoffDate.getText().toString());
             intent.putExtra("dropoff_time", textViewDropoffTime.getText().toString());
+            startActivity(intent);
+        });
+
+        // FAQ section click listeners
+        faqItem1.setOnClickListener(v -> toggleFAQ(faqAnswer1, faqArrow1));
+        faqItem2.setOnClickListener(v -> toggleFAQ(faqAnswer2, faqArrow2));
+        faqItem3.setOnClickListener(v -> toggleFAQ(faqAnswer3, faqArrow3));
+        faqItem4.setOnClickListener(v -> toggleFAQ(faqAnswer4, faqArrow4));
+        faqItem5.setOnClickListener(v -> toggleFAQ(faqAnswer5, faqArrow5));
+        
+        btnViewAllFAQ.setOnClickListener(v -> {
+            animateButtonClick(v);
+            Intent intent = new Intent(Homepage.this, FAQActivity.class);
             startActivity(intent);
         });
     }
@@ -1020,6 +1067,38 @@ public class Homepage extends AppCompatActivity implements LocationListener {
         public String getPrice() { return price; }
         public String getRating() { return rating; }
         public int getImageResource() { return imageResource; }
+    }
+
+    /**
+     * Toggle FAQ item visibility with animation
+     */
+    private void toggleFAQ(TextView answer, ImageView arrow) {
+        if (answer.getVisibility() == View.GONE) {
+            // Show answer
+            answer.setVisibility(View.VISIBLE);
+            answer.setAlpha(0f);
+            answer.animate()
+                    .alpha(1f)
+                    .setDuration(300)
+                    .start();
+            
+            // Rotate arrow
+            ObjectAnimator.ofFloat(arrow, "rotation", 0f, 180f)
+                    .setDuration(300)
+                    .start();
+        } else {
+            // Hide answer
+            answer.animate()
+                    .alpha(0f)
+                    .setDuration(300)
+                    .withEndAction(() -> answer.setVisibility(View.GONE))
+                    .start();
+            
+            // Rotate arrow back
+            ObjectAnimator.ofFloat(arrow, "rotation", 180f, 0f)
+                    .setDuration(300)
+                    .start();
+        }
     }
 }
 

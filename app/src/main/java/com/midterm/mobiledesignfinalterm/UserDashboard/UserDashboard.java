@@ -14,6 +14,8 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.util.Log;
+import com.bumptech.glide.Glide;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -42,7 +44,9 @@ public class UserDashboard extends AppCompatActivity {
     private String userId;
     private ArrayList<String> userRoles;
     private String userRawData;
-
+    private ImageView profile_image;
+    private String userEmail;
+    private String userPhotoUri;
     private int previousSelectedItemId = -1;
 
     // UI Components
@@ -57,9 +61,9 @@ public class UserDashboard extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_dashboard);
-
         // Get user information from intent
         getUserInfoFromIntent();
+
 
         // Initialize the bottom navigation
         bottomNav = findViewById(R.id.bottom_navigation);
@@ -77,7 +81,7 @@ public class UserDashboard extends AppCompatActivity {
         userPhoneView = findViewById(R.id.user_phone); // Keep these references
         TextView userRoleView = findViewById(R.id.user_role);
         TextView userIdView = findViewById(R.id.user_id);
-
+        profile_image = findViewById(R.id.profile_image);
         // Load user data from received intent
         loadUserData(userNameView, userPhoneView, userRoleView, userIdView);
 
@@ -91,14 +95,7 @@ public class UserDashboard extends AppCompatActivity {
             previousSelectedItemId = R.id.nav_dashboard;
         }
 
-        // --- REMOVED: Edit profile form initialization from Activity ---
-        // LinearLayout editProfileForm = findViewById(R.id.edit_profile_form);
-        // EditText editUsername = findViewById(R.id.edit_username);
-        // EditText editPhone = findViewById(R.id.edit_phone);
-        // EditText editPassword = findViewById(R.id.edit_password);
-        // EditText editConfirmPassword = findViewById(R.id.edit_confirm_password);
-        // Button btnSave = findViewById(R.id.btn_save);
-
+        handleUserIntent();
     }
 
     private void animateScreenEntry() {
@@ -131,6 +128,8 @@ public class UserDashboard extends AppCompatActivity {
             userId = intent.getStringExtra("user_id");
             userRoles = intent.getStringArrayListExtra("user_roles");
             userRawData = intent.getStringExtra("user_data");
+            userEmail = intent.getStringExtra("user_email");
+            userPhotoUri = intent.getStringExtra("user_photo_uri");
 
             if (userName != null && userPhone != null) {
                 Log.d("UserDashboard", "Received user: " + userName + ", " + userPhone +
@@ -460,6 +459,32 @@ public class UserDashboard extends AppCompatActivity {
             if (editProfileForm != null && editProfileForm.getVisibility() == View.VISIBLE) {
                 activity.hideEditProfileForm(editProfileForm);
             }
+        }
+    }
+    private void handleUserIntent() {
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+            String userName = extras.getString("user_name");
+            String userEmail = extras.getString("user_email");
+            String userId = extras.getString("user_id");
+            String userPhotoUri = extras.getString("user_photo_uri");
+
+            // Use Glide to load the profile picture from the URL
+            if (userPhotoUri != null && !userPhotoUri.isEmpty()) {
+                Glide.with(this)
+                        .load(userPhotoUri)
+                        .circleCrop() // Make the image circular
+                        .placeholder(R.drawable.ic_profile) // Add a placeholder drawable
+                        .error(R.drawable.ic_profile) // Add an error drawable
+                        .into(profile_image);
+            }
+
+            // You can log the other details or use them elsewhere
+            Log.d("Homepage", "User Logged In: ID=" + userId + ", Email=" + userEmail);
+
+        } else {
+            // Handle case where no data is passed (e.g., direct launch for testing)
+            Log.d("Homepage", "No intent extras found.");
         }
     }
 }

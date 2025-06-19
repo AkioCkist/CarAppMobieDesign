@@ -23,7 +23,13 @@
             android:exported="false" />
         <activity
             android:name=".aboutUs.AboutUs"
-            android:exported="false" /> <!-- Car Detail Activity -->
+            android:exported="false" />
+        <!-- FAQ Activity -->
+        <activity
+            android:name=".faq.FAQActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        <!-- Car Detail Activity -->
         <activity
             android:name=".CarDetail.CarDetailActivity"
             android:exported="false"
