@@ -86,12 +86,12 @@ public class Login extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        // Check for an existing signed-in user to provide a seamless experience
-        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
-        if (account != null) {
-            Toast.makeText(this, "Already signed in. Navigating to homepage.", Toast.LENGTH_SHORT).show();
-            navigateToHomepage(account);
-        }
+        // Automatic Google sign-in disabled. User must manually sign in.
+//        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
+//        if (account != null) {
+//            Toast.makeText(this, "Already signed in. Navigating to homepage.", Toast.LENGTH_SHORT).show();
+//            navigateToHomepage(account);
+//        }
     }
     // ✅ --- End of check ---
 
@@ -457,4 +457,3 @@ public class Login extends AppCompatActivity {
         startActivity(intent);
     }
 }
-
