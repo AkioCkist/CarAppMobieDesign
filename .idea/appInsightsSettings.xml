@@ -8,10 +8,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="PLACEHOLDER" />
-                  <option name="mobileSdkAppId" value="" />
-                  <option name="projectId" value="" />
-                  <option name="projectNumber" value="" />
+                  <option name="appId" value="com.midterm.mobiledesignfinalterm" />
+                  <option name="mobileSdkAppId" value="1:805617472876:android:8c96772fc778ef6a980f49" />
+                  <option name="projectId" value="oauth-whale-xe" />
+                  <option name="projectNumber" value="805617472876" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />

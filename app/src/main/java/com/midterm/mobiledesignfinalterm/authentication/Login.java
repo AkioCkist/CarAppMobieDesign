@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.method.HideReturnsTransformationMethod;
 import android.text.method.PasswordTransformationMethod;
+import android.util.Log;
 import android.view.View;
 import android.view.animation.BounceInterpolator;
 import android.view.animation.OvershootInterpolator;
@@ -15,10 +16,19 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
 
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.tasks.Task;
 import com.midterm.mobiledesignfinalterm.homepage.Homepage;
 import com.midterm.mobiledesignfinalterm.R;
 
@@ -41,15 +51,21 @@ public class Login extends AppCompatActivity {
     private Button buttonSignIn;
     private TextView textViewForgotPassword;
     private TextView textViewSignUp;
+    private Button buttonGoogleSignIn; // ✅ Added Google Sign In Button
 
     private boolean isPasswordVisible = false;
+
+    // ✅ --- Google Sign-In Declarations ---
+    private static final String TAG = "GoogleSignIn";
+    private GoogleSignInClient mGoogleSignInClient;
+    private ActivityResultLauncher<Intent> mGoogleSignInLauncher;
+    // ✅ --- End of Google Sign-In Declarations ---
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        // Make status bar transparent and content edge-to-edge
         WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
         WindowInsetsControllerCompat windowInsetsController =
                 WindowCompat.getInsetsController(getWindow(), getWindow().getDecorView());
@@ -60,49 +76,24 @@ public class Login extends AppCompatActivity {
         setupFocusListeners();
         setupPasswordToggle();
 
+        // ✅ --- Initialize Google Sign-In ---
+        configureGoogleSignIn();
+        setupGoogleSignInLauncher();
+        // ✅ --- End of Google Sign-In Initialization ---
     }
 
-    private void setupPasswordToggle() {
-        buttonTogglePassword.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                togglePasswordVisibility();
-            }
-        });
-    }
-
-    private void togglePasswordVisibility() {
-        if (isPasswordVisible) {
-            // Hide password
-            editTextPassword.setTransformationMethod(PasswordTransformationMethod.getInstance());
-            buttonTogglePassword.setImageResource(R.drawable.ic_eye_off); // You'll need this drawable
-            isPasswordVisible = false;
-        } else {
-            // Show password
-            editTextPassword.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
-            buttonTogglePassword.setImageResource(R.drawable.ic_eye_on); // You'll need this drawable
-            isPasswordVisible = true;
+    // ✅ --- Check for existing signed-in user ---
+    @Override
+    protected void onStart() {
+        super.onStart();
+        // Check for an existing signed-in user to provide a seamless experience
+        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
+        if (account != null) {
+            Toast.makeText(this, "Already signed in. Navigating to homepage.", Toast.LENGTH_SHORT).show();
+            navigateToHomepage(account);
         }
-
-        // Move cursor to end of text
-        editTextPassword.setSelection(editTextPassword.getText().length());
-
-        // Animate the toggle button
-        animatePasswordToggle(buttonTogglePassword);
     }
-
-    private void animatePasswordToggle(View view) {
-        // Rotate and scale animation for password toggle
-        ObjectAnimator rotation = ObjectAnimator.ofFloat(view, "rotation", 0f, 360f);
-        ObjectAnimator scaleX = ObjectAnimator.ofFloat(view, "scaleX", 1f, 1.2f, 1f);
-        ObjectAnimator scaleY = ObjectAnimator.ofFloat(view, "scaleY", 1f, 1.2f, 1f);
-
-        AnimatorSet animatorSet = new AnimatorSet();
-        animatorSet.playTogether(rotation, scaleX, scaleY);
-        animatorSet.setDuration(300);
-        animatorSet.setInterpolator(new OvershootInterpolator(1.1f));
-        animatorSet.start();
-    }
+    // ✅ --- End of check ---
 
     private void initializeViews() {
         editTextPhoneNumber = findViewById(R.id.editTextPhoneNumber);
@@ -112,133 +103,169 @@ public class Login extends AppCompatActivity {
         buttonSignIn = findViewById(R.id.buttonSignIn);
         textViewForgotPassword = findViewById(R.id.textViewForgotPassword);
         textViewSignUp = findViewById(R.id.textViewSignUp);
+        buttonGoogleSignIn = findViewById(R.id.buttonGoogleSignIn); // ✅ Initialize Google Sign In Button
     }
 
     private void setupClickListeners() {
-        buttonSignIn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                animateButtonClick(v, () -> handleSignIn());
-            }
+        buttonSignIn.setOnClickListener(v -> animateButtonClick(v, this::handleSignIn));
+        textViewForgotPassword.setOnClickListener(v -> {
+            animateTextClick(v);
+            handleForgotPassword();
         });
+        textViewSignUp.setOnClickListener(v -> {
+            animateTextClick(v);
+            handleSignUp();
+        });
+        checkBoxRememberMe.setOnClickListener(this::animateCheckboxClick);
 
-        textViewForgotPassword.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                animateTextClick(v);
-                handleForgotPassword();
-            }
+        // ✅ --- Google Sign-In Button Click Listener ---
+        buttonGoogleSignIn.setOnClickListener(v -> {
+            animateButtonClick(v, this::signInWithGoogle);
         });
+        // ✅ --- End of Google Sign-In Listener ---
+    }
 
-        textViewSignUp.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                animateTextClick(v);
-                handleSignUp();
-            }
-        });
+    // ✅ --- Google Sign-In Methods ---
 
-        checkBoxRememberMe.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                animateCheckboxClick(v);
-            }
-        });
+    /**
+     * Configures the GoogleSignInClient with the required options.
+     * Requests user's ID, email, and basic profile.
+     * The ID token is requested using the web client ID from your google-services.json.
+     */
+    private void configureGoogleSignIn() {
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(getString(R.string.default_web_client_id)) // Get web client ID from strings
+                .requestEmail()
+                .build();
+        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
+    }
+
+    /**
+     * Initializes the ActivityResultLauncher for the Google Sign-In flow.
+     * This is the modern replacement for onActivityResult().
+     */
+    private void setupGoogleSignInLauncher() {
+        mGoogleSignInLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == RESULT_OK) {
+                        Intent data = result.getData();
+                        Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
+                        handleGoogleSignInResult(task);
+                    } else {
+                        Log.w(TAG, "Sign-in flow cancelled by user.");
+                        Toast.makeText(Login.this, "Google Sign-In was cancelled.", Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+    /**
+     * Initiates the Google Sign-In flow by launching the sign-in intent.
+     */
+    private void signInWithGoogle() {
+        Intent signInIntent = mGoogleSignInClient.getSignInIntent();
+        mGoogleSignInLauncher.launch(signInIntent);
+    }
+
+    /**
+     * Handles the result of the Google Sign-In authentication.
+     * On success, navigates to the homepage. On failure, shows an error.
+     * @param completedTask The task containing the sign-in result.
+     */
+    private void handleGoogleSignInResult(Task<GoogleSignInAccount> completedTask) {
+        try {
+            GoogleSignInAccount account = completedTask.getResult(ApiException.class);
+            Log.d(TAG, "signInResult:success, user: " + account.getEmail());
+            Toast.makeText(this, "Google Sign-In successful!", Toast.LENGTH_SHORT).show();
+            navigateToHomepage(account);
+        } catch (ApiException e) {
+            Log.w(TAG, "signInResult:failed code=" + e.getStatusCode());
+            Toast.makeText(this, "Google Sign-In failed. Please try again.", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    /**
+     * Navigates to the Homepage activity with the Google user's information.
+     * @param account The signed-in Google account.
+     */
+    private void navigateToHomepage(GoogleSignInAccount account) {
+        Intent intent = new Intent(Login.this, Homepage.class);
+        intent.putExtra("user_name", account.getDisplayName());
+        intent.putExtra("user_email", account.getEmail()); // Pass email as well
+        intent.putExtra("user_id", account.getId()); // Pass Google's unique user ID
+
+        // You can also pass the profile picture URI if your homepage can display it
+        if (account.getPhotoUrl() != null) {
+            intent.putExtra("user_photo_uri", account.getPhotoUrl().toString());
+        }
+
+        startActivity(intent);
+        finish(); // Close login activity
+    }
+
+    // ✅ --- End of Google Sign-In Methods ---
+
+
+    // --- Existing Methods (No changes below this line, except for slight reformatting) ---
+
+    private void setupPasswordToggle() {
+        buttonTogglePassword.setOnClickListener(v -> togglePasswordVisibility());
+    }
+
+    private void togglePasswordVisibility() {
+        if (isPasswordVisible) {
+            editTextPassword.setTransformationMethod(PasswordTransformationMethod.getInstance());
+            buttonTogglePassword.setImageResource(R.drawable.ic_eye_off);
+            isPasswordVisible = false;
+        } else {
+            editTextPassword.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
+            buttonTogglePassword.setImageResource(R.drawable.ic_eye_on);
+            isPasswordVisible = true;
+        }
+        editTextPassword.setSelection(editTextPassword.getText().length());
+        animatePasswordToggle(buttonTogglePassword);
+    }
+
+    private void animatePasswordToggle(View view) {
+        ObjectAnimator rotation = ObjectAnimator.ofFloat(view, "rotation", 0f, 360f);
+        ObjectAnimator scaleX = ObjectAnimator.ofFloat(view, "scaleX", 1f, 1.2f, 1f);
+        ObjectAnimator scaleY = ObjectAnimator.ofFloat(view, "scaleY", 1f, 1.2f, 1f);
+        AnimatorSet animatorSet = new AnimatorSet();
+        animatorSet.playTogether(rotation, scaleX, scaleY);
+        animatorSet.setDuration(300);
+        animatorSet.setInterpolator(new OvershootInterpolator(1.1f));
+        animatorSet.start();
     }
 
     private void setupFocusListeners() {
-        // Phone number field focus animation
-        editTextPhoneNumber.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if (hasFocus) {
-                    animateEditTextFocus(v, true);
-                } else {
-                    animateEditTextFocus(v, false);
-                }
-            }
-        });
-
-        // Password field focus animation
-        editTextPassword.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if (hasFocus) {
-                    animateEditTextFocus(v, true);
-                } else {
-                    animateEditTextFocus(v, false);
-                }
-            }
-        });
-    }
-
-    // Animation Methods
-    private void animateInitialEntrance() {
-        View[] views = {editTextPhoneNumber, editTextPassword, buttonTogglePassword,
-                checkBoxRememberMe, buttonSignIn,
-                textViewForgotPassword, textViewSignUp};
-
-        for (int i = 0; i < views.length; i++) {
-            View view = views[i];
-            view.setAlpha(0f);
-            view.setTranslationY(50f);
-            view.setScaleX(0.8f);
-            view.setScaleY(0.8f);
-
-            view.animate()
-                    .alpha(1f)
-                    .translationY(0f)
-                    .scaleX(1f)
-                    .scaleY(1f)
-                    .setDuration(600)
-                    .setStartDelay(i * 100)
-                    .setInterpolator(new OvershootInterpolator(1.2f))
-                    .start();
-        }
+        View.OnFocusChangeListener focusListener = (v, hasFocus) -> animateEditTextFocus(v, hasFocus);
+        editTextPhoneNumber.setOnFocusChangeListener(focusListener);
+        editTextPassword.setOnFocusChangeListener(focusListener);
     }
 
     private void animateEditTextFocus(View view, boolean hasFocus) {
         if (hasFocus) {
-            // Focus gained - popup effect
             ObjectAnimator scaleX = ObjectAnimator.ofFloat(view, "scaleX", 1f, 1.05f, 1f);
             ObjectAnimator scaleY = ObjectAnimator.ofFloat(view, "scaleY", 1f, 1.05f, 1f);
             ObjectAnimator elevation = ObjectAnimator.ofFloat(view, "elevation", 0f, 8f);
-
             AnimatorSet animatorSet = new AnimatorSet();
             animatorSet.playTogether(scaleX, scaleY, elevation);
             animatorSet.setDuration(300);
             animatorSet.setInterpolator(new OvershootInterpolator(1.1f));
             animatorSet.start();
         } else {
-            // Focus lost - return to normal
-            ObjectAnimator elevation = ObjectAnimator.ofFloat(view, "elevation", 8f, 0f);
-            elevation.setDuration(200);
-            elevation.start();
+            ObjectAnimator.ofFloat(view, "elevation", 8f, 0f).setDuration(200).start();
         }
     }
 
     private void animateButtonClick(View button, Runnable onComplete) {
-        button.animate()
-                .scaleX(0.95f)
-                .scaleY(0.95f)
-                .setDuration(70)
-                .withEndAction(() -> {
-                    button.animate()
-                            .scaleX(1f)
-                            .scaleY(1f)
-                            .setDuration(100)
-                            .withEndAction(onComplete)
-                            .start();
-                })
-                .start();
+        button.animate().scaleX(0.95f).scaleY(0.95f).setDuration(70).withEndAction(() -> button.animate().scaleX(1f).scaleY(1f).setDuration(100).withEndAction(onComplete).start()).start();
     }
 
     private void animateTextClick(View view) {
-        // Text click popup effect
         ObjectAnimator scaleX = ObjectAnimator.ofFloat(view, "scaleX", 1f, 1.2f, 1f);
         ObjectAnimator scaleY = ObjectAnimator.ofFloat(view, "scaleY", 1f, 1.2f, 1f);
         ObjectAnimator alpha = ObjectAnimator.ofFloat(view, "alpha", 1f, 0.7f, 1f);
-
         AnimatorSet animatorSet = new AnimatorSet();
         animatorSet.playTogether(scaleX, scaleY, alpha);
         animatorSet.setDuration(250);
@@ -247,11 +274,9 @@ public class Login extends AppCompatActivity {
     }
 
     private void animateCheckboxClick(View view) {
-        // Checkbox click popup effect
         ObjectAnimator rotation = ObjectAnimator.ofFloat(view, "rotation", 0f, 15f, -15f, 0f);
         ObjectAnimator scaleX = ObjectAnimator.ofFloat(view, "scaleX", 1f, 1.3f, 1f);
         ObjectAnimator scaleY = ObjectAnimator.ofFloat(view, "scaleY", 1f, 1.3f, 1f);
-
         AnimatorSet animatorSet = new AnimatorSet();
         animatorSet.playTogether(rotation, scaleX, scaleY);
         animatorSet.setDuration(350);
@@ -260,10 +285,7 @@ public class Login extends AppCompatActivity {
     }
 
     private void animateErrorShake(View view) {
-        // Error shake animation
-        ObjectAnimator shake = ObjectAnimator.ofFloat(view, "translationX", 0f, 25f, -25f, 25f, -25f, 15f, -15f, 6f, -6f, 0f);
-        shake.setDuration(600);
-        shake.start();
+        ObjectAnimator.ofFloat(view, "translationX", 0f, 25f, -25f, 25f, -25f, 15f, -15f, 6f, -6f, 0f).setDuration(600).start();
     }
 
     public void handleSignIn() {
@@ -302,7 +324,6 @@ public class Login extends AppCompatActivity {
             animateErrorShake(editTextPassword);
             return;
         }
-
         // ✅ Send JSON POST request
         new Thread(() -> {
             try {
@@ -426,7 +447,6 @@ public class Login extends AppCompatActivity {
             }
         }).start();
     }
-
     private void handleForgotPassword() {
         Intent intent = new Intent(Login.this, ForgotPassword.class);
         startActivity(intent);
