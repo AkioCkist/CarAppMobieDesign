@@ -31,76 +31,110 @@ try {
 
 // Handle GET request for admin statistics
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+    // Initialize default values
+    $stats = [
+        'total_bookings' => 0,
+        'total_cars' => 0,
+        'today_bookings' => 0,
+        'week_bookings' => 0,
+        'month_bookings' => 0,
+        'cancel_rate' => 0.0,
+        'success_rate' => 0.0
+    ];
+
     try {
-        // Initialize default values
-        $totalBookings = 0;
-        $totalCars = 0;
-        $todayBookings = 0;
-        $weekBookings = 0;
-        $monthBookings = 0;
-        $cancelRate = 0.0;
-        $successRate = 0.0;
+        // Get total bookings
+        $stmt = $pdo->query("SELECT COUNT(*) FROM bookings");
+        $stats['total_bookings'] = (int)$stmt->fetchColumn();
+    } catch (Exception $e) {
+        // Keep default value if table doesn't exist
+    }
 
-        // Get total bookings (check if bookings table exists)
-        try {
-            $stmt = $pdo->prepare("SELECT COUNT(*) as total FROM bookings");
-            $stmt->execute();
-            $totalBookings = $stmt->fetchColumn();
-        } catch (Exception $e) {
-            // Table might not exist, use default value
-            $totalBookings = 0;
-        }
-
+    try {
         // Get total cars
-        try {
-            $stmt = $pdo->prepare("SELECT COUNT(*) as total FROM vehicles");
-            $stmt->execute();
-            $totalCars = $stmt->fetchColumn();
-        } catch (Exception $e) {
-            // Table might not exist, use default value
-            $totalCars = 0;
-        }
+        $stmt = $pdo->query("SELECT COUNT(*) FROM vehicles");
+        $stats['total_cars'] = (int)$stmt->fetchColumn();
+    } catch (Exception $e) {
+        // Keep default value if table doesn't exist
+    }
 
-        // Get today's bookings (using proper date fields)
+    try {
+        // Get today's bookings
+        $stmt = $pdo->query("SELECT COUNT(*) FROM bookings WHERE DATE(created_at) = CURDATE()");
+        $stats['today_bookings'] = (int)$stmt->fetchColumn();
+    } catch (Exception $e) {
+        // Try alternative date field if created_at doesn't exist
         try {
-            $stmt = $pdo->prepare("SELECT COUNT(*) as total FROM bookings WHERE DATE(COALESCE(pickup_date, created_at, NOW())) = CURDATE()");
-            $stmt->execute();
-            $todayBookings = $stmt->fetchColumn();
-        } catch (Exception $e) {
-            $todayBookings = 0;
+            $stmt = $pdo->query("SELECT COUNT(*) FROM bookings WHERE DATE(pickup_date) = CURDATE()");
+            $stats['today_bookings'] = (int)$stmt->fetchColumn();
+        } catch (Exception $e2) {
+            // Keep default value
         }
+    }
 
+    try {
         // Get this week's bookings
+        $stmt = $pdo->query("SELECT COUNT(*) FROM bookings WHERE YEARWEEK(created_at, 1) = YEARWEEK(CURDATE(), 1)");
+        $stats['week_bookings'] = (int)$stmt->fetchColumn();
+    } catch (Exception $e) {
+        // Try alternative date field
         try {
-            $stmt = $pdo->prepare("SELECT COUNT(*) as total FROM bookings WHERE YEARWEEK(COALESCE(pickup_date, created_at, NOW()), 1) = YEARWEEK(CURDATE(), 1)");
-            $stmt->execute();
-            $weekBookings = $stmt->fetchColumn();
-        } catch (Exception $e) {
-            $weekBookings = 0;
+            $stmt = $pdo->query("SELECT COUNT(*) FROM bookings WHERE YEARWEEK(pickup_date, 1) = YEARWEEK(CURDATE(), 1)");
+            $stats['week_bookings'] = (int)$stmt->fetchColumn();
+        } catch (Exception $e2) {
+            // Keep default value
         }
+    }
 
+    try {
         // Get this month's bookings
+        $stmt = $pdo->query("SELECT COUNT(*) FROM bookings WHERE YEAR(created_at) = YEAR(CURDATE()) AND MONTH(created_at) = MONTH(CURDATE())");
+        $stats['month_bookings'] = (int)$stmt->fetchColumn();
+    } catch (Exception $e) {
+        // Try alternative date field
         try {
-            $stmt = $pdo->prepare("SELECT COUNT(*) as total FROM bookings WHERE YEAR(COALESCE(pickup_date, created_at, NOW())) = YEAR(CURDATE()) AND MONTH(COALESCE(pickup_date, created_at, NOW())) = MONTH(CURDATE())");
-            $stmt->execute();
-            $monthBookings = $stmt->fetchColumn();
-        } catch (Exception $e) {
-            $monthBookings = 0;
+            $stmt = $pdo->query("SELECT COUNT(*) FROM bookings WHERE YEAR(pickup_date) = YEAR(CURDATE()) AND MONTH(pickup_date) = MONTH(CURDATE())");
+            $stats['month_bookings'] = (int)$stmt->fetchColumn();
+        } catch (Exception $e2) {
+            // Keep default value
         }
+    }
 
-        // Calculate cancel rate and success rate (adjust status values as needed)
-        try {
-            $stmt = $pdo->prepare("SELECT 
-                COUNT(CASE WHEN status IN ('cancelled', 'canceled', 'cancel') THEN 1 END) as cancelled,
-                COUNT(CASE WHEN status IN ('completed', 'finished', 'returned', 'complete') THEN 1 END) as completed,
-                COUNT(*) as total
-                FROM bookings");
-            $stmt->execute();
-            $statusStats = $stmt->fetch();
+    try {
+        // Calculate success and cancel rates
+        $stmt = $pdo->query("SELECT status, COUNT(*) as count FROM bookings GROUP BY status");
+        $statusCounts = $stmt->fetchAll();
+        
+        $totalBookings = 0;
+        $cancelledCount = 0;
+        $completedCount = 0;
+        
+        foreach ($statusCounts as $status) {
+            $totalBookings += $status['count'];
+            $statusName = strtolower($status['status']);
+            
+            if (in_array($statusName, ['cancelled', 'canceled', 'cancel'])) {
+                $cancelledCount += $status['count'];
+            } elseif (in_array($statusName, ['completed', 'finished', 'returned', 'complete', 'done'])) {
+                $completedCount += $status['count'];
+            }
+        }
+        
+        if ($totalBookings > 0) {
+            $stats['cancel_rate'] = round(($cancelledCount / $totalBookings) * 100, 1);
+            $stats['success_rate'] = round(($completedCount / $totalBookings) * 100, 1);
+        }
+    } catch (Exception $e) {
+        // Keep default rates
+    }
 
-            $cancelRate = $statusStats['total'] > 0 ? ($statusStats['cancelled'] / $statusStats['total']) * 100 : 0;
-            $successRate = $statusStats['total'] > 0 ? ($statusStats['completed'] / $statusStats['total']) * 100 : 0;
-        } catch (Exception $e) {
+    echo json_encode(['success' => true, 'stats' => $stats]);
+
+} else {
+    http_response_code(405);
+    echo json_encode(['error' => 'Method not allowed']);
+}
+?>
             $cancelRate = 0.0;
             $successRate = 0.0;
         }

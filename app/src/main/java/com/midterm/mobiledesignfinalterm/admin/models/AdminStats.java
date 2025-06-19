@@ -11,7 +11,8 @@ public class AdminStats {
 
     public AdminStats() {}
 
-    public AdminStats(int totalBookings, int totalCars, int todayBookings, int weekBookings, int monthBookings, double cancelRate, double successRate) {
+    public AdminStats(int totalBookings, int totalCars, int todayBookings, int weekBookings, 
+                     int monthBookings, double cancelRate, double successRate) {
         this.totalBookings = totalBookings;
         this.totalCars = totalCars;
         this.todayBookings = todayBookings;

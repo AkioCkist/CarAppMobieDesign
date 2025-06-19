@@ -69,12 +69,17 @@ function get_vehicles($vehicle) {
     $location = isset($_GET['location']) ? $_GET['location'] : null;
     $favorites_only = isset($_GET['favorites']) && $_GET['favorites'] == 'true';
 
+    // New filter parameters
+    $brand = isset($_GET['brand']) ? $_GET['brand'] : null;
+    $seats = isset($_GET['seats']) ? intval($_GET['seats']) : null;
+    $fuel_type = isset($_GET['fuel_type']) ? $_GET['fuel_type'] : null;
+
     try {
         if ($favorites_only) {
             $stmt = $vehicle->getFavoriteVehicles($status_filter);
-        } elseif ($search || $type || $location) {
-            // Chỉ gọi searchVehicles khi có ít nhất 1 trong 3 tham số search, type, hoặc location
-            $stmt = $vehicle->searchVehicles($search, $type, $location, $status_filter);
+        } elseif ($search || $type || $location || $brand || $seats || $fuel_type) {
+            // Update searchVehicles to include new filters
+            $stmt = $vehicle->searchVehicles($search, $type, $location, $status_filter, $brand, $seats, $fuel_type);
         } else {
             // Khi không có search, type, location thì lấy tất cả xe
             $stmt = $vehicle->getAllVehicles($limit, $offset, $status_filter);

@@ -131,8 +131,8 @@ class Vehicle {
     }
 
     // Tìm kiếm xe
-    public function searchVehicles($search_term, $vehicle_type = null, $location = null, $status_filter = null) {
-        $query = "SELECT 
+    public function searchVehicles($search_term, $vehicle_type = null, $location = null, $status_filter = null, $brand = null, $seats = null, $fuel_type = null) {
+        $query = "SELECT
             v.vehicle_id as id,
             v.lessor_id,
             v.name,
@@ -177,6 +177,24 @@ class Vehicle {
         if ($location) {
             $query .= " AND v.location LIKE :location";
             $params[':location'] = '%' . $location . '%';
+        }
+
+        // Add brand filter (extract brand from name field)
+        if ($brand) {
+            $query .= " AND v.name LIKE :brand";
+            $params[':brand'] = $brand . '%';
+        }
+
+        // Add seats filter
+        if ($seats) {
+            $query .= " AND v.seats = :seats";
+            $params[':seats'] = $seats;
+        }
+
+        // Add fuel type filter
+        if ($fuel_type) {
+            $query .= " AND v.fuel_type = :fuel_type";
+            $params[':fuel_type'] = $fuel_type;
         }
 
         $query .= " ORDER BY v.rating DESC, v.created_at DESC";

@@ -1,7 +1,10 @@
 package com.midterm.mobiledesignfinalterm.admin;
 
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
@@ -17,6 +20,7 @@ import com.midterm.mobiledesignfinalterm.admin.models.CarStatus;
 import com.midterm.mobiledesignfinalterm.admin.models.UserInfo;
 import com.midterm.mobiledesignfinalterm.admin.adapters.CarStatusAdapter;
 import com.midterm.mobiledesignfinalterm.admin.adapters.UserInfoAdapter;
+import com.midterm.mobiledesignfinalterm.authentication.Login;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -30,6 +34,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AdminDashboard extends AppCompatActivity {
+
+    // Logout Button
+    private ImageButton btnLogout;
 
     // Overview Statistics TextViews
     private TextView tvTotalBookings;
@@ -82,10 +89,14 @@ public class AdminDashboard extends AppCompatActivity {
 
         initializeViews();
         setupRecyclerViews();
+        setupLogoutButton();
         loadAdminData();
     }
 
     private void initializeViews() {
+        // Logout Button
+        btnLogout = findViewById(R.id.btn_logout);
+
         // Overview Statistics
         tvTotalBookings = findViewById(R.id.tv_total_bookings);
         tvTotalCars = findViewById(R.id.tv_total_cars);
@@ -133,6 +144,33 @@ public class AdminDashboard extends AppCompatActivity {
         newUsersAdapter = new UserInfoAdapter(newUsersList, this);
         recyclerViewNewUsers.setLayoutManager(new LinearLayoutManager(this));
         recyclerViewNewUsers.setAdapter(newUsersAdapter);
+    }
+
+    private void setupLogoutButton() {
+        btnLogout.setOnClickListener(v -> {
+            // Clear user session data
+            clearUserSession();
+            
+            // Show logout confirmation
+            Toast.makeText(AdminDashboard.this, "Logged out successfully", Toast.LENGTH_SHORT).show();
+            
+            // Navigate back to login screen
+            Intent intent = new Intent(AdminDashboard.this, Login.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
+        });
+    }
+
+    private void clearUserSession() {
+        // Clear SharedPreferences
+        SharedPreferences sharedPreferences = getSharedPreferences("UserSession", MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.clear();
+        editor.apply();
+        
+        // Clear any other session data if needed
+        // For example, if you have a singleton user manager, clear it here
     }
 
     private void loadAdminData() {

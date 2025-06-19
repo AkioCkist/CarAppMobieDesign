@@ -13,21 +13,42 @@
         android:padding="16dp">
 
         <!-- Header -->
-        <TextView
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Bảng Điều Khiển Quản Trị"
-            android:textColor="@color/white"
-            android:textSize="24sp"
-            android:textStyle="bold"
-            android:layout_marginBottom="24dp"
-            android:layout_marginTop="32dp" />
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginTop="32dp"
+            android:layout_marginBottom="24dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Admin Dashboard"
+                android:textColor="@color/white"
+                android:textSize="24sp"
+                android:textStyle="bold" />
+
+            <ImageButton
+                android:id="@+id/btn_logout"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:src="@drawable/ic_logout"
+                android:background="@android:color/transparent"
+                android:scaleType="centerInside"
+                android:layout_marginStart="16dp"
+                android:padding="12dp"
+                android:contentDescription="Logout"
+                android:tint="@color/error" />
+
+        </LinearLayout>
 
         <!-- Overview Statistics Section -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Thống Kê Tổng Quan"
+            android:text="Overview Statistics"
             android:textColor="@color/white"
             android:textSize="18sp"
             android:textStyle="bold"
@@ -67,7 +88,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Tổng đơn thuê"
+                        android:text="Total Bookings"
                         android:textColor="@color/text_secondary"
                         android:textSize="12sp"
                         android:textAlignment="center" />
@@ -104,7 +125,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Tổng số xe"
+                        android:text="Total Cars"
                         android:textColor="@color/text_secondary"
                         android:textSize="12sp"
                         android:textAlignment="center" />
@@ -149,7 +170,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Hôm nay"
+                        android:text="Today"
                         android:textColor="@color/text_secondary"
                         android:textSize="11sp" />
 
@@ -186,7 +207,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Tuần này"
+                        android:text="This Week"
                         android:textColor="@color/text_secondary"
                         android:textSize="11sp" />
 
@@ -222,7 +243,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Tháng này"
+                        android:text="This Month"
                         android:textColor="@color/text_secondary"
                         android:textSize="11sp" />
 
@@ -266,7 +287,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Tỉ lệ hủy"
+                        android:text="Cancel Rate"
                         android:textColor="@color/text_secondary"
                         android:textSize="11sp" />
 
@@ -302,7 +323,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Tỉ lệ thành công"
+                        android:text="Success Rate"
                         android:textColor="@color/text_secondary"
                         android:textSize="11sp" />
 
@@ -316,7 +337,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Tình Trạng Xe"
+            android:text="Car Status"
             android:textColor="@color/white"
             android:textSize="18sp"
             android:textStyle="bold"
@@ -356,7 +377,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Đang thuê"
+                        android:text="Rented"
                         android:textColor="@color/text_secondary"
                         android:textSize="11sp" />
 
@@ -393,7 +414,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Đang rảnh"
+                        android:text="Available"
                         android:textColor="@color/text_secondary"
                         android:textSize="11sp" />
 
@@ -429,7 +450,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Bảo trì"
+                        android:text="Maintenance"
                         android:textColor="@color/text_secondary"
                         android:textSize="11sp" />
 
@@ -443,7 +464,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Xe Đang Được Thuê"
+            android:text="Currently Rented Cars"
             android:textColor="@color/white"
             android:textSize="16sp"
             android:textStyle="bold"
@@ -469,7 +490,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Xe Đang Rảnh"
+            android:text="Available Cars"
             android:textColor="@color/white"
             android:textSize="16sp"
             android:textStyle="bold"
@@ -495,7 +516,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Xe Đang Bảo Trì"
+            android:text="Cars Under Maintenance"
             android:textColor="@color/white"
             android:textSize="16sp"
             android:textStyle="bold"
@@ -521,7 +542,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Thông Tin Người Dùng"
+            android:text="User Information"
             android:textColor="@color/white"
             android:textSize="18sp"
             android:textStyle="bold"
@@ -561,7 +582,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Tổng người dùng"
+                        android:text="Total Users"
                         android:textColor="@color/text_secondary"
                         android:textSize="11sp" />
 
@@ -598,7 +619,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Hôm nay"
+                        android:text="Today"
                         android:textColor="@color/text_secondary"
                         android:textSize="11sp" />
 
@@ -635,7 +656,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Tuần này"
+                        android:text="This Week"
                         android:textColor="@color/text_secondary"
                         android:textSize="11sp" />
 
@@ -671,7 +692,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Tháng này"
+                        android:text="This Month"
                         android:textColor="@color/text_secondary"
                         android:textSize="11sp" />
 
@@ -685,7 +706,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Người Dùng Mới Đăng Ký"
+            android:text="New Registered Users"
             android:textColor="@color/white"
             android:textSize="16sp"
             android:textStyle="bold"

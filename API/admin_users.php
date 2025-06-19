@@ -31,88 +31,122 @@ try {
 
 // Handle GET request for user data
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+    $data = [
+        'total_users' => 0,
+        'today_new_users' => 0,
+        'week_new_users' => 0,
+        'month_new_users' => 0,
+        'new_users' => []
+    ];
+
     try {
         // Get total users
-        $stmt = $pdo->prepare("SELECT COUNT(*) as total FROM accounts");
-        $stmt->execute();
-        $totalUsers = $stmt->fetchColumn();
+        $stmt = $pdo->query("SELECT COUNT(*) FROM accounts");
+        $data['total_users'] = (int)$stmt->fetchColumn();
 
-        // Get today's new users (using proper date fields)
-        $stmt = $pdo->prepare("SELECT COUNT(*) as total FROM accounts WHERE DATE(COALESCE(created_at, NOW())) = CURDATE()");
-        $stmt->execute();
-        $todayNewUsers = $stmt->fetchColumn();
+        // Get today's new users
+        try {
+            $stmt = $pdo->query("SELECT COUNT(*) FROM accounts WHERE DATE(created_at) = CURDATE()");
+            $data['today_new_users'] = (int)$stmt->fetchColumn();
+        } catch (Exception $e) {
+            // created_at field might not exist, keep default
+        }
 
         // Get this week's new users
-        $stmt = $pdo->prepare("SELECT COUNT(*) as total FROM accounts WHERE YEARWEEK(COALESCE(created_at, NOW()), 1) = YEARWEEK(CURDATE(), 1)");
-        $stmt->execute();
-        $weekNewUsers = $stmt->fetchColumn();
+        try {
+            $stmt = $pdo->query("SELECT COUNT(*) FROM accounts WHERE YEARWEEK(created_at, 1) = YEARWEEK(CURDATE(), 1)");
+            $data['week_new_users'] = (int)$stmt->fetchColumn();
+        } catch (Exception $e) {
+            // created_at field might not exist, keep default
+        }
 
         // Get this month's new users
-        $stmt = $pdo->prepare("SELECT COUNT(*) as total FROM accounts WHERE YEAR(COALESCE(created_at, NOW())) = YEAR(CURDATE()) AND MONTH(COALESCE(created_at, NOW())) = MONTH(CURDATE())");
-        $stmt->execute();
-        $monthNewUsers = $stmt->fetchColumn();
+        try {
+            $stmt = $pdo->query("SELECT COUNT(*) FROM accounts WHERE YEAR(created_at) = YEAR(CURDATE()) AND MONTH(created_at) = MONTH(CURDATE())");
+            $data['month_new_users'] = (int)$stmt->fetchColumn();
+        } catch (Exception $e) {
+            // created_at field might not exist, keep default
+        }
 
-        // Get recent new users (last 30 days) with better field handling
-        $stmt = $pdo->prepare("
-            SELECT account_id, 
-                   COALESCE(username, CONCAT('User', account_id)) as name, 
-                   phone_number, 
-                   COALESCE(email, CONCAT(phone_number, '@example.com')) as email, 
-                   COALESCE(created_at, NOW()) as created_at 
-            FROM accounts 
-            WHERE COALESCE(created_at, NOW()) >= DATE_SUB(NOW(), INTERVAL 30 DAY)
-            ORDER BY COALESCE(created_at, NOW()) DESC
-            LIMIT 20
-        ");
-        $stmt->execute();
-        $newUsers = $stmt->fetchAll();
+        // Get recent new users (last 30 days)
+        try {
+            $stmt = $pdo->query("
+                SELECT account_id, username, phone_number, email, created_at 
+                FROM accounts 
+                WHERE created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+                ORDER BY created_at DESC
+                LIMIT 20
+            ");
+            $users = $stmt->fetchAll();
 
-        $data = [
-            'total_users' => (int)$totalUsers,
-            'today_new_users' => (int)$todayNewUsers,
-            'week_new_users' => (int)$weekNewUsers,
-            'month_new_users' => (int)$monthNewUsers,
-            'new_users' => $newUsers
-        ];
+            foreach ($users as $user) {
+                $data['new_users'][] = [
+                    'account_id' => (int)$user['account_id'],
+                    'name' => $user['username'] ?? 'User' . $user['account_id'],
+                    'phone_number' => $user['phone_number'] ?? '',
+                    'email' => $user['email'] ?? ($user['phone_number'] . '@example.com'),
+                    'created_at' => $user['created_at'] ?? ''
+                ];
+            }
+        } catch (Exception $e) {
+            // If created_at doesn't exist, get recent users without date filter
+            try {
+                $stmt = $pdo->query("
+                    SELECT account_id, username, phone_number, email 
+                    FROM accounts 
+                    ORDER BY account_id DESC
+                    LIMIT 20
+                ");
+                $users = $stmt->fetchAll();
+
+                foreach ($users as $user) {
+                    $data['new_users'][] = [
+                        'account_id' => (int)$user['account_id'],
+                        'name' => $user['username'] ?? 'User' . $user['account_id'],
+                        'phone_number' => $user['phone_number'] ?? '',
+                        'email' => $user['email'] ?? ($user['phone_number'] . '@example.com'),
+                        'created_at' => date('Y-m-d H:i:s')
+                    ];
+                }
+            } catch (Exception $e2) {
+                // Keep empty array if can't get users
+            }
+        }
 
         echo json_encode(['success' => true, 'data' => $data]);
 
     } catch (\PDOException $e) {
-        // If tables don't exist or error occurs, return sample data
-        $sampleUsers = [
-            [
-                'account_id' => 1,
-                'name' => 'Nguyễn Văn A',
-                'phone_number' => '0901234567',
-                'email' => 'nguyenvana@email.com',
-                'created_at' => '2024-06-15 10:30:00'
-            ],
-            [
-                'account_id' => 2,
-                'name' => 'Trần Thị B',
-                'phone_number' => '0912345678',
-                'email' => 'tranthib@email.com',
-                'created_at' => '2024-06-16 14:20:00'
-            ],
-            [
-                'account_id' => 3,
-                'name' => 'Lê Văn C',
-                'phone_number' => '0923456789',
-                'email' => 'levanc@email.com',
-                'created_at' => '2024-06-17 09:15:00'
-            ]
-        ];
-
+        // Return sample data if database error
         $data = [
             'total_users' => 15,
             'today_new_users' => 2,
             'week_new_users' => 5,
             'month_new_users' => 8,
-            'new_users' => $sampleUsers
+            'new_users' => [
+                [
+                    'account_id' => 1,
+                    'name' => 'Nguyễn Văn A',
+                    'phone_number' => '0901234567',
+                    'email' => 'nguyenvana@email.com',
+                    'created_at' => '2025-06-15 10:30:00'
+                ],
+                [
+                    'account_id' => 2,
+                    'name' => 'Trần Thị B',
+                    'phone_number' => '0912345678',
+                    'email' => 'tranthib@email.com',
+                    'created_at' => '2025-06-16 14:20:00'
+                ]
+            ]
         ];
 
         echo json_encode(['success' => true, 'data' => $data]);
     }
+} else {
+    http_response_code(405);
+    echo json_encode(['error' => 'Method not allowed']);
+}
+?>
 } else {
     http_response_code(405);
     echo json_encode(['error' => 'Method not allowed']);
