@@ -47,6 +47,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($user && password_verify($data['password'], $user['password'])) {
         // Đảm bảo không trả mật khẩu về client
         unset($user['password']);
+        
+        // Get user role from account_roles and roles tables
+        try {
+            $roleStmt = $pdo->prepare("
+                SELECT r.role_name 
+                FROM account_roles ar 
+                JOIN roles r ON ar.role_id = r.role_id 
+                WHERE ar.account_id = ?
+            ");
+            $roleStmt->execute([$user['account_id']]);
+            $roleResult = $roleStmt->fetch();
+            
+            if ($roleResult) {
+                $user['role'] = $roleResult['role_name'];
+            } else {
+                // Fallback: Check if this is an admin user by phone number
+                $adminPhones = ['0123456789', '0987654321', '0999999999', 'admin', '0000000000', '0998877665'];
+                $user['role'] = in_array($user['phone_number'], $adminPhones) ? 'admin' : 'user';
+            }
+        } catch (Exception $e) {
+            // If roles tables don't exist, use phone number fallback
+            $adminPhones = ['0123456789', '0987654321', '0999999999', 'admin', '0000000000', '0998877665'];
+            $user['role'] = in_array($user['phone_number'], $adminPhones) ? 'admin' : 'user';
+        }
+        
         echo json_encode(['success' => true, 'user' => $user]);
     } else {
         echo json_encode(['success' => false, 'error' => 'Invalid credentials']);

@@ -148,7 +148,7 @@
         <Button
             android:id="@+id/buttonGoogleSignIn"
             android:layout_width="0dp"
-            android:layout_height="58dp"
+            android:layout_height="62dp"
             android:layout_weight="1"
             android:backgroundTint="#2A2A2E"
             android:text="Google"
@@ -166,7 +166,7 @@
         <Button
             android:id="@+id/buttonFacebookSignIn"
             android:layout_width="0dp"
-            android:layout_height="58dp"
+            android:layout_height="62dp"
             android:layout_weight="1"
             android:backgroundTint="#2A2A2E"
             android:text="Facebook"
