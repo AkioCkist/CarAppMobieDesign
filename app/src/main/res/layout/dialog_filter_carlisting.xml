@@ -17,7 +17,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Thông tin đặt xe"
+            android:text="Filter Cars"
             android:textSize="22sp"
             android:textStyle="bold"
             android:textColor="#F2FFFFFF"
@@ -25,86 +25,24 @@
             android:layout_marginBottom="20dp"
             android:letterSpacing="-0.02" />
 
-        <!-- Pickup Location Section -->
+        <!-- Brand Section -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Địa điểm nhận xe"
+            android:text="Brand"
             android:textSize="16sp"
             android:textStyle="bold"
             android:textColor="#D9FFFFFF"
             android:layout_marginBottom="10dp"
             android:letterSpacing="-0.01" />
 
-        <Spinner
-            android:id="@+id/spinnerPickupLocation"
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerViewBrands"
             android:layout_width="match_parent"
-            android:layout_height="45dp"
-            android:background="@drawable/bg_spinner_white_rounded"
-            android:popupBackground="@drawable/bg_spinner_white_rounded"
-            style="@style/CustomSpinnerStyle"
-            android:spinnerMode="dropdown"
-            android:layout_marginBottom="16dp"/>
-
-        <!-- Divider -->
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@drawable/divider_gradient"
-            android:layout_marginVertical="16dp" />
-
-        <!-- Return Location Section -->
-        <TextView
-            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Địa điểm trả xe"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:textColor="#D9FFFFFF"
-            android:layout_marginBottom="10dp"
-            android:letterSpacing="-0.01" />
-
-        <Spinner
-            android:id="@+id/spinnerReturnLocation"
-            android:layout_width="match_parent"
-            android:layout_height="45dp"
-            android:background="@drawable/bg_spinner_white_rounded"
-            android:popupBackground="@drawable/bg_spinner_white_rounded"
-            style="@style/CustomSpinnerStyle"
-            android:spinnerMode="dropdown"
-            android:layout_marginBottom="16dp"/>
-
-        <!-- Divider -->
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@drawable/divider_gradient"
-            android:layout_marginVertical="16dp" />
-
-        <!-- Pickup Time Section -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Thời gian nhận xe"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:textColor="#D9FFFFFF"
-            android:layout_marginBottom="10dp"
-            android:letterSpacing="-0.01" />
-
-        <Button
-            android:id="@+id/btnPickupTime"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
             android:layout_marginBottom="16dp"
-            android:background="@drawable/button_reset_selector"
-            android:text="Chọn thời gian nhận"
-            android:textColor="#CCFFFFFF"
-            android:textSize="15sp"
-            android:textStyle="bold"
-            android:letterSpacing="-0.01"
-            android:stateListAnimator="@null"
-            android:elevation="0dp" />
+            android:nestedScrollingEnabled="false"
+            android:overScrollMode="never" />
 
         <!-- Divider -->
         <View
@@ -113,30 +51,76 @@
             android:background="@drawable/divider_gradient"
             android:layout_marginVertical="16dp" />
 
-        <!-- Return Time Section -->
+        <!-- Vehicle Type Section -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Thời gian trả xe"
+            android:text="Vehicle Type"
             android:textSize="16sp"
             android:textStyle="bold"
             android:textColor="#D9FFFFFF"
             android:layout_marginBottom="10dp"
             android:letterSpacing="-0.01" />
 
-        <Button
-            android:id="@+id/btnReturnTime"
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerViewVehicleTypes"
             android:layout_width="match_parent"
-            android:layout_height="48dp"
+            android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
-            android:background="@drawable/button_reset_selector"
-            android:text="Chọn thời gian trả"
-            android:textColor="#CCFFFFFF"
-            android:textSize="15sp"
+            android:nestedScrollingEnabled="false"
+            android:overScrollMode="never" />
+
+        <!-- Divider -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@drawable/divider_gradient"
+            android:layout_marginVertical="16dp" />
+
+        <!-- Fuel Type Section -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Fuel Type"
+            android:textSize="16sp"
             android:textStyle="bold"
-            android:letterSpacing="-0.01"
-            android:stateListAnimator="@null"
-            android:elevation="0dp" />
+            android:textColor="#D9FFFFFF"
+            android:layout_marginBottom="10dp"
+            android:letterSpacing="-0.01" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerViewFuelTypes"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:nestedScrollingEnabled="false"
+            android:overScrollMode="never" />
+
+        <!-- Divider -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@drawable/divider_gradient"
+            android:layout_marginVertical="16dp" />
+
+        <!-- Seats Section -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Seats"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="#D9FFFFFF"
+            android:layout_marginBottom="10dp"
+            android:letterSpacing="-0.01" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerViewSeats"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:nestedScrollingEnabled="false"
+            android:overScrollMode="never" />
 
         <!-- Buttons -->
         <LinearLayout
@@ -147,13 +131,13 @@
             android:layout_marginTop="16dp">
 
             <Button
-                android:id="@+id/btnCancel"
+                android:id="@+id/btnReset"
                 android:layout_width="0dp"
                 android:layout_height="52dp"
                 android:layout_weight="1"
                 android:layout_marginEnd="6dp"
                 android:background="@drawable/button_reset_selector"
-                android:text="Hủy"
+                android:text="Reset"
                 android:textColor="#CCFFFFFF"
                 android:textSize="15sp"
                 android:textStyle="bold"
@@ -162,13 +146,13 @@
                 android:elevation="0dp" />
 
             <Button
-                android:id="@+id/btnConfirm"
+                android:id="@+id/btnApply"
                 android:layout_width="0dp"
                 android:layout_height="52dp"
                 android:layout_weight="1"
                 android:layout_marginStart="6dp"
                 android:background="@drawable/button_apply_selector"
-                android:text="Xác nhận"
+                android:text="Apply Filters"
                 android:textColor="@android:color/white"
                 android:textSize="15sp"
                 android:textStyle="bold"

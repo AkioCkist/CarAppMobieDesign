@@ -44,7 +44,10 @@ public interface CarApiService {
             @Query("search") String search,
             @Query("type") String vehicleType,
             @Query("location") String location,
-            @Query("status") String status
+            @Query("status") String status,
+            @Query("brand") String brand,
+            @Query("seats") Integer seats,
+            @Query("fuel_type") String fuelType
     );
 
     /**

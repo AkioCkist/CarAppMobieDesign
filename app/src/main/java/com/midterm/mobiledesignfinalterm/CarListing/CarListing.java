@@ -3,6 +3,7 @@ package com.midterm.mobiledesignfinalterm.CarListing;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -72,6 +73,12 @@ public class CarListing extends AppCompatActivity {
     private String dropoffTime;
     private String pickupLocation;
     private String dropoffLocation;
+
+    // Filter-related variables
+    private String currentBrandFilter = null;
+    private String currentVehicleTypeFilter = null;
+    private String currentFuelTypeFilter = null;
+    private Integer currentSeatsFilter = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -576,10 +583,10 @@ public class CarListing extends AppCompatActivity {
         Button btnCancel = dialogView.findViewById(R.id.btnCancel);
 
         // Change text color for buttons
-        btnPickupTime.setTextColor(android.graphics.Color.BLACK);
-        btnReturnTime.setTextColor(android.graphics.Color.BLACK);
-        btnConfirm.setTextColor(android.graphics.Color.BLACK);
-        btnCancel.setTextColor(android.graphics.Color.BLACK);
+        btnPickupTime.setTextColor(Color.WHITE);
+        btnReturnTime.setTextColor(Color.WHITE);
+        btnConfirm.setTextColor(Color.WHITE);
+        btnCancel.setTextColor(Color.WHITE);
 
         // Setup location options with custom adapter for black text
         // Add "All Locations" as the first option
@@ -904,8 +911,29 @@ public class CarListing extends AppCompatActivity {
                 cal1.get(java.util.Calendar.DAY_OF_YEAR) == cal2.get(java.util.Calendar.DAY_OF_YEAR);
     }
     private void handleFilterOptions() {
-        // TODO: Open filter options dialog
-        Toast.makeText(this, "Filter options - Coming soon", Toast.LENGTH_SHORT).show();
+        // Tạo và hiển thị dialog filter
+        FilterDialog filterDialog = new FilterDialog(this);
+
+        // Thiết lập các giá trị filter ban đầu nếu đã được áp dụng
+        filterDialog.setInitialFilters(currentBrandFilter, currentVehicleTypeFilter, currentFuelTypeFilter, currentSeatsFilter);
+
+        // Thiết lập listener khi áp dụng filter
+        filterDialog.setListener(new FilterDialog.FilterDialogListener() {
+            @Override
+            public void onFiltersApplied(String brand, String vehicleType, String fuelType, Integer seats) {
+                // Lưu các giá trị filter đã chọn
+                currentBrandFilter = brand;
+                currentVehicleTypeFilter = vehicleType;
+                currentFuelTypeFilter = fuelType;
+                currentSeatsFilter = seats;
+
+                // Áp dụng filter
+                applyFilters();
+            }
+        });
+
+        // Hiển thị dialog
+        filterDialog.show();
     }
 
     private void handleRentalNow(Car car) {
@@ -1219,7 +1247,7 @@ public class CarListing extends AppCompatActivity {
               "', location: '" + (locationParam != null ? locationParam : "null") + "'");
 
         // Call the searchCars API with appropriate parameters
-        apiService.searchCars(query, null, locationParam, "available").enqueue(new retrofit2.Callback<Map<String, Object>>() {
+        apiService.searchCars(query, null, locationParam, "available", null, null, null).enqueue(new retrofit2.Callback<Map<String, Object>>() {
             @Override
             public void onResponse(retrofit2.Call<Map<String, Object>> call, retrofit2.Response<Map<String, Object>> response) {
                 if (loadingView != null) {
@@ -1338,5 +1366,194 @@ public class CarListing extends AppCompatActivity {
                 Log.e("CarListing", "API search call failed", t);
             }
         });
+    }
+
+    private void applyFilters() {
+        // Hiển thị loading indicator
+        View loadingView = findViewById(R.id.loadingView);
+        if (loadingView != null) {
+            loadingView.setVisibility(View.VISIBLE);
+        }
+
+        // Sử dụng RetrofitClient để gọi API với các filter
+        CarApiService apiService = RetrofitClient.getCarApiService();
+
+        // Lấy location parameter
+        String locationParam = null;
+        if (pickupLocation != null && !pickupLocation.isEmpty() &&
+            !pickupLocation.equals("Current Location") && !pickupLocation.equals("All Locations")) {
+            locationParam = pickupLocation;
+        }
+
+        // Ghi log các filter đã áp dụng
+        Log.d("CarListing", "Đang áp dụng filter: " +
+                "Brand: " + (currentBrandFilter != null ? currentBrandFilter : "Tất cả") +
+                ", Vehicle Type: " + (currentVehicleTypeFilter != null ? currentVehicleTypeFilter : "Tất cả") +
+                ", Fuel Type: " + (currentFuelTypeFilter != null ? currentFuelTypeFilter : "Tất cả") +
+                ", Seats: " + (currentSeatsFilter != null ? currentSeatsFilter : "Tất cả") +
+                ", Location: " + (locationParam != null ? locationParam : "Tất cả"));
+
+        // Lấy query tìm kiếm hiện tại (nếu có)
+        String searchQuery = editTextSearch.getText().toString().trim();
+
+        // Gọi API với tất cả các filter
+        apiService.searchCars(
+            searchQuery.isEmpty() ? null : searchQuery,
+            currentVehicleTypeFilter,
+            locationParam,
+            "available",
+            currentBrandFilter,
+            currentSeatsFilter,
+            currentFuelTypeFilter
+        ).enqueue(new retrofit2.Callback<Map<String, Object>>() {
+            @Override
+            public void onResponse(retrofit2.Call<Map<String, Object>> call, retrofit2.Response<Map<String, Object>> response) {
+                if (loadingView != null) {
+                    loadingView.setVisibility(View.GONE);
+                }
+
+                if (response.isSuccessful() && response.body() != null) {
+                    try {
+                        // Parse the response
+                        Map<String, Object> responseMap = response.body();
+                        List<Map<String, Object>> records = (List<Map<String, Object>>) responseMap.get("records");
+
+                        // Clear existing filtered data
+                        filteredCarList.clear();
+
+                        if (records != null && !records.isEmpty()) {
+                            // Process each car record from search results
+                            for (Map<String, Object> carMap : records) {
+                                Car car = new Car();
+
+                                // Extract car data from response
+                                if (carMap.get("id") instanceof Number) {
+                                    car.setVehicleId(((Number) carMap.get("id")).intValue());
+                                }
+
+                                car.setName((String) carMap.get("name"));
+
+                                if (carMap.get("rating") instanceof Number) {
+                                    car.setRating(((Number) carMap.get("rating")).floatValue());
+                                }
+
+                                if (carMap.get("trips") instanceof Number) {
+                                    car.setTotalTrips(((Number) carMap.get("trips")).intValue());
+                                }
+
+                                car.setLocation((String) carMap.get("location"));
+                                car.setTransmission((String) carMap.get("transmission"));
+
+                                if (carMap.get("seats") instanceof Number) {
+                                    car.setSeats(((Number) carMap.get("seats")).intValue());
+                                }
+
+                                car.setFuelType((String) carMap.get("fuel"));
+
+                                if (carMap.get("base_price") instanceof Number) {
+                                    car.setBasePrice(((Number) carMap.get("base_price")).doubleValue());
+                                }
+
+                                car.setPriceFormatted((String) carMap.get("price_formatted"));
+                                car.setVehicleType((String) carMap.get("vehicle_type"));
+                                car.setDescription((String) carMap.get("description"));
+                                car.setStatus((String) carMap.get("status"));
+                                car.setFavorite((Boolean) carMap.get("is_favorite"));
+                                car.setFavoriteForUser((Boolean) carMap.get("is_favorite_for_user"));
+                                car.setLessorName((String) carMap.get("lessor_name"));
+                                car.setPrimaryImage((String) carMap.get("primary_image"));
+                                car.setBrandCar((String) carMap.get("brand"));
+
+                                // Process amenities if available
+                                if (carMap.containsKey("amenities") && carMap.get("amenities") instanceof List) {
+                                    List<Map<String, Object>> amenitiesList = (List<Map<String, Object>>) carMap.get("amenities");
+                                    List<com.midterm.mobiledesignfinalterm.CarDetail.Amenity> carAmenities = new ArrayList<>();
+
+                                    for (Map<String, Object> amenityMap : amenitiesList) {
+                                        int id = 0;
+                                        if (amenityMap.get("id") instanceof Number) {
+                                            id = ((Number) amenityMap.get("id")).intValue();
+                                        }
+                                        String name = (String) amenityMap.get("name");
+                                        String icon = (String) amenityMap.get("icon");
+                                        String description = (String) amenityMap.get("description");
+
+                                        carAmenities.add(new com.midterm.mobiledesignfinalterm.CarDetail.Amenity(id, name, icon, description));
+                                    }
+                                    car.setAmenities(carAmenities);
+                                }
+
+                                filteredCarList.add(car);
+                            }
+
+                            // Update UI with filtered results
+                            runOnUiThread(() -> {
+                                carAdapter.notifyDataSetChanged();
+                                textViewCarCount.setText("Found " + filteredCarList.size() + " cars");
+
+                                // Show toast with filter summary if filters are applied
+                                showFilterSummaryToast();
+                            });
+                        } else {
+                            // No results found with applied filters
+                            runOnUiThread(() -> {
+                                carAdapter.notifyDataSetChanged();
+                                textViewCarCount.setText("Found 0 cars");
+                                Toast.makeText(CarListing.this, "Không tìm thấy xe nào phù hợp với bộ lọc đã chọn", Toast.LENGTH_SHORT).show();
+                            });
+                        }
+
+                    } catch (Exception e) {
+                        Log.e("CarListing", "Error parsing filter response: " + e.getMessage(), e);
+                        Toast.makeText(CarListing.this, "Lỗi khi xử lý kết quả lọc", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Toast.makeText(CarListing.this, "Không thể áp dụng bộ lọc", Toast.LENGTH_SHORT).show();
+                    Log.e("CarListing", "API filter response error: " + response.code());
+                }
+            }
+
+            @Override
+            public void onFailure(retrofit2.Call<Map<String, Object>> call, Throwable t) {
+                if (loadingView != null) {
+                    loadingView.setVisibility(View.GONE);
+                }
+                Toast.makeText(CarListing.this, "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                Log.e("CarListing", "API filter call failed", t);
+            }
+        });
+    }
+
+    private void showFilterSummaryToast() {
+        // Chỉ hiển thị toast nếu có ít nhất một bộ lọc được áp dụng
+        if (currentBrandFilter != null || currentVehicleTypeFilter != null || currentFuelTypeFilter != null || currentSeatsFilter != null) {
+
+            StringBuilder filterSummary = new StringBuilder("Bộ lọc đã áp dụng: ");
+            boolean hasFilter = false;
+
+            if (currentBrandFilter != null) {
+                filterSummary.append("Thương hiệu: ").append(currentBrandFilter);
+                hasFilter = true;
+            }
+
+            if (currentVehicleTypeFilter != null) {
+                if (hasFilter) filterSummary.append(", ");
+                filterSummary.append("Loại xe: ").append(currentVehicleTypeFilter);
+                hasFilter = true;
+            }
+
+            if (currentFuelTypeFilter != null) {
+                if (hasFilter) filterSummary.append(", ");
+                filterSummary.append("Nhiên liệu: ").append(currentFuelTypeFilter);
+                hasFilter = true;
+            }
+
+            if (currentSeatsFilter != null) {
+                if (hasFilter) filterSummary.append(", ");
+                filterSummary.append("Số ghế: ").append(currentSeatsFilter);
+            }
+
+            Toast.makeText(this, filterSummary.toString(), Toast.LENGTH_LONG).show();
+        }
     }
 }
