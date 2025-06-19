@@ -28,18 +28,24 @@ import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.datepicker.CalendarConstraints;
 import com.google.android.material.datepicker.DateValidatorPointForward;
 import com.google.android.material.timepicker.MaterialTimePicker;
 import com.google.android.material.timepicker.TimeFormat;
 import com.midterm.mobiledesignfinalterm.R;
+import com.bumptech.glide.Glide;
 import com.midterm.mobiledesignfinalterm.UserDashboard.UserDashboard;
 import com.midterm.mobiledesignfinalterm.aboutUs.AboutUs;
 import com.midterm.mobiledesignfinalterm.authentication.Login;
 
 import android.widget.Toast;
 import android.Manifest;
+import com.google.firebase.auth.FirebaseAuth;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -55,6 +61,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
+import android.util.Log;
 
 public class Homepage extends AppCompatActivity implements LocationListener {
 
@@ -116,6 +123,10 @@ public class Homepage extends AppCompatActivity implements LocationListener {
     private Calendar pickupCalendar;
     private Calendar dropoffCalendar;
 
+    // Additional fields for user email and photo URI
+    private String userEmail;
+    private String userPhotoUri;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -123,6 +134,7 @@ public class Homepage extends AppCompatActivity implements LocationListener {
 
         // Initialize views first
         initializeViews();
+        handleUserIntent();
 
         // Make status bar transparent and content edge-to-edge
         WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
@@ -321,6 +333,32 @@ public class Homepage extends AppCompatActivity implements LocationListener {
         textViewDropoffLocation = findViewById(R.id.textViewDropoffLocation);
         textViewDropoffDate = findViewById(R.id.textViewDropoffDate);
         textViewDropoffTime = findViewById(R.id.textViewDropoffTime);
+    }
+    private void handleUserIntent() {
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+            this.userName = extras.getString("user_name");
+            this.userEmail = extras.getString("user_email");
+            this.userId = extras.getString("user_id");
+            this.userPhotoUri = extras.getString("user_photo_uri");
+
+             // Use Glide to load the profile picture from the URL
+            if (this.userPhotoUri != null && !this.userPhotoUri.isEmpty()) {
+                 Glide.with(this)
+                        .load(this.userPhotoUri)
+                        .circleCrop() // Make the image circular
+                        .placeholder(R.drawable.ic_profile) // Add a placeholder drawable
+                        .error(R.drawable.ic_profile) // Add an error drawable
+                        .into(imageViewProfile);
+            }
+
+            // You can log the other details or use them elsewhere
+            Log.d("Homepage", "User Logged In: ID=" + userId + ", Email=" + userEmail);
+
+        } else {
+            // Handle case where no data is passed (e.g., direct launch for testing)
+            Log.d("Homepage", "No intent extras found.");
+        }
     }
 
     private void initializeDefaultDateTime() {
@@ -947,6 +985,8 @@ public class Homepage extends AppCompatActivity implements LocationListener {
          intent.putExtra("user_id", userId); // Pass userId to UserDashboard
          intent.putExtra("user_data", userRawData); // Pass raw user data to UserDashboard
          intent.putStringArrayListExtra("user_roles", (ArrayList<String>) userRoles);
+         intent.putExtra("user_email", userEmail);
+         intent.putExtra("user_photo_uri", userPhotoUri);
          startActivity(intent);
     }
 
@@ -958,6 +998,16 @@ public class Homepage extends AppCompatActivity implements LocationListener {
     }
 
     private void handleSignOut() {
+        // Sign out from Google
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).build();
+        GoogleSignInClient googleSignInClient = GoogleSignIn.getClient(this, gso);
+        googleSignInClient.signOut();
+        // Sign out from Firebase (if used)
+        try {
+            FirebaseAuth.getInstance().signOut();
+        } catch (Exception e) {
+            // Ignore if Firebase is not used
+        }
         // Clear user session and navigate to login
         Intent intent = new Intent(Homepage.this, Login.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -1022,4 +1072,3 @@ public class Homepage extends AppCompatActivity implements LocationListener {
         public int getImageResource() { return imageResource; }
     }
 }
-
