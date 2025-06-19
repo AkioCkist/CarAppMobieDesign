@@ -47,6 +47,14 @@
     <!-- Text Colors -->
     <color name="text_secondary_cardetail">#757575</color>
     <color name="text_light_gray">#BDBDBD</color>
+    
+    <!-- Admin Status Colors -->
+    <color name="status_rented">#FF9500</color>
+    <color name="status_available">#32D74B</color>
+    <color name="status_maintenance">#FF3B30</color>
+    <color name="error">#FF3B30</color>
+    <color name="success">#32D74B</color>
+    <color name="surface_dark">#2C2C2E</color>
 
     <!-- Status Colors -->
     <color name="blue_primary">#2196F3</color>
