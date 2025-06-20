@@ -975,7 +975,7 @@ public class CarListing extends AppCompatActivity {
 
         // Prepare the request body
         java.util.HashMap<String, Object> requestBody = new java.util.HashMap<>();
-        requestBody.put("account_id", Integer.parseInt(userId));
+        requestBody.put("account_id", Long.parseLong(userId));
         requestBody.put("vehicle_id", car.getVehicleId());
 
         Log.d("FavoriteToggle", "Toggling favorite for car ID: " + car.getVehicleId() +

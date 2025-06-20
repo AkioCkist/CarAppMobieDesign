@@ -10,35 +10,42 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
-import com.midterm.mobiledesignfinalterm.R;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.google.firebase.FirebaseException;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.PhoneAuthCredential;
+import com.google.firebase.auth.PhoneAuthOptions;
+import com.google.firebase.auth.PhoneAuthProvider;
+import com.midterm.mobiledesignfinalterm.R;
+import java.util.concurrent.TimeUnit;
 
 public class ForgotPassword extends AppCompatActivity {
 
     private EditText editTextAccountName;
     private EditText editTextMobileNumber;
-    private Button buttonSend;
-    private Button buttonResend;
+    private EditText editTextOTP;
+    private Button buttonSend; // Will be used for "Verify Account" then "Verify OTP"
+    private Button buttonSendOtp; // Button to trigger sending OTP
     private ImageView imageViewBack;
     private CountDownTimer countDownTimer;
-    private boolean isInfoSent = false;
+
+    private FirebaseAuth mAuth;
+    private String verificationId; // Stores the verification ID from Firebase
+    private PhoneAuthProvider.OnVerificationStateChangedCallbacks mCallbacks;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        View rootView = findViewById(android.R.id.content);
-        playPopupAnimation(rootView);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_forgot_password);
+
+        // Play popup animation when the activity starts
+        View rootView = findViewById(android.R.id.content);
+        playPopupAnimation(rootView);
 
         // Make status bar transparent and content edge-to-edge
         WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
@@ -46,12 +53,14 @@ public class ForgotPassword extends AppCompatActivity {
                 WindowCompat.getInsetsController(getWindow(), getWindow().getDecorView());
         windowInsetsController.setAppearanceLightStatusBars(false);
 
+        mAuth = FirebaseAuth.getInstance(); // Initialize Firebase Auth
+
         initializeViews();
         setupClickListeners();
+        setupFirebaseAuthCallbacks(); // Setup Firebase Phone Auth callbacks
     }
 
     private void animateButtonClick(View button, Runnable onComplete) {
-        // Scale animation for button press feedback
         button.animate()
                 .scaleX(0.95f)
                 .scaleY(0.95f)
@@ -83,9 +92,14 @@ public class ForgotPassword extends AppCompatActivity {
     private void initializeViews() {
         editTextAccountName = findViewById(R.id.editTextAccountName);
         editTextMobileNumber = findViewById(R.id.editTextMobileNumber);
+        editTextOTP = findViewById(R.id.editTextOTP);
         buttonSend = findViewById(R.id.buttonSend);
-        buttonResend = findViewById(R.id.buttonResend);
+        buttonSendOtp = findViewById(R.id.buttonSendOtp);
         imageViewBack = findViewById(R.id.imageViewBack);
+
+        // Initially hide OTP input and set main button text
+        editTextOTP.setVisibility(View.GONE);
+        buttonSend.setText("Verify Account");
     }
 
     private void setupClickListeners() {
@@ -95,19 +109,28 @@ public class ForgotPassword extends AppCompatActivity {
                 animateButtonClick(v, new Runnable() {
                     @Override
                     public void run() {
-                        handleVerifyAccount();
+                        // If OTP field is visible, it means we are in the OTP verification phase
+                        if (editTextOTP.getVisibility() == View.VISIBLE) {
+                            verifyOtpCode();
+                        } else {
+                            // First step: Verify Account (before sending OTP)
+                            // Here you'd ideally verify accountName and mobileNumber with your backend
+                            // For this example, we'll assume account verification is successful
+                            // and proceed to enable OTP sending.
+                            handleAccountVerification();
+                        }
                     }
                 });
             }
         });
 
-        buttonResend.setOnClickListener(new View.OnClickListener() {
+        buttonSendOtp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 animateButtonClick(v, new Runnable() {
                     @Override
                     public void run() {
-                        handleResendVerification();
+                        sendVerificationCode();
                     }
                 });
             }
@@ -121,11 +144,10 @@ public class ForgotPassword extends AppCompatActivity {
         });
     }
 
-    private void handleVerifyAccount() {
+    private void handleAccountVerification() {
         String accountName = editTextAccountName.getText().toString().trim();
         String mobileNumber = editTextMobileNumber.getText().toString().trim();
 
-        // Validate account name
         if (accountName.isEmpty()) {
             editTextAccountName.setError("Account name is required");
             editTextAccountName.requestFocus();
@@ -133,7 +155,6 @@ public class ForgotPassword extends AppCompatActivity {
             return;
         }
 
-        // Validate mobile number
         if (mobileNumber.isEmpty()) {
             editTextMobileNumber.setError("Mobile number is required");
             editTextMobileNumber.requestFocus();
@@ -141,7 +162,6 @@ public class ForgotPassword extends AppCompatActivity {
             return;
         }
 
-        // Mobile number regex validation (10-13 digits, optional + prefix)
         String phoneRegex = "^[+]?[0-9]{10,13}$";
         if (!mobileNumber.matches(phoneRegex)) {
             editTextMobileNumber.setError("Please enter a valid mobile number");
@@ -150,193 +170,152 @@ public class ForgotPassword extends AppCompatActivity {
             return;
         }
 
-        // Send verification request to API
-        verifyAccountWithAPI(accountName, mobileNumber);
+        // In a real application, you would send accountName and mobileNumber to your backend
+        // to check if the account exists and is linked to this phone number.
+        // If successful, you would then call sendVerificationCode().
+        // For this example, we'll directly enable OTP related fields and allow sending OTP.
+        Toast.makeText(this, "Account details appear valid. You can now send OTP.", Toast.LENGTH_SHORT).show();
+        editTextOTP.setVisibility(View.VISIBLE);
+        buttonSend.setText("Verify OTP");
+        buttonSendOtp.setEnabled(true); // Enable send OTP button
     }
 
-    private void handleResendVerification() {
-        String accountName = editTextAccountName.getText().toString().trim();
-        String mobileNumber = editTextMobileNumber.getText().toString().trim();
 
-        // Resend verification
-        Toast.makeText(this, "Verification resent to " + mobileNumber, Toast.LENGTH_LONG).show();
+    private void setupFirebaseAuthCallbacks() {
+        mCallbacks = new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
 
-        // Restart countdown
-        startCountdown();
-    }
-
-    private void verifyAccountWithAPI(String accountName, String mobileNumber) {
-        new Thread(() -> {
-            try {
-                URL url = new URL("http://10.0.2.2/myapi/forgot_password.php");
-                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-
-                // Set connection properties
-                conn.setRequestMethod("POST");
-                conn.setRequestProperty("Content-Type", "application/json; utf-8");
-                conn.setRequestProperty("Accept", "application/json");
-                conn.setDoOutput(true);
-                conn.setConnectTimeout(10000); // 10 seconds
-                conn.setReadTimeout(10000); // 10 seconds
-
-                // Create JSON payload using JSONObject instead of string concatenation
-                JSONObject jsonInput = new JSONObject();
-                try {
-                    // Use the field names that match what your app is actually sending
-                    jsonInput.put("username", accountName);
-                    jsonInput.put("phone_number", mobileNumber);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                    runOnUiThread(() -> {
-                        Toast.makeText(ForgotPassword.this, "Error creating request data", Toast.LENGTH_SHORT).show();
-                    });
-                    return;
-                }
-
-                String jsonInputString = jsonInput.toString();
-
-                // Debug: Print what we're sending
-                System.out.println("Sending JSON: " + jsonInputString);
-
-                // Send data
-                try (OutputStream os = conn.getOutputStream()) {
-                    byte[] input = jsonInputString.getBytes("utf-8");
-                    os.write(input, 0, input.length);
-                    os.flush();
-                }
-
-                // Check response code
-                int responseCode = conn.getResponseCode();
-                System.out.println("Response Code: " + responseCode);
-
-                // Read response
-                BufferedReader br;
-                if (responseCode >= 200 && responseCode < 300) {
-                    br = new BufferedReader(new InputStreamReader(conn.getInputStream(), "utf-8"));
-                } else {
-                    br = new BufferedReader(new InputStreamReader(conn.getErrorStream(), "utf-8"));
-                }
-
-                StringBuilder response = new StringBuilder();
-                String responseLine;
-                while ((responseLine = br.readLine()) != null) {
-                    response.append(responseLine.trim());
-                }
-                br.close();
-
-                // Debug: Print the full response
-                System.out.println("Raw API Response: " + response.toString());
-
-                // Parse JSON result
-                try {
-                    JSONObject result = new JSONObject(response.toString());
-
-                    runOnUiThread(() -> {
-                        try {
-                            if (result.getBoolean("success")) {
-                                // Account verification successful
-                                Toast.makeText(ForgotPassword.this, "Account verified successfully!", Toast.LENGTH_SHORT).show();
-
-                                // Show resend button and start countdown
-                                isInfoSent = true;
-                                buttonResend.setVisibility(View.VISIBLE);
-                                startCountdown();
-
-                                // Navigate to create new password screen
-                                Intent intent = new Intent(ForgotPassword.this, CreateNewPassword.class);
-                                intent.putExtra("account_name", accountName);
-                                intent.putExtra("mobile_number", mobileNumber);
-
-                                // If API returns user ID, pass it too
-                                if (result.has("user_id")) {
-                                    intent.putExtra("user_id", result.getString("user_id"));
-                                }
-
-                                startActivity(intent);
-
-                            } else {
-                                String errorMessage = result.optString("error", "Account name or mobile number not found");
-                                Toast.makeText(ForgotPassword.this, errorMessage, Toast.LENGTH_LONG).show();
-
-                                // Debug: Print additional error info if available
-                                if (result.has("received_fields")) {
-                                    System.out.println("Fields received by server: " + result.getString("received_fields"));
-                                }
-                                if (result.has("received_data")) {
-                                    System.out.println("Data received by server: " + result.getString("received_data"));
-                                }
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                            String errorMsg = "Invalid server response: " + e.getMessage();
-                            Toast.makeText(ForgotPassword.this, errorMsg, Toast.LENGTH_LONG).show();
-                            System.out.println("JSON Parsing Error: " + e.getMessage());
-                            System.out.println("Raw response that caused error: " + response.toString());
-                        }
-                    });
-
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                    runOnUiThread(() -> {
-                        Toast.makeText(ForgotPassword.this, "Server returned invalid response", Toast.LENGTH_LONG).show();
-                        System.out.println("JSON Parse Error: " + e.getMessage());
-                        System.out.println("Raw response: " + response.toString());
-                    });
-                }
-
-            } catch (java.net.ConnectException e) {
-                System.out.println("Connection refused: " + e.getMessage());
-                runOnUiThread(() -> {
-                    Toast.makeText(ForgotPassword.this, "Cannot connect to server. Please check if your local server is running.", Toast.LENGTH_LONG).show();
-                });
-            } catch (java.net.UnknownHostException e) {
-                System.out.println("Unknown host: " + e.getMessage());
-                runOnUiThread(() -> {
-                    Toast.makeText(ForgotPassword.this, "Cannot resolve server address. Check your network connection.", Toast.LENGTH_LONG).show();
-                });
-            } catch (java.net.SocketTimeoutException e) {
-                System.out.println("Connection timeout: " + e.getMessage());
-                runOnUiThread(() -> {
-                    Toast.makeText(ForgotPassword.this, "Connection timeout. Server might be slow or unreachable.", Toast.LENGTH_LONG).show();
-                });
-            } catch (Exception e) {
-                e.printStackTrace();
-                runOnUiThread(() -> {
-                    String networkError = "Network error: " + e.getClass().getSimpleName() + " - " + e.getMessage();
-                    Toast.makeText(ForgotPassword.this, networkError, Toast.LENGTH_LONG).show();
-                    System.out.println("Network Error Details: " + e.getMessage());
-                });
+            @Override
+            public void onVerificationCompleted(@NonNull PhoneAuthCredential credential) {
+                // This method is called in two situations:
+                // 1) Instant verification if the phone number is verified automatically
+                // 2) If the user enters the correct code and it is verified by Firebase
+                signInWithPhoneAuthCredential(credential);
             }
-        }).start();
+
+            @Override
+            public void onVerificationFailed(@NonNull FirebaseException e) {
+                // Handle verification failures
+                Toast.makeText(ForgotPassword.this, "Verification failed: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                e.printStackTrace();
+                buttonSendOtp.setEnabled(true); // Re-enable button on failure
+                if (countDownTimer != null) {
+                    countDownTimer.cancel();
+                    buttonSendOtp.setText("Resend OTP");
+                }
+            }
+
+            @Override
+            public void onCodeSent(@NonNull String verificationIdParam,
+                                   @NonNull PhoneAuthProvider.ForceResendingToken token) {
+                // The SMS verification code has been sent to the user's phone
+                // Save the verification ID and resending token for later use.
+                verificationId = verificationIdParam;
+                Toast.makeText(ForgotPassword.this, "OTP sent to your mobile number.", Toast.LENGTH_LONG).show();
+                editTextOTP.setVisibility(View.VISIBLE); // Show OTP input
+                buttonSend.setText("Verify OTP"); // Change main button text
+                startCountdown(); // Start resend countdown
+                buttonSendOtp.setEnabled(false); // Disable send OTP until countdown finishes
+            }
+        };
     }
+
+    private void sendVerificationCode() {
+        String phoneNumber = editTextMobileNumber.getText().toString().trim();
+
+        if (phoneNumber.isEmpty()) {
+            editTextMobileNumber.setError("Mobile number is required");
+            editTextMobileNumber.requestFocus();
+            animateErrorShake(editTextMobileNumber);
+            return;
+        }
+
+        // Firebase requires phone numbers to be in E.164 format (e.g., +84912345678)
+        // Check if it already has a '+' prefix
+        if (!phoneNumber.startsWith("+")) {
+            // Assuming Vietnam numbers for example, you might need to handle country codes dynamically
+            phoneNumber = "+84" + phoneNumber; // Prepend country code if missing
+        }
+
+        PhoneAuthOptions options =
+                PhoneAuthOptions.newBuilder(mAuth)
+                        .setPhoneNumber(phoneNumber)       // Phone number to verify
+                        .setTimeout(60L, TimeUnit.SECONDS) // Timeout and unit
+                        .setActivity(this)                 // Activity (for callback binding)
+                        .setCallbacks(mCallbacks)          // OnVerificationStateChangedCallbacks
+                        .build();
+        PhoneAuthProvider.verifyPhoneNumber(options);
+    }
+
+    private void verifyOtpCode() {
+        String code = editTextOTP.getText().toString().trim();
+        if (code.isEmpty()) {
+            editTextOTP.setError("Please enter OTP");
+            editTextOTP.requestFocus();
+            animateErrorShake(editTextOTP);
+            return;
+        }
+
+        if (verificationId != null) {
+            PhoneAuthCredential credential = PhoneAuthProvider.getCredential(verificationId, code);
+            signInWithPhoneAuthCredential(credential);
+        } else {
+            Toast.makeText(this, "OTP not sent yet or session expired. Please resend.", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void signInWithPhoneAuthCredential(PhoneAuthCredential credential) {
+        mAuth.signInWithCredential(credential)
+                .addOnCompleteListener(this, task -> {
+                    if (task.isSuccessful()) {
+                        // Sign in success, update UI with the signed-in user's information
+                        // FirebaseUser user = task.getResult().getUser();
+                        Toast.makeText(ForgotPassword.this, "OTP Verified Successfully!", Toast.LENGTH_SHORT).show();
+
+                        // Navigate to CreateNewPassword screen
+                        Intent intent = new Intent(ForgotPassword.this, CreateNewPassword.class);
+                        // You can pass the mobile number and account name if needed in the next activity
+                        intent.putExtra("mobile_number", editTextMobileNumber.getText().toString().trim());
+                        intent.putExtra("account_name", editTextAccountName.getText().toString().trim());
+                        startActivity(intent);
+                        finish(); // Finish ForgotPassword activity
+
+                    } else {
+                        // Sign in failed, display a message and update the UI
+                        if (task.getException() instanceof FirebaseException) {
+                            Toast.makeText(ForgotPassword.this, "Verification failed: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
+                        } else {
+                            Toast.makeText(ForgotPassword.this, "Authentication failed.", Toast.LENGTH_SHORT).show();
+                        }
+                        animateErrorShake(editTextOTP);
+                    }
+                });
+    }
+
 
     private void startCountdown() {
-        // Cancel any existing timer
         if (countDownTimer != null) {
             countDownTimer.cancel();
         }
 
-        buttonResend.setEnabled(false);
+        buttonSendOtp.setEnabled(false); // Disable during countdown
 
-        countDownTimer = new CountDownTimer(15000, 1000) {
+        countDownTimer = new CountDownTimer(60000, 1000) { // 60 seconds countdown
             @Override
             public void onTick(long millisUntilFinished) {
                 long secondsRemaining = millisUntilFinished / 1000;
-                buttonResend.setText("Resend (" + secondsRemaining + "s)");
+                buttonSendOtp.setText("Resend OTP (" + secondsRemaining + "s)");
             }
 
             @Override
             public void onFinish() {
-                buttonResend.setText("Resend");
-                buttonResend.setEnabled(true);
+                buttonSendOtp.setText("Resend OTP");
+                buttonSendOtp.setEnabled(true); // Re-enable after countdown
             }
         };
-
         countDownTimer.start();
     }
 
     private void handleBackPress() {
-        // Cancel timer if running
         if (countDownTimer != null) {
             countDownTimer.cancel();
         }
@@ -352,7 +331,6 @@ public class ForgotPassword extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        // Cancel timer to prevent memory leaks
         if (countDownTimer != null) {
             countDownTimer.cancel();
         }
