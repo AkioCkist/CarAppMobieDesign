@@ -250,13 +250,13 @@
                 android:id="@+id/btn_rentalNow"
                 android:layout_width="wrap_content"
                 android:layout_height="40dp"
-                android:background="@drawable/carlisting_button_rental"
-                android:text="Rental Now"
-                android:textColor="#000000"
+                android:background="@drawable/carlisting_button_filter"
+                android:text="More Details"
+                android:textColor="#FFFFFF"
                 android:textSize="14sp"
                 android:textStyle="bold"
-                android:paddingStart="24dp"
-                android:paddingEnd="24dp"
+                android:paddingStart="15dp"
+                android:paddingEnd="15dp"
                 android:minWidth="100dp" />
 
         </LinearLayout>
