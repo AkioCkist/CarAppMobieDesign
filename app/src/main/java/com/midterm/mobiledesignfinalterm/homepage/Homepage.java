@@ -700,13 +700,60 @@ public class Homepage extends AppCompatActivity implements LocationListener {
     private void setupRecyclerViews() {
         // Setup brands RecyclerView
         recyclerViewBrands.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
-        BrandAdapter brandAdapter = new BrandAdapter(getBrandsList());
+        List<Brand> brandList = getBrandsList();
+        BrandAdapter brandAdapter = new BrandAdapter(brandList, new BrandAdapter.OnBrandClickListener() {
+            @Override
+            public void onBrandClick(Brand brand) {
+                handleBrandClick(brand);
+            }
+        });
         recyclerViewBrands.setAdapter(brandAdapter);
 
         // Setup cars RecyclerView
         recyclerViewCars.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         CarAdapter carAdapter = new CarAdapter(getCarsList());
         recyclerViewCars.setAdapter(carAdapter);
+    }
+
+    /**
+     * Handle click on a car brand
+     * @param brand The selected car brand
+     */
+    private void handleBrandClick(Brand brand) {
+        // Don't navigate if "All" is selected since that's the default in CarListing
+        if ("All".equals(brand.getName())) {
+            Toast.makeText(this, "Showing all brands", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, "Selected brand: " + brand.getName(), Toast.LENGTH_SHORT).show();
+
+            // Create intent for CarListing activity
+            Intent intent = new Intent(Homepage.this, com.midterm.mobiledesignfinalterm.CarListing.CarListing.class);
+
+            // Pass user information
+            intent.putExtra("user_phone", userPhone);
+            intent.putExtra("user_name", userName);
+            intent.putExtra("user_id", userId);
+            intent.putExtra("user_data", userRawData);
+            if (userRoles != null) {
+                intent.putStringArrayListExtra("user_roles", new ArrayList<>(userRoles));
+            }
+
+            // Pass booking details if they're set
+            if (textViewPickupLocation != null) {
+                intent.putExtra("pickup_location", textViewPickupLocation.getText().toString());
+                intent.putExtra("dropoff_location", textViewDropoffLocation.getText().toString());
+                intent.putExtra("pickup_date", textViewPickupDate.getText().toString());
+                intent.putExtra("pickup_time", textViewPickupTime.getText().toString());
+                intent.putExtra("dropoff_date", textViewDropoffDate.getText().toString());
+                intent.putExtra("dropoff_time", textViewDropoffTime.getText().toString());
+            }
+
+            // Pass the selected brand name to be used as a filter
+            intent.putExtra("selected_brand", brand.getName());
+
+            // Start the activity
+            startActivity(intent);
+        }
     }
 
     private void toggleDropdownMenu() {

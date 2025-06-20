@@ -16,11 +16,28 @@ import java.util.List;
 
 public class BrandAdapter extends RecyclerView.Adapter<BrandAdapter.BrandViewHolder> {
 
+    // Interface for brand click events
+    public interface OnBrandClickListener {
+        void onBrandClick(Homepage.Brand brand);
+    }
+
     private List<Homepage.Brand> brandList;
     private int selectedPosition = 0; // Default to "All" selected
+    private OnBrandClickListener listener;
 
     public BrandAdapter(List<Homepage.Brand> brandList) {
         this.brandList = brandList;
+    }
+
+    // Constructor with listener
+    public BrandAdapter(List<Homepage.Brand> brandList, OnBrandClickListener listener) {
+        this.brandList = brandList;
+        this.listener = listener;
+    }
+
+    // Method to set listener after creation
+    public void setOnBrandClickListener(OnBrandClickListener listener) {
+        this.listener = listener;
     }
 
     @NonNull
@@ -39,8 +56,22 @@ public class BrandAdapter extends RecyclerView.Adapter<BrandAdapter.BrandViewHol
             int currentPosition = holder.getAdapterPosition();
             if (currentPosition != RecyclerView.NO_POSITION) {
                 Homepage.Brand clickedBrand = brandList.get(currentPosition);
-                // Handle click using currentPosition or clickedBrand
+
+                // Set the clicked position as selected
+                int previousSelected = selectedPosition;
+                selectedPosition = currentPosition;
+
+                // Update UI to show selected state
+                notifyItemChanged(previousSelected);
+                notifyItemChanged(selectedPosition);
+
+                // Trigger click animation
                 animateItemClick(v);
+
+                // Notify listener about the click
+                if (listener != null) {
+                    listener.onBrandClick(clickedBrand);
+                }
             }
         });
     }
@@ -48,6 +79,14 @@ public class BrandAdapter extends RecyclerView.Adapter<BrandAdapter.BrandViewHol
     @Override
     public int getItemCount() {
         return brandList.size();
+    }
+
+    // Method to get currently selected brand
+    public Homepage.Brand getSelectedBrand() {
+        if (selectedPosition >= 0 && selectedPosition < brandList.size()) {
+            return brandList.get(selectedPosition);
+        }
+        return null;
     }
 
     private void animateItemClick(View view) {

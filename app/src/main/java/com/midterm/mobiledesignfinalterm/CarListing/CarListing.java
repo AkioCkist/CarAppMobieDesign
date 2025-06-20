@@ -100,17 +100,21 @@ public class CarListing extends AppCompatActivity {
         setupRecyclerView();
         displayUserInfo();
         updateDateTimeLocationButton();
+
+        // Load car data
         loadCarData();
+
         // Initial animations
         animateInitialEntrance();
+
         // Initialize dropdown as hidden
         dropdownMenu.setVisibility(View.GONE);
         dropdownMenu.setAlpha(0f);
         dropdownMenu.setTranslationY(-20f);
-        if (pickupLocation != null && !pickupLocation.isEmpty()) {
-            // Apply initial location filtering if a location was passed in the intent
-            handleFilterByLocation();
-        }
+
+        // Check for filters passed in the intent
+        checkIntentForFilters();
+
         // Show welcome message
         if (userName != null && !userName.isEmpty()) {
             Toast.makeText(this, "Welcome to Car Listing, " + userName + "!", Toast.LENGTH_SHORT).show();
@@ -130,6 +134,31 @@ public class CarListing extends AppCompatActivity {
             pickupTime = intent.getStringExtra("pickup_time");
             dropoffDate = intent.getStringExtra("dropoff_date");
             dropoffTime = intent.getStringExtra("dropoff_time");
+
+            // Check for filter parameters
+            if (intent.hasExtra("selected_brand")) {
+                currentBrandFilter = intent.getStringExtra("selected_brand");
+                Log.d("CarListing", "Received brand filter: " + currentBrandFilter);
+            }
+        }
+    }
+
+    /**
+     * Check for any filters passed in the intent and apply them
+     */
+    private void checkIntentForFilters() {
+        // Apply location filter if provided
+        if (pickupLocation != null && !pickupLocation.isEmpty()) {
+            handleFilterByLocation();
+        }
+
+        // Apply brand filter if provided
+        if (currentBrandFilter != null && !currentBrandFilter.isEmpty()) {
+            // Wait a short moment to ensure car data is loaded
+            new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
+                applyFilters();
+                Toast.makeText(this, "Showing " + currentBrandFilter + " cars", Toast.LENGTH_SHORT).show();
+            }, 500);
         }
     }
 
