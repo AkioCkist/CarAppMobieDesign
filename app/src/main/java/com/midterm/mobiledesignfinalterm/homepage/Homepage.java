@@ -720,40 +720,38 @@ public class Homepage extends AppCompatActivity implements LocationListener {
      * @param brand The selected car brand
      */
     private void handleBrandClick(Brand brand) {
-        // Don't navigate if "All" is selected since that's the default in CarListing
-        if ("All".equals(brand.getName())) {
-            Toast.makeText(this, "Showing all brands", Toast.LENGTH_SHORT).show();
-        } else {
-            Toast.makeText(this, "Selected brand: " + brand.getName(), Toast.LENGTH_SHORT).show();
+        // Create intent for CarListing activity
+        Intent intent = new Intent(Homepage.this, com.midterm.mobiledesignfinalterm.CarListing.CarListing.class);
 
-            // Create intent for CarListing activity
-            Intent intent = new Intent(Homepage.this, com.midterm.mobiledesignfinalterm.CarListing.CarListing.class);
-
-            // Pass user information
-            intent.putExtra("user_phone", userPhone);
-            intent.putExtra("user_name", userName);
-            intent.putExtra("user_id", userId);
-            intent.putExtra("user_data", userRawData);
-            if (userRoles != null) {
-                intent.putStringArrayListExtra("user_roles", new ArrayList<>(userRoles));
-            }
-
-            // Pass booking details if they're set
-            if (textViewPickupLocation != null) {
-                intent.putExtra("pickup_location", textViewPickupLocation.getText().toString());
-                intent.putExtra("dropoff_location", textViewDropoffLocation.getText().toString());
-                intent.putExtra("pickup_date", textViewPickupDate.getText().toString());
-                intent.putExtra("pickup_time", textViewPickupTime.getText().toString());
-                intent.putExtra("dropoff_date", textViewDropoffDate.getText().toString());
-                intent.putExtra("dropoff_time", textViewDropoffTime.getText().toString());
-            }
-
-            // Pass the selected brand name to be used as a filter
-            intent.putExtra("selected_brand", brand.getName());
-
-            // Start the activity
-            startActivity(intent);
+        // Pass user information
+        intent.putExtra("user_phone", userPhone);
+        intent.putExtra("user_name", userName);
+        intent.putExtra("user_id", userId);
+        intent.putExtra("user_data", userRawData);
+        if (userRoles != null) {
+            intent.putStringArrayListExtra("user_roles", new ArrayList<>(userRoles));
         }
+
+        // Pass booking details if they're set
+        if (textViewPickupLocation != null) {
+            intent.putExtra("pickup_location", textViewPickupLocation.getText().toString());
+            intent.putExtra("dropoff_location", textViewDropoffLocation.getText().toString());
+            intent.putExtra("pickup_date", textViewPickupDate.getText().toString());
+            intent.putExtra("pickup_time", textViewPickupTime.getText().toString());
+            intent.putExtra("dropoff_date", textViewDropoffDate.getText().toString());
+            intent.putExtra("dropoff_time", textViewDropoffTime.getText().toString());
+        }
+
+        // Only pass the selected brand name as a filter if it's not "All"
+        if (!"All".equals(brand.getName())) {
+            intent.putExtra("selected_brand", brand.getName());
+            Toast.makeText(this, "Selected brand: " + brand.getName(), Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, "Showing all brands", Toast.LENGTH_SHORT).show();
+        }
+
+        // Start the activity
+        startActivity(intent);
     }
 
     private void toggleDropdownMenu() {
@@ -1067,17 +1065,61 @@ public class Homepage extends AppCompatActivity implements LocationListener {
 
     // Click handlers
     private void handleViewAllBrands() {
-        Toast.makeText(this, "View all brands", Toast.LENGTH_SHORT).show();
-        // Navigate to all brands screen
-        // Intent intent = new Intent(Homepage.this, AllBrandsActivity.class);
-        // startActivity(intent);
+        Toast.makeText(this, "Showing all car brands", Toast.LENGTH_SHORT).show();
+
+        // Navigate to CarListing activity with no brand filter
+        Intent intent = new Intent(Homepage.this, com.midterm.mobiledesignfinalterm.CarListing.CarListing.class);
+
+        // Pass user information
+        intent.putExtra("user_phone", userPhone);
+        intent.putExtra("user_name", userName);
+        intent.putExtra("user_id", userId);
+        intent.putExtra("user_data", userRawData);
+        if (userRoles != null) {
+            intent.putStringArrayListExtra("user_roles", new ArrayList<>(userRoles));
+        }
+
+        // Pass booking details if they're set
+        if (textViewPickupLocation != null) {
+            intent.putExtra("pickup_location", textViewPickupLocation.getText().toString());
+            intent.putExtra("dropoff_location", textViewDropoffLocation.getText().toString());
+            intent.putExtra("pickup_date", textViewPickupDate.getText().toString());
+            intent.putExtra("pickup_time", textViewPickupTime.getText().toString());
+            intent.putExtra("dropoff_date", textViewDropoffDate.getText().toString());
+            intent.putExtra("dropoff_time", textViewDropoffTime.getText().toString());
+        }
+
+        // Start the activity
+        startActivity(intent);
     }
 
     private void handleViewAllCars() {
-        Toast.makeText(this, "View all cars", Toast.LENGTH_SHORT).show();
-        // Navigate to all cars screen
-        // Intent intent = new Intent(Homepage.this, AllCarsActivity.class);
-        // startActivity(intent);
+        Toast.makeText(this, "Showing all cars", Toast.LENGTH_SHORT).show();
+
+        // Navigate to CarListing activity with no filter
+        Intent intent = new Intent(Homepage.this, com.midterm.mobiledesignfinalterm.CarListing.CarListing.class);
+
+        // Pass user information
+        intent.putExtra("user_phone", userPhone);
+        intent.putExtra("user_name", userName);
+        intent.putExtra("user_id", userId);
+        intent.putExtra("user_data", userRawData);
+        if (userRoles != null) {
+            intent.putStringArrayListExtra("user_roles", new ArrayList<>(userRoles));
+        }
+
+        // Pass booking details if they're set
+        if (textViewPickupLocation != null) {
+            intent.putExtra("pickup_location", textViewPickupLocation.getText().toString());
+            intent.putExtra("dropoff_location", textViewDropoffLocation.getText().toString());
+            intent.putExtra("pickup_date", textViewPickupDate.getText().toString());
+            intent.putExtra("pickup_time", textViewPickupTime.getText().toString());
+            intent.putExtra("dropoff_date", textViewDropoffDate.getText().toString());
+            intent.putExtra("dropoff_time", textViewDropoffTime.getText().toString());
+        }
+
+        // Start the activity
+        startActivity(intent);
     }
 
     private void handleMyProfile() {
