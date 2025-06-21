@@ -4,6 +4,7 @@ import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -127,8 +128,13 @@ public class ApiCarAdapter extends RecyclerView.Adapter<ApiCarAdapter.CarViewHol
             // Handle rental button click
             btn_rentalNowHomePage.setOnClickListener(v -> {
                 Intent intent = new Intent(context, CarDetailActivity.class);
+                // Fix car ID parameter - use the vehicle_id field from response
                 intent.putExtra("car_id", car.getVehicleId());
                 intent.putExtra("user_id", userId);
+
+                // Debug log to verify the ID being passed
+                Log.d("ApiCarAdapter", "Car ID being passed: " + car.getVehicleId());
+
                 context.startActivity(intent);
 
                 // Animation for button click
@@ -138,8 +144,13 @@ public class ApiCarAdapter extends RecyclerView.Adapter<ApiCarAdapter.CarViewHol
             // Set click listener for the entire item
             itemView.setOnClickListener(v -> {
                 Intent intent = new Intent(context, CarDetailActivity.class);
+                // Also fix car ID here
                 intent.putExtra("car_id", car.getVehicleId());
                 intent.putExtra("user_id", userId);
+
+                // Debug log to verify the ID being passed
+                Log.d("ApiCarAdapter", "Car ID being passed from item click: " + car.getVehicleId());
+
                 context.startActivity(intent);
 
                 // Animation for card click
