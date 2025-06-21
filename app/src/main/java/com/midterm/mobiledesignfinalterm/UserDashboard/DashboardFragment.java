@@ -231,8 +231,43 @@ public class DashboardFragment extends Fragment implements BookingAdapter.Bookin
 
                 // Try to get vehicle image URL if available
                 String baseImageUrl = "http://10.0.2.2/myapi/cars/";
-                String vehicleName = booking.getVehicleName().replace(" ", "").replace("-", "");
-                booking.setVehicleImageUrl(baseImageUrl + vehicleName + "/1.png");
+                String vehicleName = booking.getVehicleName();
+
+                // Xử lý các trường hợp đặc biệt
+                String folderName = "";
+
+                if (vehicleName.contains("Ford Range")) {
+                    folderName = "FordRange2024";
+                } else if (vehicleName.contains("Honda CR-V")) {
+                    folderName = "HondaCR-V2024";
+                } else if (vehicleName.contains("Aston Martin")) {
+                    folderName = "AstonMartinDB11V122024";
+                } else if (vehicleName.contains("Bentley Continental")) {
+                    folderName = "BentleyContinentalGT2024";
+                } else if (vehicleName.contains("Ferrari 488")) {
+                    folderName = "Ferrari488GTB2024";
+                } else if (vehicleName.contains("Kia Morning")) {
+                    folderName = "KiaMorning2022";
+                } else if (vehicleName.contains("Lamborghini Aventador")) {
+                    folderName = "LamborghiniAventadorSVJ2024";
+                } else if (vehicleName.contains("Lamborghini Huracan")) {
+                    folderName = "LamborghiniHuracan2023";
+                } else if (vehicleName.contains("Maserati MC20")) {
+                    folderName = "MaseratiMC202023";
+                } else if (vehicleName.contains("Mazda CX-5")) {
+                    folderName = "MazdaCx52023";
+                } else if (vehicleName.contains("McLaren 720S")) {
+                    folderName = "McLaren720S2024";
+                } else if (vehicleName.contains("Porsche 911")) {
+                    folderName = "Porsche911GT3RS2024";
+                } else if (vehicleName.contains("Toyota Vios")) {
+                    folderName = "ToyotaVios2023";
+                } else {
+                    // Nếu không khớp với trường hợp đặc biệt nào, sử dụng cách xử lý mặc định
+                    folderName = vehicleName.replace(" ", "").replace("-", "") + "2024";
+                }
+
+                booking.setVehicleImageUrl(baseImageUrl + folderName + "/1.png");
 
                 bookingList.add(booking);
                 Log.d(TAG, "Successfully parsed booking ID: " + booking.getBookingId() +
