@@ -386,8 +386,11 @@ public class UserDashboard extends AppCompatActivity {
     // --- Placeholder Fragment classes ---
 
     /**
-     * Placeholder Fragment for the Dashboard.
+     * THIS CLASS IS BEING REPLACED by the full DashboardFragment class.
+     * DO NOT USE THIS INNER STATIC CLASS ANYMORE.
+     * Use the standalone DashboardFragment.java instead.
      */
+    /*
     public static class DashboardFragment extends Fragment {
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -395,6 +398,7 @@ public class UserDashboard extends AppCompatActivity {
             return inflater.inflate(R.layout.fragment_dashboard, container, false);
         }
     }
+    */
 
     /**
      * Fragment for updating user profile.

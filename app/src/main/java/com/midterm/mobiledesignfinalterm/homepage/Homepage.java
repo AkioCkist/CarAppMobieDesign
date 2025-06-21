@@ -964,18 +964,19 @@ public class Homepage extends AppCompatActivity implements LocationListener {
     private List<Brand> getBrandsList() {
         List<Brand> brands = new ArrayList<>();
         brands.add(new Brand("All", R.drawable.ic_all_brands));
-        brands.add(new Brand("Toyota", R.drawable.ic_toyota));
+        brands.add(new Brand("Toyota", R.drawable.toyota_logo));
         brands.add(new Brand("Honda", R.drawable.ic_honda));
         brands.add(new Brand("Kia", R.drawable.ic_kia));
         brands.add(new Brand("Mazda", R.drawable.ic_mazda));
-        brands.add(new Brand("Ford", R.drawable.ic_ford));
-        brands.add(new Brand("Lamborghini", R.drawable.ic_lamborghini));
-        brands.add(new Brand("Porsche", R.drawable.ic_porsche));
-        brands.add(new Brand("Maserati", R.drawable.ic_maserati));
+        brands.add(new Brand("Ford", R.drawable.ford_logo));
+        brands.add(new Brand("Lamborghini", R.drawable.lamborghini_logo));
+        brands.add(new Brand("Porsche", R.drawable.porsche_logo));
+        brands.add(new Brand("Maserati", R.drawable.maserati_logo));
         brands.add(new Brand("McLaren", R.drawable.ic_mclaren));
-        brands.add(new Brand("Aston Martin", R.drawable.ic_aston_martin));
-        brands.add(new Brand("Bentley", R.drawable.ic_bentley));
-        brands.add(new Brand("Ferrari", R.drawable.ic_ferrari));
+        brands.add(new Brand("Aston Martin", R.drawable.aston_martin_logo));
+        brands.add(new Brand("Bentley", R.drawable.bentley_logo));
+        brands.add(new Brand("Ferrari", R.drawable.ferrari_logo));
+        brands.add(new Brand("BMW", R.drawable.bmw_logo));
 
         return brands;
     }
