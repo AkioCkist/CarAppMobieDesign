@@ -4,6 +4,13 @@ header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Authorization');
 
+// Debug info
+$debug = true; // Set to false in production
+if ($debug) {
+    error_reporting(E_ALL);
+    ini_set('display_errors', 1);
+}
+
 // Handle preflight OPTIONS request
 if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
     exit(0);
@@ -32,13 +39,24 @@ $path_parts = explode('/', trim($path, '/'));
 // Extract booking ID if provided
 $booking_id = isset($path_parts[2]) ? intval($path_parts[2]) : null;
 
+// Debug request
+if ($debug) {
+    $debug_info = [
+        'method' => $method,
+        'path' => $path,
+        'query_params' => $_GET,
+        'booking_id' => $booking_id
+    ];
+    error_log("API Request: " . json_encode($debug_info));
+}
+
 // Route requests
 switch ($method) {
     case 'GET':
         if ($booking_id) {
-            getBookingById($pdo, $booking_id);
+            getBookingById($pdo, $booking_id, $debug);
         } else {
-            getAllBookings($pdo);
+            getAllBookings($pdo, $debug);
         }
         break;
     
@@ -71,7 +89,7 @@ switch ($method) {
 }
 
 // Function to get all bookings with detailed information
-function getAllBookings($pdo) {
+function getAllBookings($pdo, $debug = false) {
     try {
         // Get query parameters for filtering
         $status = $_GET['status'] ?? null;
@@ -113,21 +131,38 @@ function getAllBookings($pdo) {
         }
         
         $sql .= " ORDER BY b.created_at DESC LIMIT :limit OFFSET :offset";
-        $params['limit'] = intval($limit);
-        $params['offset'] = intval($offset);
-        
+
+        if ($debug) {
+            error_log("SQL Query: " . $sql);
+            error_log("Parameters: " . json_encode($params));
+        }
+
         $stmt = $pdo->prepare($sql);
+
         foreach ($params as $key => $value) {
             if ($key === 'limit' || $key === 'offset') {
-                $stmt->bindValue(":$key", $value, PDO::PARAM_INT);
+                $stmt->bindValue(":$key", intval($value), PDO::PARAM_INT);
             } else {
                 $stmt->bindValue(":$key", $value);
             }
         }
+
+        // Bind these parameters separately since they're always present
+        $stmt->bindValue(":limit", intval($limit), PDO::PARAM_INT);
+        $stmt->bindValue(":offset", intval($offset), PDO::PARAM_INT);
+
         $stmt->execute();
         
         $bookings = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
+        // Debug
+        if ($debug) {
+            error_log("Found " . count($bookings) . " bookings");
+            if ($renter_id) {
+                error_log("Bookings for renter_id=$renter_id: " . json_encode(array_column($bookings, 'booking_id')));
+            }
+        }
+
         // Get total count
         $countSql = "SELECT COUNT(*) as total FROM bookings b WHERE 1=1";
         $countParams = [];
@@ -151,22 +186,33 @@ function getAllBookings($pdo) {
         $countStmt->execute($countParams);
         $total = $countStmt->fetch(PDO::FETCH_ASSOC)['total'];
         
-        echo json_encode([
+        $response = [
             'success' => true,
             'data' => $bookings,
             'total' => intval($total),
             'limit' => intval($limit),
             'offset' => intval($offset)
-        ]);
-        
+        ];
+
+        // Debug the response
+        if ($debug) {
+            error_log("Response summary: success=true, total=" . $total . ", returned=" . count($bookings));
+        }
+
+        echo json_encode($response);
+
     } catch(PDOException $e) {
         http_response_code(500);
-        echo json_encode(['error' => 'Database error: ' . $e->getMessage()]);
+        $errorMsg = 'Database error: ' . $e->getMessage();
+        if ($debug) {
+            error_log("ERROR: " . $errorMsg);
+        }
+        echo json_encode(['error' => $errorMsg]);
     }
 }
 
 // Function to get a specific booking by ID
-function getBookingById($pdo, $booking_id) {
+function getBookingById($pdo, $booking_id, $debug = false) {
     try {
         $sql = "SELECT 
                     b.*,
@@ -185,6 +231,10 @@ function getBookingById($pdo, $booking_id) {
                 JOIN accounts lessor ON v.lessor_id = lessor.account_id
                 WHERE b.booking_id = :booking_id";
         
+        if ($debug) {
+            error_log("Getting booking by ID: " . $booking_id);
+        }
+
         $stmt = $pdo->prepare($sql);
         $stmt->bindParam(':booking_id', $booking_id, PDO::PARAM_INT);
         $stmt->execute();

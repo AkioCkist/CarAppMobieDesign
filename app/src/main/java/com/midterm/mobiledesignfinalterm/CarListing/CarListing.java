@@ -17,7 +17,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.view.ViewGroup;
-import android.widget.TextView;
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
@@ -30,7 +29,6 @@ import com.midterm.mobiledesignfinalterm.R;
 import com.midterm.mobiledesignfinalterm.api.CarApiService;
 import com.midterm.mobiledesignfinalterm.api.RetrofitClient;
 import com.midterm.mobiledesignfinalterm.authentication.Login;
-import com.midterm.mobiledesignfinalterm.models.ApiResponse;
 import com.midterm.mobiledesignfinalterm.models.Car;
 
 import java.util.ArrayList;
@@ -40,8 +38,6 @@ import java.util.Map;
 public class CarListing extends AppCompatActivity {
 
     // UI Components
-    private TextView textViewUserName;
-    private TextView textViewUserPhone;
     private TextView textViewCarCount;
     private EditText editTextSearch;
     private Button buttonDateTime;
