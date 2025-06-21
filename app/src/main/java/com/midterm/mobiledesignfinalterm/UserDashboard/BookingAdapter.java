@@ -11,8 +11,10 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.midterm.mobiledesignfinalterm.R;
 import com.midterm.mobiledesignfinalterm.models.Booking;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class BookingAdapter extends RecyclerView.Adapter<BookingAdapter.BookingViewHolder> {
     private Context context;
@@ -52,9 +54,15 @@ public class BookingAdapter extends RecyclerView.Adapter<BookingAdapter.BookingV
 
         holder.textViewVehicleName.setText(booking.getVehicleName());
         holder.textViewVehicleType.setText(booking.getVehicleType());
+        holder.tvPickupLocation.setText(booking.getPickupLocation());
+        holder.tvReturnLocation.setText(booking.getReturnLocation());
         holder.textViewPickupInfo.setText(booking.getPickupDate() + ", " + booking.getPickupTime());
         holder.textViewReturnInfo.setText(booking.getReturnDate() + ", " + booking.getReturnTime());
-        holder.textViewPrice.setText("$" + String.format("%.2f", booking.getFinalPrice()));
+
+        // Format price in Vietnamese currency format
+        NumberFormat currencyFormat = NumberFormat.getNumberInstance(new Locale("vi", "VN"));
+        String formattedPrice = currencyFormat.format(booking.getFinalPrice()) + " VNĐ";
+        holder.textViewPrice.setText(formattedPrice);
 
         // Style the status text based on booking status
         String status = booking.getStatus();
@@ -121,6 +129,8 @@ public class BookingAdapter extends RecyclerView.Adapter<BookingAdapter.BookingV
         TextView textViewReturnInfo;
         TextView textViewPrice;
         TextView textViewStatus;
+        TextView tvPickupLocation;
+        TextView tvReturnLocation;
 
         public BookingViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -131,6 +141,8 @@ public class BookingAdapter extends RecyclerView.Adapter<BookingAdapter.BookingV
             textViewReturnInfo = itemView.findViewById(R.id.textViewReturnInfo);
             textViewPrice = itemView.findViewById(R.id.textViewPrice);
             textViewStatus = itemView.findViewById(R.id.textViewStatus);
+            tvPickupLocation = itemView.findViewById(R.id.tv_pickupLocationBooking);
+            tvReturnLocation = itemView.findViewById(R.id.tv_dropoffLocationBooking);
         }
     }
 }

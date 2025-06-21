@@ -10,7 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:padding="16dp"
+        android:padding="8dp"
         android:layoutAnimation="@anim/anim_layout_fall_down">
 
         <TextView
@@ -20,7 +20,8 @@
             android:textColor="@android:color/white"
             android:textSize="24sp"
             android:textStyle="bold"
-            android:layout_marginBottom="16dp" />
+            android:layout_marginBottom="10dp"
+            android:layout_marginTop="10dp"/>
 
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"

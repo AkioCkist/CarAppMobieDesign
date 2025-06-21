@@ -53,7 +53,8 @@
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="4dp">
+                android:layout_marginBottom="4dp"
+                android:layout_marginTop="4dp">
 
                 <TextView
                     android:id="@+id/textViewVehicleName"
@@ -103,13 +104,30 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
+                android:layout_marginBottom="8dp">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Pickup Location: "
+                    android:textColor="#AEAEAE"
+                    android:textSize="12sp"
+                    android:layout_marginStart="4dp" />
+                <TextView
+                    android:id="@+id/tv_pickupLocationBooking"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:text="Location"
+                    android:textColor="#FFFFFF"
+                    android:textSize="12sp"
+                    android:fontFamily="sans-serif" />
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
                 android:layout_marginBottom="6dp">
-
-                <ImageView
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
-                    android:src="@drawable/ic_pickup" />
-
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -117,7 +135,6 @@
                     android:textColor="#AEAEAE"
                     android:textSize="12sp"
                     android:layout_marginStart="4dp" />
-
                 <TextView
                     android:id="@+id/textViewPickupInfo"
                     android:layout_width="0dp"
@@ -128,17 +145,40 @@
                     android:textSize="12sp"
                     android:fontFamily="sans-serif" />
             </LinearLayout>
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#33FFFFFF"
+                android:layout_marginBottom="8dp" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="8dp">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Drop off Location: "
+                    android:textColor="#AEAEAE"
+                    android:textSize="12sp"
+                    android:layout_marginStart="4dp" />
+                <TextView
+                    android:id="@+id/tv_dropoffLocationBooking"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:text="Location"
+                    android:textColor="#FFFFFF"
+                    android:textSize="12sp"
+                    android:fontFamily="sans-serif" />
+            </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical">
-
-                <ImageView
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
-                    android:src="@drawable/ic_pickup" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -164,7 +204,10 @@
                 android:text="$100.00"
                 android:textColor="#32D74B"
                 android:textSize="16sp"
-                android:fontFamily="sans-serif-medium" />
+                android:fontFamily="sans-serif-medium"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="6dp"
+                android:layout_marginStart="4dp"/>
         </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.cardview.widget.CardView>
