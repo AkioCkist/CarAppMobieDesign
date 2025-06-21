@@ -83,7 +83,7 @@ public class BookingAdapter extends RecyclerView.Adapter<BookingAdapter.BookingV
     private void setStatusColor(TextView textView, String status) {
         switch (status.toLowerCase()) {
             case "confirmed":
-                textView.setTextColor(context.getResources().getColor(android.R.color.holo_green_light));
+                textView.setTextColor(context.getResources().getColor(android.R.color.holo_green_dark));
                 break;
             case "pending":
                 textView.setTextColor(context.getResources().getColor(android.R.color.holo_orange_light));
@@ -92,7 +92,7 @@ public class BookingAdapter extends RecyclerView.Adapter<BookingAdapter.BookingV
                 textView.setTextColor(context.getResources().getColor(android.R.color.holo_red_light));
                 break;
             case "completed":
-                textView.setTextColor(context.getResources().getColor(android.R.color.white));
+                textView.setTextColor(context.getResources().getColor(R.color.green_status));
                 break;
             case "ongoing":
                 textView.setTextColor(context.getResources().getColor(android.R.color.holo_blue_light));
@@ -107,7 +107,7 @@ public class BookingAdapter extends RecyclerView.Adapter<BookingAdapter.BookingV
         if (imageUrl != null && !imageUrl.isEmpty()) {
             Glide.with(context)
                     .load(imageUrl)
-                    .placeholder(R.drawable.ic_car_placeholder)
+                    .placeholder(R.drawable.loading_spinner)
                     .error(R.drawable.ic_car_placeholder)
                     .centerCrop()
                     .into(imageView);

@@ -12,6 +12,7 @@
     <!-- Accent colors -->
     <color name="accent_green">#32D74B</color>
     <color name="accent_green_pressed">#28C940</color>
+    <color name="green_status">#B6F500</color>
 
     <!-- Input and button backgrounds -->
     <color name="input_background">#2C2C2E</color>
