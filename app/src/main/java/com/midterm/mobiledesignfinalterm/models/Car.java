@@ -6,7 +6,7 @@ import com.google.gson.annotations.SerializedName;
 import com.midterm.mobiledesignfinalterm.CarDetail.Amenity;
 
 public class Car {
-    @SerializedName("vehicle_id")
+    @SerializedName(value="vehicle_id", alternate={"id"}) // Accept both "vehicle_id" and "id" fields from API
     private int vehicle_id;
     @SerializedName("model")
     private String model;
@@ -36,7 +36,7 @@ public class Car {
     private Boolean is_favorite = false; // Initialize with default value
     @SerializedName("primary_image")
     private String primary_image;
-    @SerializedName("base_price_formatted")
+    @SerializedName(value="price_formatted", alternate = "base_price_formatted")
     private String price_formatted;
     private Boolean is_favorite_for_user = false; // Initialize with default value
     private String lessor_name;

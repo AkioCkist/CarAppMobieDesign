@@ -37,6 +37,7 @@ import com.google.android.material.datepicker.CalendarConstraints;
 import com.google.android.material.datepicker.DateValidatorPointForward;
 import com.google.android.material.timepicker.MaterialTimePicker;
 import com.google.android.material.timepicker.TimeFormat;
+import com.google.gson.Gson;
 import com.midterm.mobiledesignfinalterm.R;
 import com.bumptech.glide.Glide;
 import com.midterm.mobiledesignfinalterm.UserDashboard.UserDashboard;
@@ -63,6 +64,15 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 import android.util.Log;
+import com.midterm.mobiledesignfinalterm.api.CarApiService;
+import com.midterm.mobiledesignfinalterm.api.RetrofitClient;
+import com.midterm.mobiledesignfinalterm.models.Car;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class Homepage extends AppCompatActivity implements LocationListener {
 
@@ -709,10 +719,11 @@ public class Homepage extends AppCompatActivity implements LocationListener {
         });
         recyclerViewBrands.setAdapter(brandAdapter);
 
-        // Setup cars RecyclerView
+        // Setup cars RecyclerView with horizontal layout
         recyclerViewCars.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
-        CarAdapter carAdapter = new CarAdapter(getCarsList());
-        recyclerViewCars.setAdapter(carAdapter);
+
+        // Fetch cars from API instead of using static data
+        fetchTopCars();
     }
 
     /**
@@ -986,6 +997,167 @@ public class Homepage extends AppCompatActivity implements LocationListener {
         cars.add(new Car("Tesla Model X", "Available from 2 August", "4 Seats", "$28.32/hour", "5.00", R.drawable.tesla_model_x));
         cars.add(new Car("Tesla Model 3", "Available Now", "4 Seats", "$25.50/hour", "4.8", R.drawable.tesla_model_3));
         return cars;
+    }
+
+    /**
+     * Fetches top cars from API for the homepage
+     */
+    private void fetchTopCars() {
+        // Show loading indicator if available
+        // loadingIndicator.setVisibility(View.VISIBLE);
+
+        Log.d("Homepage", "Fetching top cars from API...");
+
+        // Get API service from RetrofitClient
+        CarApiService apiService = RetrofitClient.getCarApiService();
+
+        // Make API call to get cars (limit to 4)
+        Call<Map<String, Object>> call = apiService.getAllCars(4, 0, "available");
+
+        call.enqueue(new Callback<Map<String, Object>>() {
+            @Override
+            public void onResponse(Call<Map<String, Object>> call, Response<Map<String, Object>> response) {
+                Log.d("Homepage", "API Response received: " + (response.isSuccessful() ? "Success" : "Failed: " + response.code()));
+
+                if (response.isSuccessful() && response.body() != null) {
+                    Map<String, Object> result = response.body();
+                    Log.d("Homepage", "API Response body: " + new Gson().toJson(result));
+
+                    // Check various possible response formats
+                    List<com.midterm.mobiledesignfinalterm.models.Car> cars = new ArrayList<>();
+
+                    try {
+                        if (result.containsKey("records") && result.get("records") instanceof List) {
+                            // Format specific to your API: { "records": [...] }
+                            List<Map<String, Object>> vehiclesMap = (List<Map<String, Object>>) result.get("records");
+                            processVehiclesList(vehiclesMap, cars);
+                        } else if (result.containsKey("vehicles") && result.get("vehicles") instanceof List) {
+                            // Format 1: { "vehicles": [...] }
+                            List<Map<String, Object>> vehiclesMap = (List<Map<String, Object>>) result.get("vehicles");
+                            processVehiclesList(vehiclesMap, cars);
+                        } else if (result.containsKey("data") && result.get("data") instanceof Map) {
+                            // Format 2: { "data": { "vehicles": [...] } }
+                            Map<String, Object> dataMap = (Map<String, Object>) result.get("data");
+                            if (dataMap.containsKey("vehicles") && dataMap.get("vehicles") instanceof List) {
+                                List<Map<String, Object>> vehiclesMap = (List<Map<String, Object>>) dataMap.get("vehicles");
+                                processVehiclesList(vehiclesMap, cars);
+                            } else {
+                                Log.e("Homepage", "API response data does not contain vehicles array");
+                                updateCarsRecyclerViewWithMockData();
+                            }
+                        } else if (result.containsKey("data") && result.get("data") instanceof List) {
+                            // Format 3: { "data": [...] }
+                            List<Map<String, Object>> vehiclesMap = (List<Map<String, Object>>) result.get("data");
+                            processVehiclesList(vehiclesMap, cars);
+                        } else {
+                            // Handle case where vehicles might be directly in the root
+                            boolean foundVehicles = false;
+                            for (Map.Entry<String, Object> entry : result.entrySet()) {
+                                if (entry.getValue() instanceof List) {
+                                    try {
+                                        List<Map<String, Object>> vehiclesList = (List<Map<String, Object>>) entry.getValue();
+                                        if (!vehiclesList.isEmpty() && vehiclesList.get(0).containsKey("vehicle_id") || vehiclesList.get(0).containsKey("id")) {
+                                            processVehiclesList(vehiclesList, cars);
+                                            foundVehicles = true;
+                                            break;
+                                        }
+                                    } catch (Exception e) {
+                                        Log.e("Homepage", "Error parsing possible vehicles list: " + e.getMessage());
+                                    }
+                                }
+                            }
+
+                            if (!foundVehicles) {
+                                Log.e("Homepage", "Could not find vehicles in API response");
+                                updateCarsRecyclerViewWithMockData();
+                            }
+                        }
+                    } catch (Exception e) {
+                        Log.e("Homepage", "Error parsing response: " + e.getMessage(), e);
+                        updateCarsRecyclerViewWithMockData();
+                    }
+
+                    if (!cars.isEmpty()) {
+                        Log.d("Homepage", "Found " + cars.size() + " cars in API response");
+                        updateCarsRecyclerView(cars);
+                    } else {
+                        // If no cars were found in the response, use mock data
+                        Log.d("Homepage", "No cars found in API response, using mock data");
+                        updateCarsRecyclerViewWithMockData();
+                    }
+                } else {
+                    Log.e("Homepage", "API call unsuccessful: " + response.code());
+                    updateCarsRecyclerViewWithMockData();
+                }
+
+                // Hide loading indicator if available
+                // loadingIndicator.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onFailure(Call<Map<String, Object>> call, Throwable t) {
+                Log.e("Homepage", "API call failed: " + t.getMessage(), t);
+                // If API call fails, show mock data
+                updateCarsRecyclerViewWithMockData();
+
+                // Hide loading indicator if available
+                // loadingIndicator.setVisibility(View.GONE);
+            }
+        });
+    }
+
+    /**
+     * Process a list of vehicle maps from the API response
+     */
+    private void processVehiclesList(List<Map<String, Object>> vehiclesMap, List<com.midterm.mobiledesignfinalterm.models.Car> cars) {
+        if (vehiclesMap != null && !vehiclesMap.isEmpty()) {
+            Log.d("Homepage", "Found " + vehiclesMap.size() + " vehicles in response");
+
+            // Convert each map to a Car object using Gson
+            Gson gson = new Gson();
+            for (Map<String, Object> vehicleMap : vehiclesMap) {
+                try {
+                    String json = gson.toJson(vehicleMap);
+                    com.midterm.mobiledesignfinalterm.models.Car car = gson.fromJson(json, com.midterm.mobiledesignfinalterm.models.Car.class);
+                    cars.add(car);
+                    Log.d("Homepage", "Added car: " + car.getName());
+                } catch (Exception e) {
+                    Log.e("Homepage", "Error parsing car: " + e.getMessage());
+                }
+            }
+        } else {
+            Log.e("Homepage", "Vehicles list is empty or null");
+        }
+    }
+
+    /**
+     * Update the Cars RecyclerView with data from API
+     */
+    private void updateCarsRecyclerView(List<com.midterm.mobiledesignfinalterm.models.Car> apiCars) {
+        Log.d("Homepage", "Updating RecyclerView with " + apiCars.size() + " cars");
+
+        // Create and set adapter with userId
+        ApiCarAdapter apiCarAdapter = new ApiCarAdapter(this, userId);
+        apiCarAdapter.setCarList(apiCars);
+        recyclerViewCars.setAdapter(apiCarAdapter);
+
+        // Notify any layout changes
+        recyclerViewCars.scheduleLayoutAnimation();
+    }
+
+    /**
+     * Update the Cars RecyclerView with mock data when API fails
+     */
+    private void updateCarsRecyclerViewWithMockData() {
+        Log.d("Homepage", "Showing mock car data");
+        List<Car> mockCars = getCarsList();
+
+        // Use the local CarAdapter for mock data
+        CarAdapter carAdapter = new CarAdapter(mockCars);
+        recyclerViewCars.setAdapter(carAdapter);
+
+        // Notify any layout changes
+        recyclerViewCars.scheduleLayoutAnimation();
     }
 
     // Animation Methods - Enhanced with all components
