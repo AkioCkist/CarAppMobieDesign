@@ -1,216 +1,194 @@
-# Whale Xe - Car Rental Mobile Application (Android)
+# Whale Xe - Car Rental Mobile Application
 
-![Whale Xe](app/src/main/res/drawable/logo.png)
+![Whale Xe Logo](app/src/main/res/drawable/logo.png)
 
 *Drive Your Journey with Effortless Car Rentals – On Mobile*
 
 ![Last Commit](https://img.shields.io/github/last-commit/AkioCkist/CarAppMobieDesign?style=flat-square)
 ![Java](https://img.shields.io/badge/Java-Android-blue?style=flat-square)
-![Kotlin](https://img.shields.io/badge/Kotlin-Ready-orange?style=flat-square)
 ![Android Studio](https://img.shields.io/badge/Android%20Studio-Built-green?style=flat-square)
+![API Level](https://img.shields.io/badge/Min%20SDK-24-brightgreen?style=flat-square)
+![Target SDK](https://img.shields.io/badge/Target%20SDK-34-blue?style=flat-square)
 
 ---
 
-Built with the tools and technologies:
+**Built with Modern Android Technologies:**
 
 ![Android](https://img.shields.io/badge/Android-3DDC84?style=flat-square&logo=android&logoColor=white)
 ![Java](https://img.shields.io/badge/Java-ED8B00?style=flat-square&logo=java&logoColor=white)
 ![Retrofit](https://img.shields.io/badge/Retrofit-48B983?style=flat-square&logo=square&logoColor=white)
+![Glide](https://img.shields.io/badge/Glide-Image%20Loading-yellow?style=flat-square)
 ![Material Design](https://img.shields.io/badge/Material%20Design-757575?style=flat-square&logo=material-design&logoColor=white)
-![JSON](https://img.shields.io/badge/JSON-Data-blue)
-![API](https://img.shields.io/badge/REST%20API-Integration-green)
-![Open Source](https://img.shields.io/badge/Open%20Source-❤️-brightgreen)
+![Google Sign-In](https://img.shields.io/badge/Google%20Sign--In-4285F4?style=flat-square&logo=google&logoColor=white)
+![OkHttp](https://img.shields.io/badge/OkHttp-Networking-orange?style=flat-square)
 
 ---
 
-## 📱 Mobile App
+## 👥 Development Team
 
-**Download APK**: [Release Page](https://github.com/AkioCkist/CarAppMobieDesign/releases)
-
-## 👥 Team Members
-
-• **Trần Ngọc Quân** - 23020020  
-• **Ngô Hoàng Nhật Khang** - 23020004  
-• **Phan Thị Thùy Nhung** - 23020006  
-• **Trần Minh Hoàng** - 23020011  
-• **Hồ Anh Tuấn** - 23020016  
-
-## 📖 Overview
-
-Whale Xe is a modern, intuitive Android mobile application for car rentals built with Java and Android SDK. The app provides a seamless experience for users to search, compare, and book rental cars with an elegant interface and comprehensive features. It connects to a robust backend API to deliver real-time vehicle availability and booking management.
+| Name | Student ID |
+|------|------------|
+| **Trần Ngọc Quân** | 23020020 |
+| **Ngô Hoàng Nhật Khang** | 23020004 |
+| **Trần Minh Hoàng** | 23020011 |
+| **Hồ Anh Tuấn** | 23020016 |
 
 ---
 
-## 🏠 Main Features
+## 🚗 App Overview
 
-### 🎯 Homepage
-• **🔍 Smart Search**: Quick car search with location and date selection  
-• **⭐ Featured Vehicles**: Highlighted premium and popular car options  
-• **🏷️ Top Brands**: Browse by preferred manufacturers  
-• **🚗 Top Rated Cars**: Customer-recommended vehicles  
-• **❓ FAQ Section**: Quick answers to common questions  
-• **📱 Responsive Design**: Optimized for all Android devices  
-
-### 🔍 Car Listing & Search
-• **📍 Location Selection**: Easy pickup/return location input  
-• **📅 Date & Time Picker**: Intuitive booking period selection  
-• **🎛️ Advanced Filters**:
-  - 🚗 Vehicle Type (Economy, Luxury, SUV, etc.)
-  - 🏷️ Brand Selection
-  - 🪑 Seat Capacity
-  - ⛽ Fuel Type
-  - 💰 Price Range
-• **📄 Pagination**: Smooth navigation through listings
-• **🔄 Real-time Updates**: Live availability and pricing
-
-### 🚙 Vehicle Details
-• **📸 Image Gallery**: High-quality vehicle photos with swipe navigation  
-• **📋 Detailed Specifications**: Complete vehicle information  
-• **🛠️ Amenities**: Available features and add-ons  
-• **💰 Transparent Pricing**: Clear cost breakdown  
-• **⭐ Ratings & Reviews**: Customer feedback and ratings  
-• **❤️ Favorite System**: Save preferred vehicles  
+**Whale Xe** is a comprehensive car rental mobile application built for Android, offering seamless vehicle booking experiences with modern design and robust functionality. The app connects users with a fleet of 500+ vehicles across Vietnam through an intuitive mobile interface.
 
 ---
 
-## 👤 User Functions
+## ✨ Core Features
 
-### 🎨 Mobile Experience
-• **🏡 Beautiful Homepage**: Categorized vehicle display
-  - ⭐ Featured vehicles
-  - 💰 Economy options  
-  - 👑 Luxury collection
-• **📱 Native Navigation**: Smooth Android navigation patterns
-• **🔄 Pull-to-Refresh**: Update content with simple gestures
+### 🔐 **Authentication System**
+- **Phone Number Login**: Secure authentication with phone verification
+- **Google Sign-In Integration**: Quick login with Google accounts
+- **User Registration**: Complete profile setup with personal information
+- **Password Management**: Forgot password with reset functionality
+- **Remember Me**: Convenient login persistence
+- **Profile Management**: Update personal information and passwords
 
-### 🔧 Search & Filter System
-• **🎛️ Advanced Filters**: Type, brand, seats, fuel, price range
-• **🔍 Smart Search**: Keyword-based vehicle discovery
-• **📍 Location Services**: GPS-based location detection
-• **📅 Date Validation**: Smart date/time selection
+### 🏠 **Homepage Experience**
+- **Welcome Screen**: Personalized greeting with user information
+- **Location Services**: Automatic location detection and manual selection
+- **Date & Time Pickers**: Material Design date/time selection for rentals
+- **Top Brands Showcase**: Horizontal scrolling brand gallery
+- **Featured Vehicles**: Top-rated cars with ratings and pricing
+- **Quick Navigation**: Profile dropdown with easy access to features
 
-### 👥 User Management
-• **📝 Registration & Login**: Secure account creation and authentication
-• **👤 User Profile**: Personal information management
-• **📚 Booking History**: Track past and current reservations
-• **❤️ Favorites**: Save and manage preferred vehicles
-• **🔔 Notifications**: Booking confirmations and updates
+### 🚙 **Vehicle Management**
+- **Comprehensive Car Listings**: Browse 500+ vehicles with filters
+- **Detailed Car Information**: Specifications, amenities, and pricing
+- **High-Quality Images**: Multiple photos per vehicle with smooth navigation
+- **Real-time Availability**: Live availability status and pricing
+- **Vehicle Categories**: Economy, luxury, SUV, and specialty vehicles
+- **Rating System**: User ratings and trip history for each vehicle
 
-### 📋 Booking System
-• **🚗 Car Selection**: Choose from available fleet
-• **📍 Trip Details**: Pickup/return locations and dates
-• **👤 Personal Info**: Customer details and documentation
-• **💳 Payment Options**: Multiple payment methods
-• **📄 Digital Receipts**: PDF booking confirmations
-• **📧 Email Confirmations**: Automatic booking notifications
+### 📅 **Booking System**
+- **Complete Booking Flow**: From selection to confirmation
+- **Smart Date Selection**: Pickup and return date/time management
+- **Location Management**: Multiple pickup/return locations
+- **User Information Collection**: Comprehensive renter details
+- **Pricing Calculation**: Dynamic pricing with discounts and taxes
+- **Booking Confirmation**: Detailed booking summaries
+- **Thank You Screen**: Professional booking completion experience
 
----
+### 💰 **Payment Integration**
+- **Multiple Payment Methods**: Credit cards, bank transfers, mobile payments
+- **Supported Platforms**: Visa, Mastercard, MoMo, PayPal
+- **Secure Transactions**: Encrypted payment processing
+- **Pricing Transparency**: Clear breakdown of costs and fees
 
-## 👨‍💼 Admin Functions
+### 👤 **User Dashboard**
+- **Booking History**: Complete rental history with status tracking
+- **Booking Management**: View, modify, and cancel reservations
+- **Status Tracking**: Real-time booking status updates (Pending, Confirmed, Ongoing, Completed, Cancelled)
+- **Profile Settings**: Personal information management
+- **Favorites Management**: Save and manage favorite vehicles
 
-### 📊 Admin Dashboard
-• **📈 Analytics Overview**: Key metrics and performance insights
-• **🚗 Vehicle Management**: Complete fleet inventory control
-• **📋 Booking Orders**: Track and manage all reservations
-• **👥 User Management**: Customer account administration
-• **📊 Statistics**: Revenue, booking trends, and reports
+### ❤️ **Favorites System**
+- **Vehicle Favorites**: Save preferred cars for quick access
+- **Favorites Dashboard**: Dedicated screen for managing saved vehicles
+- **Quick Booking**: Direct booking from favorites
+- **Persistent Storage**: Favorites sync across sessions
 
-### 🔐 Admin Account
-• **Phone**: `0998877665`
-• **Password**: `admin123`
+### ❓ **FAQ & Support**
+- **Comprehensive FAQ**: 14 categorized questions covering:
+  - General information (4 questions)
+  - Booking & Pricing (4 questions)  
+  - Insurance & Coverage (3 questions)
+  - Vehicle & Services (3 questions)
+- **Expandable Answers**: Smooth animations with detailed responses
+- **Quick Access**: Available from homepage and profile menu
+- **Contact Support**: Direct phone integration for customer service
+- **Service Highlights**: 500+ vehicles, full insurance, easy booking stats
 
----
-
-## 🛠️ Technical Features
-
-### 🏗️ Architecture
-• **📱 Native Android**: Built with Java for optimal performance
-• **🎨 Material Design**: Following Google's design principles
-• **🔄 Retrofit Integration**: RESTful API communication
-• **💾 Local Storage**: Efficient data caching and management
-• **🔐 Secure Authentication**: Token-based user sessions
-
-### 📡 API Integration
-• **🌐 Backend Connectivity**: PHP/MySQL backend integration
-• **🔄 Real-time Data**: Live vehicle availability and pricing
-• **📸 Image Loading**: Efficient image caching with Glide
-• **💳 Payment Processing**: Secure transaction handling
-• **📧 Email Services**: Automated notification system
-
-### 🎨 UI/UX Features
-• **🌙 Dark Theme**: Modern dark interface design
-• **✨ Smooth Animations**: Elegant transitions and micro-interactions
-• **📱 Responsive Layouts**: Adaptive design for all screen sizes
-• **🔄 Loading States**: Progress indicators and skeleton screens
-• **⚡ Fast Performance**: Optimized for speed and efficiency
-
----
-
-## 📱 Screenshots
-
-### 🏠 Splash & Authentication
-![Splash Screen](screenshots/splash_screen.png)
-![Login Screen](screenshots/login_screen.png)
-![Register Screen](screenshots/register_screen.png)
-
-### 🏡 Homepage & Navigation
-![Homepage](screenshots/homepage.png)
-![Navigation Menu](screenshots/navigation_menu.png)
-![FAQ Section](screenshots/faq_section.png)
-
-### 🔍 Car Search & Listing
-![Car Listing](screenshots/car_listing.png)
-![Search Filters](screenshots/search_filters.png)
-![Car Details](screenshots/car_details.png)
-
-### 📋 Booking Process
-![Booking Form](screenshots/booking_form.png)
-![User Information](screenshots/user_information.png)
-![Payment Screen](screenshots/payment_screen.png)
-![Booking Confirmation](screenshots/booking_confirmation.png)
-
-### 👤 User Dashboard
-![User Dashboard](screenshots/user_dashboard.png)
-![Profile Management](screenshots/profile_management.png)
-![Favorite Cars](screenshots/favorite_cars.png)
-![Booking History](screenshots/booking_history.png)
-
-### 👨‍💼 Admin Panel
-![Admin Dashboard](screenshots/admin_dashboard.png)
-![Admin Statistics](screenshots/admin_statistics.png)
-![Vehicle Management](screenshots/vehicle_management.png)
-![User Management](screenshots/user_management.png)
+### 👨‍💼 **Admin Dashboard** (Admin Users Only)
+- **User Management**: View and manage registered users.
+- **Vehicle Status Monitoring**: Track car availability and maintenance
+- **Booking Analytics**: Comprehensive booking statistics and insights
+- **Admin-Only Access**: Secure role-based authentication
+- **Statistics Overview**: Revenue, bookings, and user metrics
 
 ---
 
-## 🚀 Getting Started
+## 🛠 Technical Architecture
 
-### 📋 Prerequisites
-• **Android Studio**: Latest version recommended
-• **Android SDK**: API Level 24+ (Android 7.0)
-• **Java JDK**: Version 8 or higher
-• **Gradle**: Latest version
+### **Frontend (Android)**
+- **Language**: Java
+- **Architecture**: MVC with Fragment-based navigation
+- **UI Framework**: Material Design Components
+- **Networking**: Retrofit + OkHttp for API calls
+- **Image Loading**: Glide for efficient image management
+- **Authentication**: Google Sign-In SDK integration
+- **Local Storage**: SharedPreferences for user data
+- **Location Services**: Android Location API
 
-### 📦 Installation
+### **Backend (PHP)**
+- **API Framework**: Custom PHP REST API
+- **Database**: MySQL for data persistence
+- **Authentication**: JWT-based session management
+- **File Management**: Image storage and retrieval system
+- **Error Handling**: Comprehensive API response handling
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/AkioCkist/CarAppMobieDesign.git
-   cd CarAppMobieDesign
-   ```
+---
 
-2. **Open in Android Studio**
-   - Launch Android Studio
-   - Open the project folder
-   - Wait for Gradle sync to complete
+## 🎨 Design Highlights
 
-3. **Configure API Settings**
-   - Update API base URL in `RetrofitClient.java`
-   - Ensure backend server is running
+### **Modern UI/UX**
+- **Dark Theme**: Elegant dark color scheme throughout
+- **Smooth Animations**: Professional transitions and micro-interactions
+- **Material Design**: Following Google's design principles
+- **Responsive Layout**: Optimized for various screen sizes
+- **Accessibility**: Proper contrast ratios and touch targets
 
-4. **Build and Run**
-   - Connect Android device or start emulator
-   - Click "Run" or use `Ctrl+R`
+### **User Experience**
+- **Intuitive Navigation**: Bottom navigation with fragment management
+- **Loading States**: Professional loading indicators
+- **Error Handling**: User-friendly error messages
+- **Offline Support**: Graceful handling of network issues
+- **Performance**: Optimized image loading and smooth scrolling
+
+---
+
+## 🚀 Key Capabilities
+
+### **For Regular Users:**
+✅ Browse and search 500+ vehicles across Vietnam  
+✅ View detailed car information with high-quality images  
+✅ Book vehicles with flexible pickup/return options  
+✅ Manage booking history and track rental status  
+✅ Save favorite vehicles for quick access  
+✅ Update profile information and preferences  
+✅ Access comprehensive FAQ and customer support  
+✅ Secure payment processing with multiple methods  
+✅ Real-time location services and date selection  
+
+### **For Admin Users:**
+✅ Monitor platform statistics and analytics  
+✅ Manage user accounts and information  
+✅ Track vehicle availability and status  
+✅ Access booking insights and revenue data  
+✅ Comprehensive dashboard with real-time updates  
+
+---
+
+## 📱 Supported Features
+
+| Feature | Status | Description |
+|---------|--------|-------------|
+| User Authentication | ✅ | Phone/Google login with secure sessions |
+| Vehicle Browsing | ✅ | Complete car catalog with filters |
+| Booking System | ✅ | End-to-end rental booking process |
+| Payment Integration | ✅ | Multiple payment methods support |
+| User Dashboard | ✅ | Profile and booking management |
+| Favorites System | ✅ | Save and manage preferred vehicles |
+| Admin Panel | ✅ | Complete admin dashboard |
+| FAQ Support | ✅ | Comprehensive help system |
+| Location Services | ✅ | GPS and manual location selection |
 
 ---
 
@@ -242,81 +220,8 @@ app/
     └── admin_*.php            # Admin functionality APIs
 ```
 
----
-
-## 🔧 API Endpoints
-
-### 🔐 Authentication
-- `POST /login.php` - User login
-- `POST /register.php` - User registration
-- `POST /forgot_password.php` - Password reset
-
-### 🚗 Vehicle Management
-- `GET /vehicles.php` - Get vehicle list
-- `GET /vehicles.php?id={id}` - Get vehicle details
-- `GET /amenity_vehicles.php` - Get vehicle amenities
-
-### ❤️ Favorites
-- `GET /favorites.php?account_id={id}` - Get user favorites
-- `POST /favorites.php` - Toggle favorite status
-
-### 👨‍💼 Admin
-- `GET /admin_stats.php` - Dashboard statistics
-- `GET /admin_car_status.php` - Vehicle status overview
-- `GET /admin_users.php` - User management
-
----
-
-## 🎨 Design System
-
-### 🎨 Color Palette
-- **Primary**: `#00BCD4` (Cyan)
-- **Background**: `#1C1C1E` (Dark)
-- **Surface**: `#2C2C2E` (Dark Gray)
-- **Text Primary**: `#FFFFFF` (White)
-- **Text Secondary**: `#8E8E93` (Light Gray)
-
-### 📱 Components
-- **Material Cards**: Rounded corners with elevation
-- **Smooth Animations**: ObjectAnimator transitions
-- **Custom Buttons**: Branded styling with ripple effects
-- **Modern Typography**: Noto Sans font family
-
----
-
-## 🤝 Contributing
-
-1. Fork the project
-2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
----
-
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
-## 📞 Contact & Support
-
-- **GitHub**: [@AkioCkist](https://github.com/AkioCkist)
-- **Project Link**: [CarAppMobieDesign](https://github.com/AkioCkist/CarAppMobieDesign)
-- **Web Version**: [CarAppWebDesign](https://github.com/AkioCkist/CarAppWebDesign)
-- **Live Demo**: [https://car-app-web-design.vercel.app/](https://car-app-web-design.vercel.app/)
-
----
-
-## 🙏 Acknowledgments
-
-- **Material Design** for design guidelines
-- **Android Development Team** for excellent documentation
-- **Retrofit** for seamless API integration
-- **Glide** for efficient image loading
-- **All contributors** who helped make this project possible
-
----
 
 *Built with ❤️ by the Whale Xe Team*
